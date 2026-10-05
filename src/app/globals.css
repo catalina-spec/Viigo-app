@@ -41,6 +41,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .brand h1{font-size:21px;color:var(--on-navy)}
 .brand h1 span{color:var(--gold)}
 .brand small{color:var(--on-navy-muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.pick{background:rgba(255,255,255,.08);color:var(--on-navy);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;max-width:56vw}
+.pick option{color:#16192B}
+.out{background:transparent;color:var(--on-navy-muted);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 14px;font-size:13px}
+.out:hover{color:var(--on-navy)}
 .role{display:flex;background:rgba(255,255,255,.08);border-radius:999px;padding:3px;gap:2px}
 .role a{color:var(--on-navy-muted);padding:6px 14px;border-radius:999px;font-size:13px;font-weight:500;text-decoration:none}
 .role a[aria-current="true"]{background:var(--gold);color:#0D1B3E}

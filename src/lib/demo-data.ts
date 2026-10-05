@@ -10,14 +10,19 @@ export const STAGES: Record<StageKey, { label: string; desc: string }> = {
   legacy: { label: 'VIIGO LEGACY', desc: '49–65 años · Tu propiedad final e ingreso de por vida' },
 };
 
-export type Advisor = { name: string; first: string; role: string; phone: string; wa: string; mail: string; photo: string | null };
+export type Advisor = {
+  id?: string | null; nombre?: string; apellido?: string;
+  name: string; first: string; role: string; phone: string; wa: string; mail: string; photo: string | null;
+};
 export type Profile = {
+  id?: string; creado?: string;
   nombre: string; apellido: string; mail: string; cel: string; edad: number; retiro: number;
   etapa: StageKey; ingresoJub: number; afp: number | ''; foto: string | null;
 };
 export type Meeting = {
-  id: number; date: string; dur: string; title: string; status: 'aprobado' | 'revision';
+  id: string; date: string; dur: string; title: string; status: 'aprobado' | 'revision' | 'agendada';
   resumen: string; obj: string[]; acuerdos: string[]; next: string;
+  inicio?: string; meet?: string | null; sesion?: number | null;
 };
 export type Objetivo = { id: string; x: string; from: string; active: boolean };
 export type Pendiente = { id: string; x: string; who: string; done: boolean; active: boolean };
@@ -27,7 +32,7 @@ export type Alternativa = {
 };
 export type Debt = Record<'tipo' | 'inst' | 'orig' | 'saldo' | 'cuota' | 'tasa' | 'plazo' | 'rest', string | number>;
 export type Msg = { me: boolean; x: string; t: string };
-export type Cita = { id: string; cliente: string; ses: number; dia: string; hora: string; meet: string; enviado: boolean };
+export type Cita = { id: string; cliente: string; ses: number; dia: string; hora: string; meet: string | null; enviado: boolean; clienteId?: string; inicio?: string };
 
 export const ADV: Advisor = {
   name: 'Catalina Viel', first: 'Catalina', role: 'Asesora VIIGO · Viel.cl',
@@ -41,15 +46,15 @@ export const PROFILE: Profile = {
 };
 
 export const MEETINGS: Meeting[] = [
-  {id:1, date:'12 ago 2026', dur:'52 min', title:'Diagnóstico inicial', status:'aprobado',
+  {id:'1', date:'12 ago 2026', dur:'52 min', title:'Diagnóstico inicial', status:'aprobado',
    resumen:'Conversamos sobre la situación actual de Andrés y lo que quiere lograr. Arrienda donde vive, tiene ahorros en depósitos y fondos mutuos, y quiere que su jubilación no dependa solo de la AFP.',
    obj:['Jubilar a los 65 con un ingreso mensual que no dependa solo de la AFP','Comprar la primera propiedad de inversión antes de fin de año','No comprometer más del 25% de su renta en dividendos'],
    acuerdos:['Andrés completa su planilla financiera en el portal','Catalina prepara la ruta VIIGO personalizada'], next:'Definición de ruta · 2 sep'},
-  {id:2, date:'2 sep 2026', dur:'61 min', title:'Definición de la ruta VIIGO', status:'aprobado',
+  {id:'2', date:'2 sep 2026', dur:'61 min', title:'Definición de la ruta VIIGO', status:'aprobado',
    resumen:'Revisamos la planilla financiera y la calculadora VIIGO. Andrés se identificó con la etapa START y definimos partir con un departamento de 1 o 2 dormitorios en la zona oriente.',
    obj:['Partir en VIIGO START con un depto de 1 o 2 dormitorios en la zona oriente','Pie objetivo: UF 640 (20%)','Mantener un fondo de reserva de 3 dividendos'],
    acuerdos:['Andrés revisa y acepta su ruta en la calculadora VIIGO','Catalina sugiere 3 propiedades preevaluadas por Capital Q','Andrés pide preaprobación hipotecaria en 2 bancos'], next:'Evaluación de propiedades · 23 sep'},
-  {id:3, date:'23 sep 2026', dur:'47 min', title:'Evaluación de la primera propiedad', status:'revision',
+  {id:'3', date:'23 sep 2026', dur:'47 min', title:'Evaluación de la primera propiedad', status:'revision',
    resumen:'Comparamos las alternativas de Ñuñoa y Providencia con el Evaluador VIIGO. Ñuñoa obtuvo 84 puntos y mejor relación entre arriendo y dividendo. Andrés quiere confirmar los gastos comunes antes de ofertar.',
    obj:['Elegir entre Ñuñoa (UF 3.200) y Providencia (UF 3.450)','Confirmar que el arriendo cubra al menos el 85% del dividendo','Ofertar antes del 15 de octubre'],
    acuerdos:['Ñuñoa queda como primera opción: 84 pts en el Evaluador VIIGO','Andrés revisa gastos comunes y visita el sábado','Catalina pide contraoferta a UF 3.120'], next:'Cierre de oferta · 14 oct'},

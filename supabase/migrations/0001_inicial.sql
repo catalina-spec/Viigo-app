@@ -182,16 +182,16 @@ end $$;
 create or replace function public.nuevo_usuario() returns trigger
 language plpgsql security definer set search_path = public as $$
 declare
-  es_asesor boolean := exists (select 1 from asesores_permitidos a where a.email = lower(new.email));
+  soy_asesor boolean := exists (select 1 from asesores_permitidos a where a.email = lower(new.email));
   asesor uuid;
 begin
-  if not es_asesor then
+  if not soy_asesor then
     select id into asesor from perfiles
     where email in ('catalina@viel.cl', 'sviel@viel.cl')
     order by (email = 'catalina@viel.cl') desc limit 1;
   end if;
   insert into perfiles (id, email, rol, asesor_id)
-  values (new.id, lower(new.email), case when es_asesor then 'asesor' else 'cliente' end, asesor);
+  values (new.id, lower(new.email), case when soy_asesor then 'asesor' else 'cliente' end, asesor);
   return new;
 end $$;
 create trigger al_crear_usuario after insert on auth.users

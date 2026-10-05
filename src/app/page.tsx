@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation';
+import { getMe } from '@/lib/supabase/server';
 
-// Más adelante: si la persona ya inició sesión, la enviamos a su portal (cliente o asesor).
-export default function Home() {
-  redirect('/login');
+// Cada persona va a su portal según su rol; sin sesión, al login.
+export default async function Home() {
+  const me = await getMe();
+  redirect(me ? `/${me.rol}` : '/login');
 }

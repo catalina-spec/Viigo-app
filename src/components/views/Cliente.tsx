@@ -4,11 +4,12 @@ import Link from 'next/link';
 import type { FormEvent, ReactNode } from 'react';
 import { AppShell } from '@/components/AppShell';
 import { useStore } from '@/lib/store';
-import { MEET_URL, STAGES, type StageKey } from '@/lib/demo-data';
+import { STAGES, type StageKey } from '@/lib/demo-data';
+import { resizeImage } from '@/lib/data';
 import { ufs } from '@/lib/format';
 import {
   AltCard, AltForm, Avatar, Biblioteca, ChatView, ConsentCard, FinView, Head, MeetingCard,
-  NextMeetingCard, RetireCards, RouteTable, useCopy, yearsLeft,
+  NextMeetingCard, RetireCards, RouteTable, fechaLarga, useCopy, yearsLeft,
 } from './Shared';
 
 function Inicio() {
@@ -21,13 +22,29 @@ function Inicio() {
   const yl = yearsLeft(P.edad, P.retiro);
   return (
     <>
-      <Head eb={'Hola, ' + P.nombre} h="Tu ruta VIIGO" />
+      <Head eb={P.nombre ? 'Hola, ' + P.nombre : 'Bienvenido'} h="Tu ruta VIIGO" />
+      {!P.nombre && (
+        <section className="empty">
+          <h3>Completa tu perfil</h3>
+          <p>Cuéntanos tu nombre, edad y a qué edad quieres jubilar. Con eso armamos tu ruta.</p>
+          <Link className="btn btn-p" href="/cliente/perfil">Completar mi perfil</Link>
+        </section>
+      )}
       <section className="hero3">
         <div>
           <span className="eyebrow on">Tu próxima asesoría</span>
-          <div className="when">Miércoles 14 de octubre</div>
-          <div className="when-sub num">18:30 hrs · Google Meet con {A.name}</div>
-          <a className="btn-meet" href={MEET_URL} target="_blank" rel="noopener">Unirse por Google Meet</a>
+          {s.proxima ? (
+            <>
+              <div className="when">{fechaLarga(s.proxima.inicio!).split(' · ')[0]}</div>
+              <div className="when-sub num">{fechaLarga(s.proxima.inicio!).split(' · ')[1]} hrs · con {A.name}</div>
+              {s.proxima.meet && <a className="btn-meet" href={s.proxima.meet} target="_blank" rel="noopener">Unirse por Google Meet</a>}
+            </>
+          ) : (
+            <>
+              <div className="when">Por agendar</div>
+              <div className="when-sub">{A.id ? `${A.first} te enviará la invitación.` : 'Te asignaremos un asesor pronto.'}</div>
+            </>
+          )}
         </div>
         <div className="stagebox">
           <span className="eyebrow on">Te identificaste con la etapa</span>
@@ -45,10 +62,10 @@ function Inicio() {
         <Avatar src={A.photo} name={A.name} size={64} />
         <div className="adv-info"><span className="eyebrow">Tu asesor</span><h3>{A.name}</h3><p className="note">{A.role}</p></div>
         <div className="adv-contact">
-          <div className="crow"><span className="k">Celular</span><a className="v num" href={`tel:${A.phone.replace(/\s/g, '')}`} style={{ color: 'inherit' }}>{A.phone}</a><button className="mini" onClick={() => copy(A.phone)}>Copiar</button></div>
-          <div className="crow"><span className="k">Correo</span><a className="v" href={`mailto:${A.mail}`} style={{ color: 'inherit' }}>{A.mail}</a><button className="mini" onClick={() => copy(A.mail)}>Copiar</button></div>
+          {A.phone && <div className="crow"><span className="k">Celular</span><a className="v num" href={`tel:${A.phone.replace(/\s/g, '')}`} style={{ color: 'inherit' }}>{A.phone}</a><button className="mini" onClick={() => copy(A.phone)}>Copiar</button></div>}
+          {A.mail && <div className="crow"><span className="k">Correo</span><a className="v" href={`mailto:${A.mail}`} style={{ color: 'inherit' }}>{A.mail}</a><button className="mini" onClick={() => copy(A.mail)}>Copiar</button></div>}
           <div className="row">
-            <a className="btn btn-p" href={`https://wa.me/${A.wa}`} target="_blank" rel="noopener">Escribir por WhatsApp</a>
+            {A.wa && <a className="btn btn-p" href={`https://wa.me/${A.wa}`} target="_blank" rel="noopener">Escribir por WhatsApp</a>}
             <Link className="btn btn-g" href="/cliente/mensajes">Mensaje en el portal</Link>
           </div>
         </div>
@@ -66,9 +83,10 @@ function Inicio() {
           <p className="note" style={{ margin: '-4px 0 10px' }}>Definidos con {A.first} en tus asesorías.</p>
           <ul className="clean">
             {s.objetivos.filter((o) => o.active).map((o) => (
-              <li key={o.id}><span className="chk" /><div>{o.x}<div className="who">Asesoría del {o.from}</div></div></li>
+              <li key={o.id}><span className="chk" /><div>{o.x}{o.from && <div className="who">{o.from}</div>}</div></li>
             ))}
           </ul>
+          {!s.objetivos.some((o) => o.active) && <p className="note">Los definirán juntos en tu primera asesoría.</p>}
         </section>
         <section className="card">
           <h3>Tus pendientes</h3>
@@ -78,11 +96,12 @@ function Inicio() {
               <li key={p.id}><span className={`chk ${p.done ? 'done' : ''}`}>{p.done ? '✓' : ''}</span><div>{p.x}<div className="who">{p.who}</div></div></li>
             ))}
           </ul>
+          {!s.pendientes.some((p) => p.active) && <p className="note">No tienes pendientes por ahora.</p>}
         </section>
       </div>
-      <div className="head" style={{ marginTop: 6 }}><span className="eyebrow">Resumen de tu última asesoría VIIGO</span></div>
+      {last && <div className="head" style={{ marginTop: 6 }}><span className="eyebrow">Resumen de tu última asesoría VIIGO</span></div>}
       {last && <MeetingCard m={last} />}
-      {pending && <p className="note">El resumen de la reunión del 23 de septiembre está en revisión. {A.first} lo publicará aquí cuando lo apruebe.</p>}
+      {pending && <p className="note">El resumen de tu última asesoría está en revisión. {A.first} lo publicará aquí cuando lo apruebe.</p>}
     </>
   );
 }
@@ -96,18 +115,22 @@ function Perfil() {
     const v = (k: string) => String(f.get(k) ?? '').trim();
     up((d) => {
       Object.assign(d.P, {
-        nombre: v('nombre'), apellido: v('apellido'), mail: v('mail'), cel: v('cel'),
+        nombre: v('nombre'), apellido: v('apellido'), cel: v('cel'),
         edad: +v('edad') || P.edad, retiro: +v('retiro') || P.retiro, etapa: v('etapa') as StageKey,
         ingresoJub: +v('ing') || 0, afp: v('afp') === '' ? '' : +v('afp'),
       });
     });
     toast('Perfil guardado.');
   };
-  const photo = (file?: File) => {
+  const photo = async (file?: File) => {
     if (!file) return;
-    const r = new FileReader();
-    r.onload = () => { up((d) => { d.P.foto = String(r.result); }); toast('Foto actualizada.'); };
-    r.readAsDataURL(file);
+    try {
+      const url = await resizeImage(file);
+      up((d) => { d.P.foto = url; });
+      toast('Foto actualizada.');
+    } catch {
+      toast('No pudimos leer esa imagen.');
+    }
   };
   return (
     <>
@@ -124,7 +147,7 @@ function Perfil() {
         <div className="fgrid">
           <div className="field"><label htmlFor="p-nombre">Nombre</label><input id="p-nombre" name="nombre" defaultValue={P.nombre} required autoComplete="given-name" /></div>
           <div className="field"><label htmlFor="p-apellido">Apellido</label><input id="p-apellido" name="apellido" defaultValue={P.apellido} required autoComplete="family-name" /></div>
-          <div className="field"><label htmlFor="p-mail">Correo</label><input id="p-mail" name="mail" type="email" defaultValue={P.mail} autoComplete="email" /></div>
+          <div className="field"><label htmlFor="p-mail">Correo</label><input id="p-mail" name="mail" type="email" defaultValue={P.mail} disabled /><span className="hint">Es tu correo de acceso.</span></div>
           <div className="field"><label htmlFor="p-cel">Celular</label><input id="p-cel" name="cel" type="tel" defaultValue={P.cel} autoComplete="tel" /></div>
           <div className="field"><label htmlFor="p-edad">Edad</label><input id="p-edad" name="edad" type="number" inputMode="numeric" min={18} max={64} defaultValue={P.edad} /></div>
           <div className="field"><label htmlFor="p-retiro">Edad en que quieres jubilar</label><input id="p-retiro" name="retiro" type="number" inputMode="numeric" min={50} max={75} defaultValue={P.retiro} /></div>
@@ -192,7 +215,8 @@ export function ClienteApp({ tab }: { tab: string }) {
     alternativas: () => (
       <>
         <Head eb="Mis alternativas" h="Propiedades que te interesan" p={`Guarda las que encuentres y revisa las que te sugiere ${s.adv.first}. Las sugeridas ya pasaron por el Evaluador VIIGO.`} />
-        <div className="alts">{s.alts.map((a) => <AltCard key={a.id} a={a} adv={false} />)}</div>
+        {s.alts.length ? <div className="alts">{s.alts.map((a) => <AltCard key={a.id} a={a} adv={false} />)}</div>
+          : <p className="note">Aún no tienes propiedades guardadas.</p>}
         <AltForm adv={false} />
       </>
     ),
@@ -201,7 +225,7 @@ export function ClienteApp({ tab }: { tab: string }) {
         <Head eb="Mis asesorías" h="Tus reuniones VIIGO" />
         <NextMeetingCard adv={false} />
         {approved.slice().reverse().map((m) => <MeetingCard key={m.id} m={m} />)}
-        {s.meetings.some((m) => m.status === 'revision') && <p className="note">El resumen del 23 de septiembre está en revisión por {s.adv.first}.</p>}
+        {s.meetings.some((m) => m.status === 'revision') && <p className="note">El resumen de tu última asesoría está en revisión por {s.adv.first}.</p>}
       </>
     ),
     planilla: () => (
@@ -212,7 +236,7 @@ export function ClienteApp({ tab }: { tab: string }) {
       </>
     ),
     biblioteca: () => <Biblioteca role="cliente" />,
-    mensajes: () => <ChatView role="cliente" eb="Mensajes" h="Escríbele a tu asesor" p={`Tu mensaje le llega a ${s.adv.name} por correo y queda registrado en tu ficha.`} />,
+    mensajes: () => <ChatView role="cliente" eb="Mensajes" h="Escríbele a tu asesor" p={`Tus mensajes quedan guardados y ${s.adv.name} los ve en tu ficha.`} />,
   };
   return (
     <AppShell role="cliente" tab={tab}>

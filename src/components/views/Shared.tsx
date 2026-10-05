@@ -1,11 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { useRef, type FormEvent, type ReactNode } from 'react';
-import { useStore } from '@/lib/store';
+import { useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { nombreCliente, useStore } from '@/lib/store';
 import { calcRoute, finTotals, type RouteResult } from '@/lib/calc';
 import { UF, clp, initials, nowStr, pct, ufs } from '@/lib/format';
-import { FIN, MEET_URL, STAGES, SESIONES, NEXT_SESSION, type Alternativa, type Debt, type Meeting } from '@/lib/demo-data';
+import { FIN, STAGES, SESIONES, type Alternativa, type Debt, type Meeting } from '@/lib/demo-data';
 import type { Role } from '@/lib/tabs';
 import { hrefFor } from '@/lib/tabs';
 
@@ -67,22 +67,40 @@ export function MeetingCard({ m }: { m: Meeting }) {
           <ul>{m.acuerdos.map((o, i) => <li key={i}>{o}</li>)}</ul>
         </div>
       </div>
-      <div className="source">Resumen generado por la app desde la reunión en Google Meet · Próxima reunión: {m.next}</div>
+      <div className="source">Resumen revisado por tu asesor{m.next ? ` · Próxima reunión: ${m.next}` : ''}</div>
     </article>
   );
 }
 
+/** "Miércoles 14 de octubre · 18:30" */
+export const fechaLarga = (iso: string) => {
+  const d = new Date(iso);
+  const dia = d.toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long' });
+  return dia.charAt(0).toUpperCase() + dia.slice(1) + ' · ' + d.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+};
+
 export function NextMeetingCard({ adv }: { adv: boolean }) {
   const { s, toast } = useStore();
+  const m = s.proxima;
+  const con = adv ? `${s.P.nombre} ${s.P.apellido}`.trim() : s.adv.name;
+  if (!m)
+    return (
+      <section className="card">
+        <span className="eyebrow">Próxima asesoría</span>
+        <h3 style={{ margin: '4px 0 2px' }}>Sin asesoría agendada</h3>
+        <p className="note">{adv ? <>Agéndala desde <Link href={hrefFor('asesor', 'agenda')}>Agenda</Link>.</> : `${s.adv.first} te enviará la invitación con el link de Google Meet.`}</p>
+      </section>
+    );
   return (
     <section className="card" style={{ display: 'flex', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
       <div>
         <span className="eyebrow">Próxima asesoría</span>
-        <h3 style={{ margin: '4px 0 2px' }}>Miércoles 14 de octubre · 18:30</h3>
-        <p className="note">Cierre de la oferta del depto de Ñuñoa · {adv ? 'con Andrés Muñoz' : 'con ' + s.adv.name}</p>
+        <h3 style={{ margin: '4px 0 2px' }}>{fechaLarga(m.inicio!)}</h3>
+        <p className="note">{m.title}{con ? ` · con ${con}` : ''}</p>
       </div>
       <div className="row">
-        <a className="btn btn-p" href={MEET_URL} target="_blank" rel="noopener">{adv ? 'Iniciar reunión en Meet' : 'Unirse por Google Meet'}</a>
+        {m.meet ? <a className="btn btn-p" href={m.meet} target="_blank" rel="noopener">{adv ? 'Iniciar reunión en Meet' : 'Unirse por Google Meet'}</a>
+          : <span className="note">El link de Meet aparecerá aquí.</span>}
         {adv && <button className="btn btn-g" onClick={() => toast('Pronto: aquí eliges una nueva fecha y se actualiza el Meet.')}>Reprogramar</button>}
       </div>
       <p className="note" style={{ flexBasis: '100%' }}>
@@ -236,7 +254,7 @@ async function importXlsx(file: File, up: ReturnType<typeof useStore>['up'], toa
     up((d) => {
       Object.assign(d.F, vals);
       if (rows.length) d.debts = rows;
-      d.log.push({ t: nowStr(), x: 'Andrés importó su Matriz de Análisis Financiero desde Excel.' });
+      d.log.push({ t: nowStr(), x: 'Importaste tu Matriz de Análisis Financiero desde Excel.' });
     });
     toast(`Matriz importada: ${n} datos cargados.`);
   } catch {
@@ -301,7 +319,7 @@ export function CalcView({ role }: { role: Role }) {
       <span className="eyebrow">Calculadora VIIGO</span>
       <h3 style={{ marginTop: 4 }}>Conoce tu ruta inmobiliaria</h3>
       <p className="note" style={{ marginBottom: 14 }}>
-        {role === 'asesor' ? `Usa la edad de Andrés (${s.P.edad} años) y su edad de jubilación (${s.P.retiro}) de su perfil.` : `Usamos tu edad (${s.P.edad} años) y tu edad de jubilación (${s.P.retiro}) de tu perfil.`} Ajusta los datos de tu primera propiedad.
+        {role === 'asesor' ? `Usa la edad de ${nombreCliente(s)} (${s.P.edad} años) y su edad de jubilación (${s.P.retiro}) de su perfil.` : `Usamos tu edad (${s.P.edad} años) y tu edad de jubilación (${s.P.retiro}) de tu perfil.`} Ajusta los datos de tu primera propiedad.
       </p>
       <div className="fgrid">
         <div className="field"><label htmlFor="c-precio">Precio primera propiedad (UF)</label><input type="number" inputMode="decimal" id="c-precio" value={c.precio} min={500} step={50} onChange={set('precio')} /></div>
@@ -316,7 +334,7 @@ export function CalcView({ role }: { role: Role }) {
         <RetireCards r={r} />
         <div className="row">
           {role === 'asesor' ? (
-            <span className="note">Solo Andrés puede aceptar su ruta desde su portal. Usa la calculadora para mostrarle escenarios en la sesión.</span>
+            <span className="note">Solo {nombreCliente(s)} puede aceptar su ruta desde su portal. Usa la calculadora para mostrarle escenarios en la sesión.</span>
           ) : accepted ? (
             <><span className="pill p-ok">Esta es tu ruta aceptada</span><Link className="btn btn-g" href="/cliente/ruta">Ver en Mi ruta</Link></>
           ) : (
@@ -344,7 +362,7 @@ export function AltCard({ a, adv }: { a: Alternativa; adv: boolean }) {
   return (
     <article className="card alt">
       <div className="top2">
-        <span className={`pill ${a.origen === 'asesor' ? 'p-adv' : 'p-ok'}`}>{a.origen === 'asesor' ? 'Sugerida por ' + s.adv.first : 'Guardada por ' + (adv ? 'Andrés' : 'ti')}</span>
+        <span className={`pill ${a.origen === 'asesor' ? 'p-adv' : 'p-ok'}`}>{a.origen === 'asesor' ? 'Sugerida por ' + s.adv.first : 'Guardada por ' + (adv ? nombreCliente(s) : 'ti')}</span>
         {verdict ? <span className="pill p-ok">{a.pts} pts · {verdict}</span> : <span className="pill p-warn">Sin evaluar</span>}
       </div>
       <div>
@@ -362,8 +380,11 @@ export function AltCard({ a, adv }: { a: Alternativa; adv: boolean }) {
         {adv ? (
           a.pts == null && (
             <button className="btn btn-g" onClick={() => {
-              up((d) => { const x = d.alts.find((y) => y.id === a.id)!; x.pts = 71; x.nota = (x.nota ? x.nota + ' ' : '') + 'Evaluada por Catalina: precio por m² alto para la zona.'; });
-              toast('Evaluación guardada y visible para Andrés.');
+              const pts = Number(window.prompt('Puntaje del Evaluador VIIGO (0 a 100):'));
+              if (!Number.isFinite(pts) || pts < 0 || pts > 100) return;
+              const com = window.prompt('Comentario para el cliente (opcional):') ?? '';
+              up((d) => { const x = d.alts.find((y) => y.id === a.id)!; x.pts = Math.round(pts); if (com.trim()) x.nota = (x.nota ? x.nota + ' ' : '') + `${s.adv.first}: ${com.trim()}`; });
+              toast(`Evaluación guardada y visible para ${nombreCliente(s)}.`);
             }}>Evaluar con el Evaluador VIIGO</button>
           )
         ) : (
@@ -376,21 +397,21 @@ export function AltCard({ a, adv }: { a: Alternativa; adv: boolean }) {
 }
 
 export function AltForm({ adv }: { adv: boolean }) {
-  const { up, toast } = useStore();
+  const { s, up, toast } = useStore();
   const ref = useRef<HTMLFormElement>(null);
   const submit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     const v = (k: string) => String(f.get(k) ?? '').trim();
     up((d) => {
-      d.alts.unshift({ id: 'a' + Date.now(), nombre: v('nombre'), comuna: v('comuna'), tipo: v('tipo'), uf: +v('uf') || 0, m2: +v('m2') || 0, arriendo: +v('arr') || 0, pts: null, origen: adv ? 'asesor' : 'cliente', nota: v('nota') });
+      d.alts.unshift({ id: crypto.randomUUID(), nombre: v('nombre'), comuna: v('comuna'), tipo: v('tipo'), uf: +v('uf') || 0, m2: +v('m2') || 0, arriendo: +v('arr') || 0, pts: null, origen: adv ? 'asesor' : 'cliente', nota: v('nota') });
     });
-    toast(adv ? 'Alternativa sugerida. Andrés la ve en su carpeta.' : 'Alternativa guardada.');
+    toast(adv ? `Alternativa sugerida. ${nombreCliente(s)} la ve en su carpeta.` : 'Alternativa guardada.');
     ref.current?.reset();
   };
   return (
     <section className="card">
-      <h3>{adv ? 'Sugerir una alternativa a Andrés' : 'Guardar una alternativa que te interesa'}</h3>
+      <h3>{adv ? `Sugerir una alternativa a ${nombreCliente(s)}` : 'Guardar una alternativa que te interesa'}</h3>
       <form ref={ref} className="fgrid" style={{ marginTop: 6 }} onSubmit={submit}>
         <div className="field" style={{ gridColumn: '1/-1' }}><label htmlFor="al-nombre">Propiedad o dirección</label><input id="al-nombre" name="nombre" required placeholder="Ej.: Depto 2D2B · Av. Ossa" /></div>
         <div className="field"><label htmlFor="al-comuna">Comuna</label><input id="al-comuna" name="comuna" required placeholder="Ej.: La Reina" /></div>
@@ -399,7 +420,7 @@ export function AltForm({ adv }: { adv: boolean }) {
         <div className="field"><label htmlFor="al-m2">Superficie (m²)</label><input id="al-m2" name="m2" type="number" inputMode="decimal" min={0} step={1} /></div>
         <div className="field"><label htmlFor="al-arr">Arriendo estimado ($/mes)</label><input id="al-arr" name="arr" type="number" inputMode="numeric" min={0} step={10000} /></div>
         <div className="field" style={{ gridColumn: '1/-1' }}><label htmlFor="al-nota">{adv ? 'Por qué la sugieres' : 'Nota para ti o tu asesor'}</label><input id="al-nota" name="nota" placeholder="Opcional" /></div>
-        <div className="row"><button className="btn btn-p" type="submit">{adv ? 'Sugerir a Andrés' : 'Guardar alternativa'}</button></div>
+        <div className="row"><button className="btn btn-p" type="submit">{adv ? `Sugerir a ${nombreCliente(s)}` : 'Guardar alternativa'}</button></div>
       </form>
     </section>
   );
@@ -416,9 +437,9 @@ export function ChatView({ role, eb, h, p }: { role: Role; eb: string; h: string
     const ta = e.currentTarget.elements.namedItem('msg') as HTMLTextAreaElement;
     const v = ta.value.trim();
     if (!v) return;
-    up((d) => { d.msgs.push({ me: mine, x: v, t: (mine ? 'Andrés' : 'Catalina') + ' · ahora' }); if (mine) d.draftMsg = ''; });
+    up((d) => { d.msgs.push({ me: mine, x: v, t: (mine ? s.P.nombre || 'Tú' : s.adv.first) + ' · ahora' }); if (mine) d.draftMsg = ''; });
     if (!mine) ta.value = '';
-    toast(mine ? `Mensaje enviado a ${s.adv.first} (demo).` : 'Respuesta enviada a Andrés (demo).');
+    toast(mine ? `Mensaje enviado a ${s.adv.first}.` : `Respuesta enviada a ${nombreCliente(s)}.`);
     setTimeout(() => chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight }), 50);
   };
   return (
@@ -427,13 +448,14 @@ export function ChatView({ role, eb, h, p }: { role: Role; eb: string; h: string
       <section className="card">
         <div className="chat" ref={chatRef}>
           {s.msgs.map((m, i) => <div key={i} className={`msg ${m.me === mine ? 'me' : 'them'}`}>{m.x}<small>{m.t}</small></div>)}
+          {!s.msgs.length && <p className="note">Aún no hay mensajes. Escribe el primero.</p>}
         </div>
         <form className="compose" onSubmit={send}>
-          <textarea name="msg" aria-label="Mensaje" placeholder={mine ? `Escribe tu mensaje para ${s.adv.first}…` : 'Responde a Andrés…'}
+          <textarea name="msg" aria-label="Mensaje" placeholder={mine ? `Escribe tu mensaje para ${s.adv.first}…` : `Responde a ${nombreCliente(s)}…`}
             value={draft} onChange={mine ? (e) => setDraft(e.target.value) : undefined} defaultValue={mine ? undefined : ''} />
           <button className="btn btn-p" type="submit">Enviar</button>
         </form>
-        <p className="note" style={{ marginTop: 8 }}>En el modo demo el envío es simulado.</p>
+        
       </section>
     </>
   );
@@ -446,11 +468,14 @@ export function ConsentCard() {
   const until: Record<string, string> = { '1': '24 horas', '7': '7 días', '30': '30 días', '0': 'que lo quites' };
   const grant = () => {
     const days = +s.dur;
-    const label = days ? new Date(Date.now() + days * 864e5).toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' }) : 'que lo quites';
+    if (!s.adv.id) return toast('Aún no tienes un asesor asignado.');
+    const hasta = days ? new Date(Date.now() + days * 864e5) : null;
+    const label = hasta ? hasta.toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' }) : 'que lo quites';
     up((d) => {
       d.consent = true;
       d.grantedUntil = label;
-      d.log.push({ t: nowStr(), x: `Andrés compartió su planilla con ${s.adv.name}${days ? ' hasta el ' + label : ' sin fecha de término'}.` });
+      d.grantedUntilISO = hasta ? hasta.toISOString() : null;
+      d.log.push({ t: nowStr(), x: `Compartiste tu planilla con ${s.adv.name}${days ? ' hasta el ' + label : ' sin fecha de término'}.` });
     });
     toast(`Planilla compartida. ${s.adv.first} recibió un aviso.`);
   };
@@ -463,7 +488,7 @@ export function ConsentCard() {
       {on ? (
         <>
           <p>{s.adv.name} puede <b>ver</b> tu planilla, tu ingreso objetivo y tu saldo AFP. No puede editarlos ni descargarlos. Cada vez que abra tu planilla quedará registrado aquí.</p>
-          <div className="row"><button className="btn btn-d" onClick={() => { up((d) => { d.consent = false; d.log.push({ t: nowStr(), x: `Andrés quitó el acceso a ${s.adv.name}.` }); }); toast('Acceso quitado.'); }}>Quitar acceso ahora</button></div>
+          <div className="row"><button className="btn btn-d" onClick={() => { up((d) => { d.consent = false; d.log.push({ t: nowStr(), x: `Quitaste el acceso a ${s.adv.name}.` }); }); toast('Acceso quitado.'); }}>Quitar acceso ahora</button></div>
         </>
       ) : (
         <>
@@ -522,7 +547,7 @@ export function Sesiones() {
   return (
     <>
       <Head eb="Sesiones" h="Programa de asesoría VIIGO" p="Solo tú ves esta sección. Cada semana trae sus objetivos, las láminas, el relato, las preguntas de coaching y las 2 preguntas de cierre." />
-      <div className="watermark">Próxima sesión con {NEXT_SESSION.cliente}: <b>Semana {NEXT_SESSION.n} · {SESIONES[NEXT_SESSION.n - 1].titulo}</b> · {NEXT_SESSION.fecha}</div>
+      <div className="watermark">{st.citas[0] ? <>Próxima sesión: {st.citas[0].cliente} · <b>Semana {st.citas[0].ses} · {SESIONES[st.citas[0].ses - 1].titulo}</b> · {st.citas[0].dia}, {st.citas[0].hora}</> : 'No tienes sesiones agendadas.'}</div>
       <div className="seg" role="group" aria-label="Elegir semana">
         {SESIONES.map((x) => <button key={x.n} aria-pressed={x.n === s.n} onClick={() => up((d) => { d.sesion = x.n; })}>Semana {x.n}</button>)}
       </div>
@@ -564,23 +589,28 @@ export function Agenda() {
   const { s, up, toast } = useStore();
   const copy = useCopy();
   const days = [...new Set(s.citas.map((c) => c.dia))];
-  const markSent = (id: string) => up((d) => { d.citas.find((x) => x.id === id)!.enviado = true; });
+  const [manana] = useState(() => new Date(Date.now() + 864e5).toISOString().slice(0, 10));
   const submit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     const v = (k: string) => String(f.get(k) ?? '');
-    const dt = new Date(v('dia') + 'T12:00:00');
-    const dia = dt.toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' }).replace('.', '').replace(',', '');
-    const cli = v('cli').trim();
-    const code = 'vgo-' + cli.toLowerCase().normalize('NFD').replace(/[^a-z]/g, '').slice(0, 4) + '-' + Math.random().toString(36).slice(2, 5);
-    up((d) => { d.citas.push({ id: 'c' + Date.now(), cliente: cli, ses: +v('ses'), dia: dia.charAt(0).toUpperCase() + dia.slice(1), hora: v('hora'), meet: 'https://meet.google.com/' + code, enviado: true }); });
-    toast(`Cita creada e invitación enviada a ${cli} (demo).`);
+    const inicio = new Date(`${v('dia')}T${v('hora')}:00`);
+    const cli = s.clientes.find((c) => c.id === v('cli'));
+    if (!cli) return toast('Elige un cliente.');
+    const dia = inicio.toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' }).replace('.', '').replace(',', '');
+    const nombre = `${cli.nombre} ${cli.apellido}`.trim() || cli.email;
+    up((d) => {
+      d.citas.push({ id: crypto.randomUUID(), clienteId: cli.id, inicio: inicio.toISOString(), cliente: nombre, ses: +v('ses'), dia: dia.charAt(0).toUpperCase() + dia.slice(1), hora: v('hora'), meet: null, enviado: false });
+      d.citas.sort((a, b) => (a.inicio ?? '').localeCompare(b.inicio ?? ''));
+    });
+    toast(`Asesoría agendada con ${nombre}.`);
     e.currentTarget.reset();
   };
   return (
     <>
-      <Head eb="Agenda" h="Tus asesorías VIIGO" p="Tus citas vienen de Google Calendar. Cada una tiene su link de Meet para enviarlo al cliente." />
-      <div className="row"><span className="pill p-warn">Google Calendar: se conecta en la Fase 3</span><span className="note">Por ahora son citas de ejemplo</span></div>
+      <Head eb="Agenda" h="Tus asesorías VIIGO" p="Tus próximas asesorías con todos tus clientes." />
+      <div className="row"><span className="pill p-warn">Google Calendar y Meet: se conectan en la Fase 3</span><span className="note">Por ahora el link de Meet se envía a mano.</span></div>
+      {!days.length && <section className="empty"><h3>No tienes asesorías agendadas</h3><p>Agenda la primera con el formulario de abajo.</p></section>}
       {days.map((d) => (
         <section className="card" key={d}>
           <h3>{d}</h3>
@@ -588,14 +618,12 @@ export function Agenda() {
             {s.citas.filter((c) => c.dia === d).map((c) => (
               <div className="cita" key={c.id}>
                 <div className="ct num">{c.hora}</div>
-                <div className="ci"><b>{c.cliente}</b><span className="note">Semana {c.ses} · {SESIONES[c.ses - 1].titulo}</span><span className="link num">{c.meet.replace('https://', '')}</span></div>
+                <div className="ci"><b>{c.cliente}</b><span className="note">Semana {c.ses} · {SESIONES[c.ses - 1].titulo}</span>{c.meet && <span className="link num">{c.meet.replace('https://', '')}</span>}</div>
                 <div className="ca">
-                  {c.enviado ? <span className="pill p-ok">Link enviado</span> : <span className="pill p-warn">Link sin enviar</span>}
                   <div className="row">
-                    <button className="mini" onClick={() => copy(c.meet)}>Copiar link</button>
-                    <a className="mini" target="_blank" rel="noopener" onClick={() => markSent(c.id)}
-                      href={`https://wa.me/?text=${encodeURIComponent(`Hola ${c.cliente.split(' ')[0]}, te comparto el link de nuestra asesoría VIIGO del ${c.dia.toLowerCase()} a las ${c.hora}: ${c.meet}`)}`}>WhatsApp</a>
-                    <button className="mini" onClick={() => { markSent(c.id); toast(`Invitación enviada por correo a ${c.cliente} (demo).`); }}>Correo</button>
+                    {c.meet && <button className="mini" onClick={() => copy(c.meet!)}>Copiar link</button>}
+                    {c.meet && <a className="mini" target="_blank" rel="noopener"
+                      href={`https://wa.me/?text=${encodeURIComponent(`Hola ${c.cliente.split(' ')[0]}, te comparto el link de nuestra asesoría VIIGO del ${c.dia.toLowerCase()} a las ${c.hora}: ${c.meet}`)}`}>WhatsApp</a>}
                     <Link className="mini" href={hrefFor('asesor', 'sesiones')} onClick={() => up((x) => { x.sesion = c.ses; })}>Ver guía</Link>
                   </div>
                 </div>
@@ -607,11 +635,15 @@ export function Agenda() {
       <section className="card">
         <h3>Agendar nueva asesoría</h3>
         <form className="fgrid" style={{ marginTop: 6 }} onSubmit={submit}>
-          <div className="field"><label htmlFor="ci-cli">Cliente</label><input id="ci-cli" name="cli" required placeholder="Nombre y apellido" /></div>
+          <div className="field"><label htmlFor="ci-cli">Cliente</label>
+            <select id="ci-cli" name="cli" required defaultValue={s.clienteId ?? ''}>
+              {!s.clientes.length && <option value="">Aún no tienes clientes</option>}
+              {s.clientes.map((c) => <option key={c.id} value={c.id}>{`${c.nombre} ${c.apellido}`.trim() || c.email}</option>)}
+            </select></div>
           <div className="field"><label htmlFor="ci-ses">Sesión</label><select id="ci-ses" name="ses">{SESIONES.map((x) => <option key={x.n} value={x.n}>{x.n}. {x.titulo}</option>)}</select></div>
-          <div className="field"><label htmlFor="ci-dia">Fecha</label><input id="ci-dia" name="dia" type="date" required defaultValue="2026-10-19" /></div>
+          <div className="field"><label htmlFor="ci-dia">Fecha</label><input id="ci-dia" name="dia" type="date" required defaultValue={manana} /></div>
           <div className="field"><label htmlFor="ci-hora">Hora</label><input id="ci-hora" name="hora" type="time" required defaultValue="18:00" /></div>
-          <div className="row" style={{ gridColumn: '1/-1' }}><button className="btn btn-p" type="submit">Crear en Google Calendar con link de Meet</button><span className="note">El cliente recibe la invitación por correo.</span></div>
+          <div className="row" style={{ gridColumn: '1/-1' }}><button className="btn btn-p" type="submit" disabled={!s.clientes.length}>Agendar asesoría</button><span className="note">En la Fase 3 esto creará el evento en Google Calendar con su link de Meet.</span></div>
         </form>
       </section>
     </>

@@ -1,6 +1,10 @@
+import { redirect } from 'next/navigation';
 import { StoreProvider } from '@/lib/store';
+import { getMe } from '@/lib/supabase/server';
 
-// Envuelve los portales de cliente y asesor con el mismo estado (modo demo).
-export default function PortalLayout({ children }: LayoutProps<'/'>) {
-  return <StoreProvider>{children}</StoreProvider>;
+// Portales de cliente y asesor: exigen sesión y cargan los datos de quien entró.
+export default async function PortalLayout({ children }: LayoutProps<'/'>) {
+  const me = await getMe();
+  if (!me) redirect('/login');
+  return <StoreProvider me={me}>{children}</StoreProvider>;
 }

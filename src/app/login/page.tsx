@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState, type FormEvent } from 'react';
+import { createClient as createPlainClient } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 
 function Login() {
@@ -16,12 +17,16 @@ function Login() {
     e.preventDefault();
     setBusy(true);
     setMsg(null);
-    const { error } = await createClient().auth.signInWithOtp({
+    // Flujo "implícito": el link del correo trae la sesión y funciona en cualquier dispositivo,
+    // aunque se abra en otro navegador o en el celular (/auth/confirm la guarda).
+    const { error } = await createPlainClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!, {
+      auth: { flowType: 'implicit', persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+    }).auth.signInWithOtp({
       email: email.trim().toLowerCase(),
-      options: { emailRedirectTo: `${location.origin}/auth/callback` },
+      options: { emailRedirectTo: `${location.origin}/auth/confirm` },
     });
     setBusy(false);
-    if (error) setMsg(error.status === 429 ? 'Pediste muchos links seguidos. Espera un minuto e inténtalo de nuevo.' : 'No pudimos enviar el correo. Revisa la dirección e inténtalo otra vez.');
+    if (error) setMsg(error.status === 429 ? 'Se alcanzó el límite de correos de acceso por ahora. Inténtalo de nuevo en una hora.' : 'No pudimos enviar el correo. Revisa la dirección e inténtalo otra vez.');
     else setSent(true);
   };
 

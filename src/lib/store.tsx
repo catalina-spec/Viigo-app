@@ -4,10 +4,12 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type * as D from './demo-data';
+import * as DEMO from './demo-data';
+import { hrefFor, type Role } from './tabs';
 import type { CalcParams, RouteResult } from './calc';
 import type { Me } from './supabase/server';
 import { createClient } from './supabase/client';
-import { loadCliente, loadInicial, savePlanilla, sync } from './data';
+import { loadCliente, loadInicial, savePlanilla, sync, toCita } from './data';
 
 export type ClienteItem = { id: string; nombre: string; apellido: string; email: string; mio: boolean };
 
@@ -62,13 +64,40 @@ type Ctx = {
   elegirCliente: (id: string) => Promise<void>;
   /** Llama una función de la base de datos (p. ej. registrar que el asesor abrió la planilla). */
   rpc: (fn: string, args: Record<string, unknown>) => Promise<void>;
+  /** true en la vista demo (/demo): datos de ejemplo, no se guarda nada. */
+  demo: boolean;
+  /** Dirección de una sección, respetando si estamos en /demo. */
+  href: (role: Role, id: string) => string;
 };
 
 const StoreCtx = createContext<Ctx | null>(null);
 
-export function StoreProvider({ me, children }: { me: Me; children: ReactNode }) {
+/** Datos de ejemplo de la vista demo (Andrés y su asesora Catalina). */
+function demoState(me: Me): State {
+  const en = (dias: number, h: number) => { const d = new Date(); d.setDate(d.getDate() + dias); d.setHours(h, 0, 0, 0); return d.toISOString(); };
+  const rev = DEMO.MEETINGS.find((m) => m.status === 'revision')!;
+  const proxima: D.Meeting = { ...DEMO.MEETINGS[0], id: 'demo-proxima', status: 'agendada', inicio: en(3, 18), meet: null, sesion: 4, title: 'Sesión 4 · Proyección a 65 con la Calculadora VIIGO', resumen: '', obj: [], acuerdos: [], next: '' };
+  return {
+    ...empty(me), loading: false, clienteId: 'demo',
+    clientes: [{ id: 'demo', nombre: 'Andrés', apellido: 'Muñoz', email: DEMO.PROFILE.mail, mio: true }],
+    P: { ...DEMO.PROFILE, id: 'demo', creado: '2026-08-01T12:00:00Z' },
+    adv: { ...DEMO.ADV, id: 'demo-adv', nombre: 'Catalina', apellido: 'Viel' },
+    log: [{ t: '23 sep, 18:42', x: 'Andrés actualizó su planilla financiera.' }],
+    msgs: DEMO.MSGS, meetings: DEMO.MEETINGS, proxima,
+    draft: { resumen: rev.resumen, acuerdos: rev.acuerdos.join('\n'), objs: rev.obj.map((x) => ({ x, act: true })) },
+    objetivos: DEMO.OBJETIVOS, pendientes: DEMO.PENDIENTES, alts: DEMO.ALTS, F: DEMO.FIN_VALUES, debts: DEMO.DEBTS,
+    citas: DEMO.CITAS.map((c, i) => {
+      const inicio = i === 0 ? proxima.inicio! : en(i + 3, 10 + 2 * i);
+      return { ...toCita({ id: c.id, cliente_id: 'demo', inicio, sesion: c.ses, meet_url: null, calendar_event_id: 'demo' }), cliente: c.cliente };
+    }),
+    google: 'catalina@viel.cl', sesion: 4,
+  };
+}
+
+export function StoreProvider({ me, demo = false, children }: { me: Me; demo?: boolean; children: ReactNode }) {
   const sb = useMemo(() => createClient(), []);
-  const [s, setS] = useState<State>(() => empty(me));
+  const [s, setS] = useState<State>(() => (demo ? demoState(me) : empty(me)));
+  const href = useCallback((role: Role, id: string) => (demo ? '/demo' : '') + hrefFor(role, id), [demo]);
   const [toastText, setToast] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const synced = useRef<State | null>(null); // último estado ya guardado
@@ -90,12 +119,13 @@ export function StoreProvider({ me, children }: { me: Me; children: ReactNode })
   }, []);
 
   useEffect(() => {
+    if (demo) return; // la demo no lee ni guarda en la base de datos
     loadInicial(sb, me).then(load).catch((e) => {
       console.error(e);
       load({});
       toast('No pudimos cargar tus datos. Recarga la página.');
     });
-  }, [sb, me, load, toast]);
+  }, [sb, me, load, toast, demo]);
 
   // Guarda automáticamente cada cambio.
   useEffect(() => {
@@ -132,11 +162,12 @@ export function StoreProvider({ me, children }: { me: Me; children: ReactNode })
   }, [sb, me, load, toast]);
 
   const rpc = useCallback(async (fn: string, args: Record<string, unknown>) => {
+    if (demo) return;
     const { error } = await sb.rpc(fn, args);
     if (error) console.error(fn, error);
-  }, [sb]);
+  }, [sb, demo]);
 
-  return <StoreCtx.Provider value={{ s, up, toast, toastText, elegirCliente, rpc }}>{children}</StoreCtx.Provider>;
+  return <StoreCtx.Provider value={{ s, up, toast, toastText, elegirCliente: demo ? async () => {} : elegirCliente, rpc, demo, href }}>{children}</StoreCtx.Provider>;
 }
 
 export function useStore() {

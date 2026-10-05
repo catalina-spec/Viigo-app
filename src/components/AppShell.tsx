@@ -5,14 +5,14 @@ import { useRouter } from 'next/navigation';
 import { useState, type ReactNode } from 'react';
 import { useStore } from '@/lib/store';
 import { createClient } from '@/lib/supabase/client';
-import { TABS, hrefFor, type Role } from '@/lib/tabs';
+import { TABS, type Role } from '@/lib/tabs';
 import { Icon } from './Icon';
 
 // Secciones del asesor que dependen de tener un cliente elegido.
 const CLIENT_TABS = new Set(['asesorias', 'alternativas', 'planilla', 'mensajes']);
 
 export function AppShell({ role, tab, children }: { role: Role; tab: string; children: ReactNode }) {
-  const { s, toastText, elegirCliente } = useStore();
+  const { s, toastText, elegirCliente, href, demo } = useStore();
   const router = useRouter();
   const [more, setMore] = useState(false);
   const pending = s.meetings.filter((m) => m.status === 'revision').length;
@@ -40,21 +40,32 @@ export function AppShell({ role, tab, children }: { role: Role; tab: string; chi
 
   return (
     <>
+      {demo && (
+        <div className="demo">
+          <b>Vista demo</b> · Andrés y su asesora son un caso de ejemplo. Puedes probar todo; nada se guarda. <Link href="/login" style={{ color: 'inherit', fontWeight: 600 }}>Entrar a la app real →</Link>
+        </div>
+      )}
       <header className="top">
         <div className="top-in">
-          <Link className="brand" href={`/${role}`}>
+          <Link className="brand" href={href(role, 'inicio')}>
             <h1>Mi Ruta <span>VIIGO</span></h1>
             <small>Viel.cl</small>
           </Link>
           <div className="row" style={{ gap: 10 }}>
-            {role === 'asesor' && s.clientes.length > 0 && (
+            {demo && (
+              <div className="role" role="group" aria-label="Cambiar de vista">
+                <Link href="/demo/cliente" aria-current={role === 'cliente'}>Cliente</Link>
+                <Link href="/demo/asesor" aria-current={role === 'asesor'}>Asesor</Link>
+              </div>
+            )}
+            {!demo && role === 'asesor' && s.clientes.length > 0 && (
               <select className="pick" aria-label="Cliente" value={s.clienteId ?? ''} onChange={(e) => elegirCliente(e.target.value)}>
                 {s.clientes.map((c) => (
                   <option key={c.id} value={c.id}>{`${c.nombre} ${c.apellido}`.trim() || c.email}{c.mio ? '' : ' · otro asesor'}</option>
                 ))}
               </select>
             )}
-            <button className="out" onClick={salir} title={s.me.email}>Salir</button>
+            {!demo && <button className="out" onClick={salir} title={s.me.email}>Salir</button>}
           </div>
         </div>
       </header>
@@ -62,7 +73,7 @@ export function AppShell({ role, tab, children }: { role: Role; tab: string; chi
       <div className="wrap">
         <nav className="tabs" aria-label="Secciones">
           {tabs.map((t) => (
-            <Link key={t.id} href={hrefFor(role, t.id)} aria-current={tab === t.id ? 'page' : undefined}>
+            <Link key={t.id} href={href(role, t.id)} aria-current={tab === t.id ? 'page' : undefined}>
               <span>{t.label}</span>
               {badge(t.id) ? <span className="dot">{badge(t.id)}</span> : null}
             </Link>
@@ -73,7 +84,7 @@ export function AppShell({ role, tab, children }: { role: Role; tab: string; chi
 
       <nav className="bottomnav" aria-label="Secciones">
         {mobileTabs.map((t) => (
-          <Link key={t.id} href={hrefFor(role, t.id)} aria-current={tab === t.id ? 'page' : undefined} onClick={() => setMore(false)}>
+          <Link key={t.id} href={href(role, t.id)} aria-current={tab === t.id ? 'page' : undefined} onClick={() => setMore(false)}>
             <Icon name={t.icon} />
             <span>{t.short}</span>
             {badge(t.id) ? <span className="dot">{badge(t.id)}</span> : null}
@@ -90,7 +101,7 @@ export function AppShell({ role, tab, children }: { role: Role; tab: string; chi
           <div className="sheet" role="dialog" aria-label="Más secciones">
             <span className="grip" />
             {moreTabs.map((t) => (
-              <Link key={t.id} href={hrefFor(role, t.id)} aria-current={tab === t.id ? 'page' : undefined} onClick={() => setMore(false)}>
+              <Link key={t.id} href={href(role, t.id)} aria-current={tab === t.id ? 'page' : undefined} onClick={() => setMore(false)}>
                 <Icon name={t.icon} />
                 {t.label}
               </Link>

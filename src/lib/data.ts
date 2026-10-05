@@ -11,7 +11,7 @@ type Row = Record<string, any>; // eslint-disable-line @typescript-eslint/no-exp
 
 export const fmtFecha = (iso: string) => new Date(iso).toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' });
 export const fmtCorta = (iso: string) => new Date(iso).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' });
-export const fmtHora = (iso: string) => new Date(iso).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+export const fmtHora = (iso: string) => new Date(iso).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
 
 const blankProfile = (): Profile => ({ nombre: '', apellido: '', mail: '', cel: '', edad: 30, retiro: 65, etapa: 'start', ingresoJub: 0, afp: '', foto: null });
 const blankAdvisor = (): Advisor => ({ id: null, name: 'Tu asesor VIIGO', first: 'tu asesor', role: 'Asesor VIIGO · Viel.cl', phone: '', wa: '', mail: '', photo: null });

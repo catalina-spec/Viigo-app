@@ -10,7 +10,7 @@ export function nowStr() {
   return (
     d.toLocaleDateString('es-CL', { day: 'numeric', month: 'short' }) +
     ', ' +
-    d.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })
+    d.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
   );
 }
 

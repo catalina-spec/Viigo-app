@@ -8,7 +8,6 @@ import { calcRoute, finTotals, type RouteResult } from '@/lib/calc';
 import { UF, clp, initials, nowStr, pct, ufs } from '@/lib/format';
 import { FIN, STAGES, SESIONES, type Alternativa, type Cita, type Debt, type Meeting } from '@/lib/demo-data';
 import type { Role } from '@/lib/tabs';
-import { hrefFor } from '@/lib/tabs';
 
 /* ───────── piezas pequeñas ───────── */
 export function Head({ eb, h, p }: { eb: string; h: ReactNode; p?: ReactNode }) {
@@ -77,11 +76,11 @@ export function MeetingCard({ m }: { m: Meeting }) {
 export const fechaLarga = (iso: string) => {
   const d = new Date(iso);
   const dia = d.toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long' });
-  return dia.charAt(0).toUpperCase() + dia.slice(1) + ' · ' + d.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+  return dia.charAt(0).toUpperCase() + dia.slice(1) + ' · ' + d.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
 };
 
 export function NextMeetingCard({ adv }: { adv: boolean }) {
-  const { s } = useStore();
+  const { s, href } = useStore();
   const m = s.proxima;
   const con = adv ? `${s.P.nombre} ${s.P.apellido}`.trim() : s.adv.name;
   if (!m)
@@ -89,7 +88,7 @@ export function NextMeetingCard({ adv }: { adv: boolean }) {
       <section className="card">
         <span className="eyebrow">Próxima asesoría</span>
         <h3 style={{ margin: '4px 0 2px' }}>Sin asesoría agendada</h3>
-        <p className="note">{adv ? <>Agéndala desde <Link href={hrefFor('asesor', 'agenda')}>Agenda</Link>.</> : `${s.adv.first} te enviará la invitación con el link de Google Meet.`}</p>
+        <p className="note">{adv ? <>Agéndala desde <Link href={href('asesor', 'agenda')}>Agenda</Link>.</> : `${s.adv.first} te enviará la invitación con el link de Google Meet.`}</p>
       </section>
     );
   return (
@@ -102,7 +101,7 @@ export function NextMeetingCard({ adv }: { adv: boolean }) {
       <div className="row">
         {m.meet ? <a className="btn btn-p" href={m.meet} target="_blank" rel="noopener">{adv ? 'Iniciar reunión en Meet' : 'Unirse por Google Meet'}</a>
           : <span className="note">El link de Meet aparecerá aquí.</span>}
-        {adv && <Link className="btn btn-g" href={hrefFor('asesor', 'agenda')}>Reprogramar en Agenda</Link>}
+        {adv && <Link className="btn btn-g" href={href('asesor', 'agenda')}>Reprogramar en Agenda</Link>}
       </div>
       <p className="note" style={{ flexBasis: '100%' }}>
         La reunión se graba en Meet. Al terminar, la app genera el resumen y extrae los objetivos para que {adv ? 'los revises y apruebes' : s.adv.first + ' los revise antes de publicarlos aquí'}.
@@ -310,7 +309,7 @@ export function RetireCards({ r }: { r: RouteResult }) {
 }
 
 export function CalcView({ role }: { role: Role }) {
-  const { s, up, toast } = useStore();
+  const { s, up, toast, href } = useStore();
   const c = s.calc;
   const r = calcRoute(s.P.edad, s.P.retiro, c);
   const accepted = s.route && JSON.stringify(s.route.result.params) === JSON.stringify(r.params);
@@ -337,7 +336,7 @@ export function CalcView({ role }: { role: Role }) {
           {role === 'asesor' ? (
             <span className="note">Solo {nombreCliente(s)} puede aceptar su ruta desde su portal. Usa la calculadora para mostrarle escenarios en la sesión.</span>
           ) : accepted ? (
-            <><span className="pill p-ok">Esta es tu ruta aceptada</span><Link className="btn btn-g" href="/cliente/ruta">Ver en Mi ruta</Link></>
+            <><span className="pill p-ok">Esta es tu ruta aceptada</span><Link className="btn btn-g" href={href('cliente', 'ruta')}>Ver en Mi ruta</Link></>
           ) : (
             <>
               <button className="btn btn-p" onClick={() => {
@@ -356,7 +355,7 @@ export function CalcView({ role }: { role: Role }) {
 
 /* ───────── alternativas ───────── */
 export function AltCard({ a, adv }: { a: Alternativa; adv: boolean }) {
-  const { s, up, toast } = useStore();
+  const { s, up, toast, href } = useStore();
   const yieldB = a.arriendo && a.uf ? (a.arriendo * 12) / (a.uf * UF) : 0;
   const verdict = a.pts == null ? null : a.pts >= 85 ? 'Excelente' : a.pts >= 75 ? 'Recomendado' : a.pts >= 60 ? 'Aceptable' : 'Observar';
   const canDelete = (!adv && a.origen === 'cliente') || (adv && a.origen === 'asesor');
@@ -389,7 +388,7 @@ export function AltCard({ a, adv }: { a: Alternativa; adv: boolean }) {
             }}>Evaluar con el Evaluador VIIGO</button>
           )
         ) : (
-          <Link className="btn btn-g" href="/cliente/mensajes" onClick={() => up((d) => { d.draftMsg = `Hola ${s.adv.first}, ¿qué opinas de "${a.nombre}" en ${a.comuna}?`; })}>Consultar a {s.adv.first}</Link>
+          <Link className="btn btn-g" href={href('cliente', 'mensajes')} onClick={() => up((d) => { d.draftMsg = `Hola ${s.adv.first}, ¿qué opinas de "${a.nombre}" en ${a.comuna}?`; })}>Consultar a {s.adv.first}</Link>
         )}
         {canDelete && <button className="btn btn-g" onClick={() => { up((d) => { d.alts = d.alts.filter((y) => y.id !== a.id); }); toast('Alternativa quitada.'); }}>Quitar</button>}
       </div>
@@ -587,7 +586,7 @@ export function Sesiones() {
 
 /* ───────── agenda (Google Calendar) ───────── */
 export function Agenda() {
-  const { s, up, toast } = useStore();
+  const { s, up, toast, href, demo } = useStore();
   const copy = useCopy();
   const [busy, setBusy] = useState(false);
   const [manana] = useState(() => new Date(Date.now() + 864e5).toISOString().slice(0, 10));
@@ -608,6 +607,21 @@ export function Agenda() {
     if (c.clienteId === d.clienteId && (!d.proxima || c.inicio! < d.proxima.inicio!)) d.proxima = toMeeting(r);
   });
 
+  // En la demo no se llama a Google ni a la base de datos: se simula la respuesta.
+  const api = async (method: string, url: string, body?: Record<string, unknown>) => {
+    if (!demo) {
+      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+      return { ok: res.ok, json: await res.json().catch(() => ({})) };
+    }
+    const id = url.split('/')[3];
+    const prev = s.citas.find((c) => c.id === id);
+    const reunion = {
+      id: id ?? crypto.randomUUID(), cliente_id: body?.clienteId ?? prev?.clienteId, sesion: body?.sesion ?? prev?.ses,
+      inicio: body?.inicio, estado: 'agendada', meet_url: null, calendar_event_id: 'demo', duracion_min: 60,
+    };
+    return { ok: true, json: { reunion, aviso: 'Demo: en la app real esto crea el evento en Google Calendar con su link de Meet e invita al cliente.' } };
+  };
+
   const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
@@ -616,10 +630,9 @@ export function Agenda() {
     const inicio = new Date(`${v('dia')}T${v('hora')}:00`);
     if (inicio.getTime() < Date.now()) return toast('Elige una fecha y hora futura.');
     setBusy(true);
-    const res = await fetch('/api/reuniones', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ clienteId: v('cli'), sesion: +v('ses'), inicio: inicio.toISOString() }) });
-    const json = await res.json().catch(() => ({}));
+    const { ok, json } = await api('POST', '/api/reuniones', { clienteId: v('cli'), sesion: +v('ses'), inicio: inicio.toISOString() });
     setBusy(false);
-    if (!res.ok) return toast(json.error ?? 'No se pudo agendar.');
+    if (!ok) return toast(json.error ?? 'No se pudo agendar.');
     agregar(json.reunion);
     toast(json.aviso ?? 'Asesoría creada en tu Google Calendar. El cliente recibió la invitación con el link de Meet.');
     form.reset();
@@ -633,9 +646,9 @@ export function Agenda() {
     if (!txt) return;
     const nueva = new Date(txt.trim().replace(' ', 'T') + ':00');
     if (isNaN(nueva.getTime()) || nueva.getTime() < Date.now()) return toast('Fecha no válida.');
-    const res = await fetch(`/api/reuniones/${c.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ inicio: nueva.toISOString() }) });
-    if (!res.ok) return toast('No se pudo reprogramar.');
-    const { reunion } = await res.json();
+    const { ok, json } = await api('PATCH', `/api/reuniones/${c.id}`, { inicio: nueva.toISOString() });
+    if (!ok) return toast('No se pudo reprogramar.');
+    const { reunion } = json;
     up((d) => {
       d.citas = d.citas.filter((x) => x.id !== c.id);
       if (d.proxima?.id === c.id) d.proxima = null;
@@ -646,8 +659,8 @@ export function Agenda() {
 
   const cancelar = async (c: Cita) => {
     if (!window.confirm(`¿Cancelar la asesoría con ${c.cliente} del ${c.dia} a las ${c.hora}?`)) return;
-    const res = await fetch(`/api/reuniones/${c.id}`, { method: 'DELETE' });
-    if (!res.ok) return toast('No se pudo cancelar.');
+    const { ok } = await api('DELETE', `/api/reuniones/${c.id}`);
+    if (!ok) return toast('No se pudo cancelar.');
     up((d) => {
       d.citas = d.citas.filter((x) => x.id !== c.id);
       if (d.proxima?.id === c.id) d.proxima = null;
@@ -685,7 +698,7 @@ export function Agenda() {
                       href={`https://wa.me/?text=${encodeURIComponent(`Hola ${c.cliente.split(' ')[0]}, te comparto el link de nuestra asesoría VIIGO del ${c.dia.toLowerCase()} a las ${c.hora}: ${c.meet}`)}`}>WhatsApp</a>}
                     <button className="mini" onClick={() => reprogramar(c)}>Reprogramar</button>
                     <button className="mini" onClick={() => cancelar(c)}>Cancelar</button>
-                    <Link className="mini" href={hrefFor('asesor', 'sesiones')} onClick={() => up((x) => { x.sesion = c.ses; })}>Ver guía</Link>
+                    <Link className="mini" href={href('asesor', 'sesiones')} onClick={() => up((x) => { x.sesion = c.ses; })}>Ver guía</Link>
                   </div>
                 </div>
               </div>

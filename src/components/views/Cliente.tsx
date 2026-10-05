@@ -13,7 +13,7 @@ import {
 } from './Shared';
 
 function Inicio() {
-  const { s } = useStore();
+  const { s, href } = useStore();
   const copy = useCopy();
   const P = s.P, A = s.adv;
   const approved = s.meetings.filter((m) => m.status === 'aprobado');
@@ -27,7 +27,7 @@ function Inicio() {
         <section className="empty">
           <h3>Completa tu perfil</h3>
           <p>Cuéntanos tu nombre, edad y a qué edad quieres jubilar. Con eso armamos tu ruta.</p>
-          <Link className="btn btn-p" href="/cliente/perfil">Completar mi perfil</Link>
+          <Link className="btn btn-p" href={href('cliente', 'perfil')}>Completar mi perfil</Link>
         </section>
       )}
       <section className="hero3">
@@ -50,7 +50,7 @@ function Inicio() {
           <span className="eyebrow on">Te identificaste con la etapa</span>
           <div className="stage-name">{STAGES[P.etapa].label}</div>
           <p>{STAGES[P.etapa].desc}</p>
-          <Link className="link-on" href="/cliente/ruta">Ver mi ruta →</Link>
+          <Link className="link-on" href={href('cliente', 'ruta')}>Ver mi ruta →</Link>
         </div>
         <div>
           <span className="eyebrow on">Para tu jubilación faltan</span>
@@ -66,7 +66,7 @@ function Inicio() {
           {A.mail && <div className="crow"><span className="k">Correo</span><a className="v" href={`mailto:${A.mail}`} style={{ color: 'inherit' }}>{A.mail}</a><button className="mini" onClick={() => copy(A.mail)}>Copiar</button></div>}
           <div className="row">
             {A.wa && <a className="btn btn-p" href={`https://wa.me/${A.wa}`} target="_blank" rel="noopener">Escribir por WhatsApp</a>}
-            <Link className="btn btn-g" href="/cliente/mensajes">Mensaje en el portal</Link>
+            <Link className="btn btn-g" href={href('cliente', 'mensajes')}>Mensaje en el portal</Link>
           </div>
         </div>
       </section>
@@ -74,7 +74,7 @@ function Inicio() {
         <section className="empty">
           <h3>Aún no eliges tu ruta</h3>
           <p>Usa la calculadora VIIGO en la biblioteca, revisa tu proyección y acepta la ruta que te acomode.</p>
-          <Link className="btn btn-p" href="/cliente/biblioteca">Abrir la calculadora</Link>
+          <Link className="btn btn-p" href={href('cliente', 'biblioteca')}>Abrir la calculadora</Link>
         </section>
       )}
       <div className="grid2">
@@ -163,7 +163,7 @@ function Perfil() {
 }
 
 function Ruta() {
-  const { s } = useStore();
+  const { s, href } = useStore();
   if (!s.route)
     return (
       <>
@@ -171,7 +171,7 @@ function Ruta() {
         <section className="empty">
           <h3>Todavía no aceptas una ruta</h3>
           <p>Entra a la calculadora VIIGO, prueba distintos valores y acepta la ruta que más te acomode. Aparecerá aquí.</p>
-          <Link className="btn btn-p" href="/cliente/biblioteca">Ir a la calculadora</Link>
+          <Link className="btn btn-p" href={href('cliente', 'biblioteca')}>Ir a la calculadora</Link>
         </section>
       </>
     );
@@ -199,7 +199,7 @@ function Ruta() {
         <p className="note" style={{ marginTop: 10 }}>
           Primera propiedad UF {p.precio.toLocaleString('es-CL')}, pie {p.pie}%, tasa {String(p.tasa).replace('.', ',')}%, crédito a {p.plazo} años. Proyección referencial.
         </p>
-        <div className="row" style={{ marginTop: 10 }}><Link className="btn btn-g" href="/cliente/biblioteca">Recalcular en la calculadora</Link></div>
+        <div className="row" style={{ marginTop: 10 }}><Link className="btn btn-g" href={href('cliente', 'biblioteca')}>Recalcular en la calculadora</Link></div>
       </section>
     </>
   );

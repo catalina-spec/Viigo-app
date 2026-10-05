@@ -154,7 +154,7 @@ function Planilla() {
           <h3>Andrés no ha autorizado el acceso</h3>
           <p>Sus datos financieros son privados. Puedes pedirle acceso. Él decide por cuánto tiempo y puede quitarlo cuando quiera.</p>
           <button className="btn btn-p" onClick={() => {
-            up((d) => { d.msgs.push({ me: false, x: 'Hola Andrés, ¿me compartes tu planilla financiera para preparar la oferta? Lo puedes hacer desde "Mi planilla".', t: 'Dante · ahora' }); });
+            up((d) => { d.msgs.push({ me: false, x: 'Hola Andrés, ¿me compartes tu planilla financiera para preparar la oferta? Lo puedes hacer desde "Mi planilla".', t: 'Catalina · ahora' }); });
             toast('Solicitud enviada a Andrés.');
           }}>Pedir acceso a Andrés</button>
         </div>

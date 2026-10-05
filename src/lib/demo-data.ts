@@ -1,4 +1,4 @@
-// Datos de ejemplo (Andrés y su asesor Dante).
+// Datos de ejemplo (Andrés y su asesor Catalina).
 // En el siguiente paso se reemplazan por la base de datos de Supabase.
 
 export type StageKey = 'start' | 'grow' | 'equity' | 'legacy';
@@ -30,8 +30,8 @@ export type Msg = { me: boolean; x: string; t: string };
 export type Cita = { id: string; cliente: string; ses: number; dia: string; hora: string; meet: string; enviado: boolean };
 
 export const ADV: Advisor = {
-  name: 'Dante Viel', first: 'Dante', role: 'Asesor VIIGO · Viel.cl',
-  phone: '+56 9 9999 9999', wa: '56999999999', mail: 'dante@viel.cl', photo: null,
+  name: 'Catalina Viel', first: 'Catalina', role: 'Asesora VIIGO · Viel.cl',
+  phone: '+56 9 9999 9999', wa: '56999999999', mail: 'catalina@viel.cl', photo: null,
 };
 export const MEET_URL = 'https://meet.google.com/';
 
@@ -44,15 +44,15 @@ export const MEETINGS: Meeting[] = [
   {id:1, date:'12 ago 2026', dur:'52 min', title:'Diagnóstico inicial', status:'aprobado',
    resumen:'Conversamos sobre la situación actual de Andrés y lo que quiere lograr. Arrienda donde vive, tiene ahorros en depósitos y fondos mutuos, y quiere que su jubilación no dependa solo de la AFP.',
    obj:['Jubilar a los 65 con un ingreso mensual que no dependa solo de la AFP','Comprar la primera propiedad de inversión antes de fin de año','No comprometer más del 25% de su renta en dividendos'],
-   acuerdos:['Andrés completa su planilla financiera en el portal','Dante prepara la ruta VIIGO personalizada'], next:'Definición de ruta · 2 sep'},
+   acuerdos:['Andrés completa su planilla financiera en el portal','Catalina prepara la ruta VIIGO personalizada'], next:'Definición de ruta · 2 sep'},
   {id:2, date:'2 sep 2026', dur:'61 min', title:'Definición de la ruta VIIGO', status:'aprobado',
    resumen:'Revisamos la planilla financiera y la calculadora VIIGO. Andrés se identificó con la etapa START y definimos partir con un departamento de 1 o 2 dormitorios en la zona oriente.',
    obj:['Partir en VIIGO START con un depto de 1 o 2 dormitorios en la zona oriente','Pie objetivo: UF 640 (20%)','Mantener un fondo de reserva de 3 dividendos'],
-   acuerdos:['Andrés revisa y acepta su ruta en la calculadora VIIGO','Dante sugiere 3 propiedades preevaluadas por Capital Q','Andrés pide preaprobación hipotecaria en 2 bancos'], next:'Evaluación de propiedades · 23 sep'},
+   acuerdos:['Andrés revisa y acepta su ruta en la calculadora VIIGO','Catalina sugiere 3 propiedades preevaluadas por Capital Q','Andrés pide preaprobación hipotecaria en 2 bancos'], next:'Evaluación de propiedades · 23 sep'},
   {id:3, date:'23 sep 2026', dur:'47 min', title:'Evaluación de la primera propiedad', status:'revision',
    resumen:'Comparamos las alternativas de Ñuñoa y Providencia con el Evaluador VIIGO. Ñuñoa obtuvo 84 puntos y mejor relación entre arriendo y dividendo. Andrés quiere confirmar los gastos comunes antes de ofertar.',
    obj:['Elegir entre Ñuñoa (UF 3.200) y Providencia (UF 3.450)','Confirmar que el arriendo cubra al menos el 85% del dividendo','Ofertar antes del 15 de octubre'],
-   acuerdos:['Ñuñoa queda como primera opción: 84 pts en el Evaluador VIIGO','Andrés revisa gastos comunes y visita el sábado','Dante pide contraoferta a UF 3.120'], next:'Cierre de oferta · 14 oct'},
+   acuerdos:['Ñuñoa queda como primera opción: 84 pts en el Evaluador VIIGO','Andrés revisa gastos comunes y visita el sábado','Catalina pide contraoferta a UF 3.120'], next:'Cierre de oferta · 14 oct'},
 ];
 
 export const OBJETIVOS: Objetivo[] = [
@@ -65,7 +65,7 @@ export const PENDIENTES: Pendiente[] = [
   {id:'p1', x:'Subir preaprobación del Banco de Chile', who:'Andrés', done:true, active:true},
   {id:'p2', x:'Subir preaprobación del Santander', who:'Andrés', done:false, active:true},
   {id:'p3', x:'Revisar gastos comunes del depto de Ñuñoa', who:'Andrés', done:false, active:true},
-  {id:'p4', x:'Enviar contraoferta a UF 3.120', who:'Dante', done:false, active:false},
+  {id:'p4', x:'Enviar contraoferta a UF 3.120', who:'Catalina', done:false, active:false},
 ];
 
 export const ALTS: Alternativa[] = [
@@ -94,7 +94,7 @@ export const FIN_VALUES: Record<string, number> = {cc:1200000,dap:18000000,dapuf
 export const DEBTS: Debt[] = [{tipo:'Tarjeta de crédito',inst:'Banco de Chile',orig:1500000,saldo:1100000,cuota:180000,tasa:24,plazo:12,rest:7}];
 
 export const MSGS: Msg[] = [
-  {me:false, x:'Hola Andrés, revisa el depto de Ñuñoa que te dejé en tus alternativas y me cuentas qué te pareció.', t:'Dante · 24 sep, 10:15'},
+  {me:false, x:'Hola Andrés, revisa el depto de Ñuñoa que te dejé en tus alternativas y me cuentas qué te pareció.', t:'Catalina · 24 sep, 10:15'},
   {me:true,  x:'¡Gracias! Lo fui a ver el sábado. Me gustó, pero quiero entender bien el gasto común.', t:'Andrés · 26 sep, 12:03'},
 ];
 

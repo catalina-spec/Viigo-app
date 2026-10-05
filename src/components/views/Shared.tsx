@@ -362,7 +362,7 @@ export function AltCard({ a, adv }: { a: Alternativa; adv: boolean }) {
         {adv ? (
           a.pts == null && (
             <button className="btn btn-g" onClick={() => {
-              up((d) => { const x = d.alts.find((y) => y.id === a.id)!; x.pts = 71; x.nota = (x.nota ? x.nota + ' ' : '') + 'Evaluada por Dante: precio por m² alto para la zona.'; });
+              up((d) => { const x = d.alts.find((y) => y.id === a.id)!; x.pts = 71; x.nota = (x.nota ? x.nota + ' ' : '') + 'Evaluada por Catalina: precio por m² alto para la zona.'; });
               toast('Evaluación guardada y visible para Andrés.');
             }}>Evaluar con el Evaluador VIIGO</button>
           )
@@ -416,7 +416,7 @@ export function ChatView({ role, eb, h, p }: { role: Role; eb: string; h: string
     const ta = e.currentTarget.elements.namedItem('msg') as HTMLTextAreaElement;
     const v = ta.value.trim();
     if (!v) return;
-    up((d) => { d.msgs.push({ me: mine, x: v, t: (mine ? 'Andrés' : 'Dante') + ' · ahora' }); if (mine) d.draftMsg = ''; });
+    up((d) => { d.msgs.push({ me: mine, x: v, t: (mine ? 'Andrés' : 'Catalina') + ' · ahora' }); if (mine) d.draftMsg = ''; });
     if (!mine) ta.value = '';
     toast(mine ? `Mensaje enviado a ${s.adv.first} (demo).` : 'Respuesta enviada a Andrés (demo).');
     setTimeout(() => chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight }), 50);

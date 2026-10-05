@@ -1,11 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { toCita, toMeeting } from '@/lib/data';
 import { nombreCliente, useStore } from '@/lib/store';
 import { calcRoute, finTotals, type RouteResult } from '@/lib/calc';
 import { UF, clp, initials, nowStr, pct, ufs } from '@/lib/format';
-import { FIN, STAGES, SESIONES, type Alternativa, type Debt, type Meeting } from '@/lib/demo-data';
+import { FIN, STAGES, SESIONES, type Alternativa, type Cita, type Debt, type Meeting } from '@/lib/demo-data';
 import type { Role } from '@/lib/tabs';
 import { hrefFor } from '@/lib/tabs';
 
@@ -80,7 +81,7 @@ export const fechaLarga = (iso: string) => {
 };
 
 export function NextMeetingCard({ adv }: { adv: boolean }) {
-  const { s, toast } = useStore();
+  const { s } = useStore();
   const m = s.proxima;
   const con = adv ? `${s.P.nombre} ${s.P.apellido}`.trim() : s.adv.name;
   if (!m)
@@ -101,7 +102,7 @@ export function NextMeetingCard({ adv }: { adv: boolean }) {
       <div className="row">
         {m.meet ? <a className="btn btn-p" href={m.meet} target="_blank" rel="noopener">{adv ? 'Iniciar reunión en Meet' : 'Unirse por Google Meet'}</a>
           : <span className="note">El link de Meet aparecerá aquí.</span>}
-        {adv && <button className="btn btn-g" onClick={() => toast('Pronto: aquí eliges una nueva fecha y se actualiza el Meet.')}>Reprogramar</button>}
+        {adv && <Link className="btn btn-g" href={hrefFor('asesor', 'agenda')}>Reprogramar en Agenda</Link>}
       </div>
       <p className="note" style={{ flexBasis: '100%' }}>
         La reunión se graba en Meet. Al terminar, la app genera el resumen y extrae los objetivos para que {adv ? 'los revises y apruebes' : s.adv.first + ' los revise antes de publicarlos aquí'}.
@@ -588,28 +589,83 @@ export function Sesiones() {
 export function Agenda() {
   const { s, up, toast } = useStore();
   const copy = useCopy();
-  const days = [...new Set(s.citas.map((c) => c.dia))];
+  const [busy, setBusy] = useState(false);
   const [manana] = useState(() => new Date(Date.now() + 864e5).toISOString().slice(0, 10));
-  const submit = (e: FormEvent<HTMLFormElement>) => {
+  const days = [...new Set(s.citas.map((c) => c.dia))];
+
+  // Aviso al volver de Google después de conectar el calendario.
+  useEffect(() => {
+    const g = new URLSearchParams(location.search).get('google');
+    if (!g) return;
+    toast(g === 'ok' ? 'Google Calendar conectado. Tus nuevas asesorías tendrán link de Meet.' : 'No se pudo conectar Google Calendar. Inténtalo de nuevo.');
+    history.replaceState(null, '', location.pathname);
+  }, [toast]);
+
+  const agregar = (r: Record<string, unknown>) => up((d) => {
+    const c = toCita({ ...r, cliente: d.clientes.find((x) => x.id === r.cliente_id) });
+    d.citas.push(c);
+    d.citas.sort((a, b) => (a.inicio ?? '').localeCompare(b.inicio ?? ''));
+    if (c.clienteId === d.clienteId && (!d.proxima || c.inicio! < d.proxima.inicio!)) d.proxima = toMeeting(r);
+  });
+
+  const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const f = new FormData(e.currentTarget);
+    const form = e.currentTarget;
+    const f = new FormData(form);
     const v = (k: string) => String(f.get(k) ?? '');
     const inicio = new Date(`${v('dia')}T${v('hora')}:00`);
-    const cli = s.clientes.find((c) => c.id === v('cli'));
-    if (!cli) return toast('Elige un cliente.');
-    const dia = inicio.toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' }).replace('.', '').replace(',', '');
-    const nombre = `${cli.nombre} ${cli.apellido}`.trim() || cli.email;
-    up((d) => {
-      d.citas.push({ id: crypto.randomUUID(), clienteId: cli.id, inicio: inicio.toISOString(), cliente: nombre, ses: +v('ses'), dia: dia.charAt(0).toUpperCase() + dia.slice(1), hora: v('hora'), meet: null, enviado: false });
-      d.citas.sort((a, b) => (a.inicio ?? '').localeCompare(b.inicio ?? ''));
-    });
-    toast(`Asesoría agendada con ${nombre}.`);
-    e.currentTarget.reset();
+    if (inicio.getTime() < Date.now()) return toast('Elige una fecha y hora futura.');
+    setBusy(true);
+    const res = await fetch('/api/reuniones', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ clienteId: v('cli'), sesion: +v('ses'), inicio: inicio.toISOString() }) });
+    const json = await res.json().catch(() => ({}));
+    setBusy(false);
+    if (!res.ok) return toast(json.error ?? 'No se pudo agendar.');
+    agregar(json.reunion);
+    toast(json.aviso ?? 'Asesoría creada en tu Google Calendar. El cliente recibió la invitación con el link de Meet.');
+    form.reset();
   };
+
+  const reprogramar = async (c: Cita) => {
+    const actual = new Date(c.inicio!);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const sug = `${actual.getFullYear()}-${pad(actual.getMonth() + 1)}-${pad(actual.getDate())} ${pad(actual.getHours())}:${pad(actual.getMinutes())}`;
+    const txt = window.prompt('Nueva fecha y hora (AAAA-MM-DD HH:MM):', sug);
+    if (!txt) return;
+    const nueva = new Date(txt.trim().replace(' ', 'T') + ':00');
+    if (isNaN(nueva.getTime()) || nueva.getTime() < Date.now()) return toast('Fecha no válida.');
+    const res = await fetch(`/api/reuniones/${c.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ inicio: nueva.toISOString() }) });
+    if (!res.ok) return toast('No se pudo reprogramar.');
+    const { reunion } = await res.json();
+    up((d) => {
+      d.citas = d.citas.filter((x) => x.id !== c.id);
+      if (d.proxima?.id === c.id) d.proxima = null;
+    });
+    agregar(reunion);
+    toast(c.enviado ? 'Reprogramada. El cliente recibió la actualización de Google Calendar.' : 'Reprogramada.');
+  };
+
+  const cancelar = async (c: Cita) => {
+    if (!window.confirm(`¿Cancelar la asesoría con ${c.cliente} del ${c.dia} a las ${c.hora}?`)) return;
+    const res = await fetch(`/api/reuniones/${c.id}`, { method: 'DELETE' });
+    if (!res.ok) return toast('No se pudo cancelar.');
+    up((d) => {
+      d.citas = d.citas.filter((x) => x.id !== c.id);
+      if (d.proxima?.id === c.id) d.proxima = null;
+    });
+    toast(c.enviado ? 'Cancelada. El cliente recibió el aviso de Google Calendar.' : 'Asesoría cancelada.');
+  };
+
   return (
     <>
       <Head eb="Agenda" h="Tus asesorías VIIGO" p="Tus próximas asesorías con todos tus clientes." />
-      <div className="row"><span className="pill p-warn">Google Calendar y Meet: se conectan en la Fase 3</span><span className="note">Por ahora el link de Meet se envía a mano.</span></div>
+      {s.google ? (
+        <div className="row"><span className="pill p-ok">Google Calendar conectado · {s.google}</span><span className="note">Cada asesoría nueva crea su evento con link de Meet e invita al cliente.</span></div>
+      ) : (
+        <section className="card" style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div><h3 style={{ marginBottom: 4 }}>Conecta tu Google Calendar</h3><p className="note">Así cada asesoría que agendes aparece en tu calendario con su link de Meet, y el cliente recibe la invitación por correo.</p></div>
+          <a className="btn btn-p" href="/api/google/connect">Conectar Google Calendar</a>
+        </section>
+      )}
       {!days.length && <section className="empty"><h3>No tienes asesorías agendadas</h3><p>Agenda la primera con el formulario de abajo.</p></section>}
       {days.map((d) => (
         <section className="card" key={d}>
@@ -618,12 +674,17 @@ export function Agenda() {
             {s.citas.filter((c) => c.dia === d).map((c) => (
               <div className="cita" key={c.id}>
                 <div className="ct num">{c.hora}</div>
-                <div className="ci"><b>{c.cliente}</b><span className="note">Semana {c.ses} · {SESIONES[c.ses - 1].titulo}</span>{c.meet && <span className="link num">{c.meet.replace('https://', '')}</span>}</div>
+                <div className="ci"><b>{c.cliente}</b><span className="note">Semana {c.ses} · {SESIONES[c.ses - 1].titulo}</span>
+                  {c.meet ? <span className="link num">{c.meet.replace('https://', '')}</span> : <span className="note">Sin link de Meet</span>}</div>
                 <div className="ca">
+                  {c.enviado ? <span className="pill p-ok">Invitación enviada</span> : <span className="pill p-warn">Sin invitación</span>}
                   <div className="row">
+                    {c.meet && <a className="mini" href={c.meet} target="_blank" rel="noopener">Abrir Meet</a>}
                     {c.meet && <button className="mini" onClick={() => copy(c.meet!)}>Copiar link</button>}
                     {c.meet && <a className="mini" target="_blank" rel="noopener"
                       href={`https://wa.me/?text=${encodeURIComponent(`Hola ${c.cliente.split(' ')[0]}, te comparto el link de nuestra asesoría VIIGO del ${c.dia.toLowerCase()} a las ${c.hora}: ${c.meet}`)}`}>WhatsApp</a>}
+                    <button className="mini" onClick={() => reprogramar(c)}>Reprogramar</button>
+                    <button className="mini" onClick={() => cancelar(c)}>Cancelar</button>
                     <Link className="mini" href={hrefFor('asesor', 'sesiones')} onClick={() => up((x) => { x.sesion = c.ses; })}>Ver guía</Link>
                   </div>
                 </div>
@@ -643,7 +704,10 @@ export function Agenda() {
           <div className="field"><label htmlFor="ci-ses">Sesión</label><select id="ci-ses" name="ses">{SESIONES.map((x) => <option key={x.n} value={x.n}>{x.n}. {x.titulo}</option>)}</select></div>
           <div className="field"><label htmlFor="ci-dia">Fecha</label><input id="ci-dia" name="dia" type="date" required defaultValue={manana} /></div>
           <div className="field"><label htmlFor="ci-hora">Hora</label><input id="ci-hora" name="hora" type="time" required defaultValue="18:00" /></div>
-          <div className="row" style={{ gridColumn: '1/-1' }}><button className="btn btn-p" type="submit" disabled={!s.clientes.length}>Agendar asesoría</button><span className="note">En la Fase 3 esto creará el evento en Google Calendar con su link de Meet.</span></div>
+          <div className="row" style={{ gridColumn: '1/-1' }}>
+            <button className="btn btn-p" type="submit" disabled={!s.clientes.length || busy}>{busy ? 'Agendando…' : s.google ? 'Crear en Google Calendar con link de Meet' : 'Agendar asesoría'}</button>
+            <span className="note">{s.google ? 'El cliente recibe la invitación en su correo.' : 'Sin Google conectado se guarda sin link de Meet.'}</span>
+          </div>
         </form>
       </section>
     </>

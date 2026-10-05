@@ -36,6 +36,8 @@ export type State = {
   F: Record<string, number>;
   debts: D.Debt[];
   citas: D.Cita[];
+  /** Asesor: correo de Google conectado para Calendar/Meet, o null. */
+  google: string | null;
   finTab: string;
   sesion: number;
 };
@@ -46,7 +48,7 @@ const empty = (me: Me): State => ({
   adv: { id: null, name: 'Tu asesor VIIGO', first: 'tu asesor', role: 'Asesor VIIGO · Viel.cl', phone: '', wa: '', mail: '', photo: null },
   consent: false, dur: '30', grantedUntil: null, grantedUntilISO: null, route: null, draftMsg: '',
   calc: { precio: 3200, pie: 20, tasa: 4.5, plazo: 25 }, log: [], msgs: [], proxima: null, meetings: [],
-  draft: { resumen: '', acuerdos: '', objs: [] }, objetivos: [], pendientes: [], alts: [], F: {}, debts: [], citas: [],
+  draft: { resumen: '', acuerdos: '', objs: [] }, objetivos: [], pendientes: [], alts: [], F: {}, debts: [], citas: [], google: null,
   finTab: 'patrimonio', sesion: 1,
 });
 

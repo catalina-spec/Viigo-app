@@ -35,7 +35,7 @@ export function toMeeting(r: Row): Meeting {
   };
 }
 
-function toCita(r: Row): Cita {
+export function toCita(r: Row): Cita {
   const c = r.cliente ?? {};
   const dia = new Date(r.inicio).toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' }).replace('.', '').replace(',', '');
   return {
@@ -48,17 +48,18 @@ function toCita(r: Row): Cita {
 export async function loadInicial(sb: SupabaseClient, me: Me): Promise<Partial<State>> {
   if (me.rol === 'cliente') return { clientes: [], ...(await loadCliente(sb, me, me.id)) };
 
-  const [{ data: yo }, { data: clientes }, { data: citas }] = await Promise.all([
+  const [{ data: yo }, { data: clientes }, { data: citas }, { data: google }] = await Promise.all([
     sb.from('perfiles').select('*').eq('id', me.id).single(),
     sb.from('perfiles').select('id,nombre,apellido,email,asesor_id').eq('rol', 'cliente').order('creado_en', { ascending: false }),
     sb.from('reuniones').select('*, cliente:perfiles!reuniones_cliente_id_fkey(nombre,apellido,email)')
       .eq('estado', 'agendada').gte('inicio', new Date(Date.now() - 2 * 3600e3).toISOString()).order('inicio'),
+    sb.rpc('google_conectado'),
   ]);
   const lista = (clientes ?? []).map((c) => ({ id: c.id, nombre: c.nombre, apellido: c.apellido, email: c.email, mio: c.asesor_id === me.id }));
   let elegido: string | null = null;
   try { elegido = localStorage.getItem('viigo_cliente'); } catch {}
   if (!lista.some((c) => c.id === elegido)) elegido = (lista.find((c) => c.mio) ?? lista[0])?.id ?? null;
-  const base: Partial<State> = { clientes: lista, adv: toAdvisor(yo), citas: (citas ?? []).map(toCita) };
+  const base: Partial<State> = { clientes: lista, adv: toAdvisor(yo), citas: (citas ?? []).map(toCita), google: (google as string | null) ?? null };
   if (!elegido) return { ...base, clienteId: null, P: blankProfile() };
   return { ...base, ...(await loadCliente(sb, me, elegido)), adv: toAdvisor(yo) };
 }
@@ -185,13 +186,7 @@ export async function sync(sb: SupabaseClient, me: Me, a: State, b: State): Prom
         jobs.push(sb.from('reuniones').update({ estado: m.status === 'aprobado' ? 'aprobada' : 'revision', resumen: m.resumen, objetivos: m.obj, acuerdos: m.acuerdos }).eq('id', m.id));
       }
     }
-    // nuevas citas
-    const C = byId(a.citas);
-    for (const c of b.citas) {
-      if (!C.has(c.id) && c.clienteId && c.inicio) {
-        jobs.push(sb.from('reuniones').insert({ id: c.id, cliente_id: c.clienteId, asesor_id: me.id, sesion: c.ses, titulo: `Sesión ${c.ses} · ${SESIONES[c.ses - 1].titulo}`, inicio: c.inicio, duracion_min: 60 }));
-      }
-    }
+    // Las citas nuevas se crean por /api/reuniones (Google Calendar + Meet), no aquí.
   }
 
   const res = await Promise.all(jobs);

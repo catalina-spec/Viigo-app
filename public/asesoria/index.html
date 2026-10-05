@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Método Viigo · Diagnóstico gratuito</title>
+<meta name="description" content="Construye tu ruta inmobiliaria y arma tu propia estrategia de inversión para crear patrimonio. Sesión de diagnóstico gratuita de 30 minutos.">
+<!-- Vista previa al compartir (Instagram, WhatsApp) -->
+<meta property="og:title" content="Método Viigo · Diagnóstico gratuito">
+<meta property="og:description" content="Construye tu ruta inmobiliaria y crea patrimonio para tu jubilación. Sesión de diagnóstico gratis de 30 minutos.">
+<meta property="og:type" content="website">
+<!-- <meta property="og:image" content="https://TU-DOMINIO/og-image.jpg"> -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- ============ META PIXEL (Instagram Ads) ============
+     Reemplaza TU_PIXEL_ID por el ID de tu píxel (Meta Business > Administrador de eventos)
+     y descomenta el bloque. -->
+<!--
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', 'TU_PIXEL_ID');
+fbq('track', 'PageView');
+</script>
+-->
+
+<style>
+:root{
+  /* Marca: azul Viel, verde Viel PM, naranjo Capital Q */
+  --viel-blue:#22336B;
+  --vpm-green:#008A8A;
+  --cq-orange:#ECAD52;
+  --blue-deep:#172550;
+  --ink:#1a2547;
+  --ink-soft:#4f5b75;
+  --bg:#f4f7f8;
+  --surface:#ffffff;
+  --line:#dde4ea;
+  --orange-soft:#fbebd3;
+  --teal-soft:#dff1f1;
+  --radius:18px;
+  --max:1120px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Inter,system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:Archivo,Inter,sans-serif;line-height:1.12;font-weight:800;letter-spacing:-.02em}
+a{color:inherit}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 20px}
+section{padding:88px 0}
+.center{text-align:center}
+.center .lead{margin:16px auto 0}
+.eyebrow{font-family:Archivo,sans-serif;display:inline-block;font-size:.8rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--vpm-green)}
+.dark .eyebrow{color:var(--cq-orange)}
+.lead{font-size:1.15rem;color:var(--ink-soft);max-width:60ch}
+.section-title{font-size:clamp(1.9rem,3.6vw,2.7rem);margin-top:14px}
+
+/* Botones */
+.btn{font-family:Archivo,Inter,sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:16px 28px;border-radius:999px;font-weight:700;font-size:1rem;text-decoration:none;border:0;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease, background .15s}
+.btn-orange{background:var(--cq-orange);color:#1b1408;box-shadow:0 8px 24px -10px rgba(236,173,82,.85)}
+.btn-orange:hover{transform:translateY(-2px);background:#f2bc6a}
+.btn-ghost{color:#fff;border:1px solid rgba(255,255,255,.35);background:transparent}
+.btn-ghost:hover{background:rgba(255,255,255,.08)}
+.btn-teal{background:var(--vpm-green);color:#fff}
+.btn-teal:hover{transform:translateY(-2px);background:#00999a}
+.live-dot{width:9px;height:9px;border-radius:50%;background:#3ee08f;box-shadow:0 0 0 0 rgba(62,224,143,.7);animation:pulse 1.8s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 9px rgba(62,224,143,0)}100%{box-shadow:0 0 0 0 rgba(62,224,143,0)}}
+
+/* Nav */
+.nav{position:absolute;top:0;left:0;right:0;z-index:5;padding:22px 0}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:Archivo,sans-serif;font-size:1.4rem;font-weight:800;color:#fff;text-decoration:none}
+.logo span{color:var(--cq-orange)}
+.nav .btn{padding:10px 18px;font-size:.9rem}
+
+/* Fondos oscuros */
+.dark{background:radial-gradient(1200px 600px at 85% 10%, rgba(0,138,138,.55) 0%, transparent 60%),linear-gradient(160deg,var(--viel-blue) 0%,var(--blue-deep) 100%);color:#fff}
+.dark .lead{color:rgba(255,255,255,.82)}
+
+/* Hero */
+.hero{position:relative;padding:150px 0 110px;overflow:hidden}
+.hero .wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center}
+.hero h1{font-size:clamp(2.3rem,5.4vw,3.9rem);margin:18px 0 22px}
+.hero h1 em{font-style:normal;color:var(--cq-orange)}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:14px;margin-top:34px}
+.hero-note{margin-top:18px;font-size:.88rem;color:rgba(255,255,255,.65)}
+.hero-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:24px;padding:30px;backdrop-filter:blur(6px)}
+.hero-card .tag{display:inline-block;background:var(--cq-orange);color:#1b1408;font-family:Archivo,sans-serif;font-weight:800;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;padding:5px 12px;border-radius:999px;margin-bottom:14px}
+.hero-card h3{font-size:1.25rem;margin-bottom:18px}
+.check{list-style:none;display:grid;gap:14px}
+.check li{display:flex;gap:12px;align-items:flex-start;font-size:.98rem}
+.check li::before{content:"";flex:0 0 22px;height:22px;border-radius:50%;background:var(--cq-orange) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b1408' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E") center/13px no-repeat;margin-top:2px}
+.check.teal li::before{background-color:var(--vpm-green);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E")}
+
+/* Problema */
+.problem .wrap{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+.problem h2{font-size:clamp(1.9rem,3.6vw,2.7rem);margin:14px 0 18px}
+.quote{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--vpm-green);border-radius:var(--radius);padding:34px}
+.quote p{font-family:Archivo,sans-serif;font-size:1.35rem;line-height:1.4;font-weight:600}
+.quote small{display:block;margin-top:16px;color:var(--ink-soft);font-size:.9rem}
+
+/* Ruta: diagnóstico + programa */
+.route{background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.route-grid{display:grid;grid-template-columns:1fr 1.3fr;gap:24px;margin-top:52px;text-align:left}
+.plan{border-radius:22px;padding:34px;border:1px solid var(--line);position:relative}
+.plan .label{font-family:Archivo,sans-serif;font-weight:700;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase}
+.plan h3{font-size:1.6rem;margin:10px 0 6px}
+.plan .price{font-family:Archivo,sans-serif;font-weight:800;font-size:2.4rem;line-height:1;margin:18px 0 4px}
+.plan .price small{font-size:1rem;font-weight:600;opacity:.75}
+.plan .sub{font-size:.92rem;margin-bottom:22px}
+.plan-free{background:var(--bg)}
+.plan-free .label{color:var(--vpm-green)}
+.plan-free .price{color:var(--vpm-green)}
+.plan-free .sub{color:var(--ink-soft)}
+.plan-pro{background:linear-gradient(160deg,var(--viel-blue),var(--blue-deep));color:#fff;border:0}
+.plan-pro .label{color:var(--cq-orange)}
+.plan-pro .sub{color:rgba(255,255,255,.75)}
+.sessions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+.session{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:16px}
+.session b{font-family:Archivo,sans-serif;color:var(--cq-orange);font-size:.82rem;letter-spacing:.06em;text-transform:uppercase}
+.session p{font-size:.92rem;margin-top:4px;color:rgba(255,255,255,.9)}
+.arrow{position:absolute;right:-19px;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;background:var(--cq-orange);display:grid;place-items:center;font-weight:800;color:#1b1408;z-index:2}
+
+/* Calculadora */
+.calc .wrap{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.calc-mock{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:26px;box-shadow:0 30px 60px -40px rgba(34,51,107,.45)}
+.calc-mock .bar{display:flex;gap:6px;margin-bottom:18px}
+.calc-mock .bar i{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.calc-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px dashed var(--line);font-size:.95rem;color:var(--ink-soft)}
+.calc-row b{color:var(--ink);font-family:Archivo,sans-serif}
+.calc-total{margin-top:18px;background:var(--teal-soft);border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;font-weight:600;color:var(--vpm-green)}
+.calc-total b{font-family:Archivo,sans-serif;font-size:1.3rem}
+.calc-note{margin-top:14px;font-size:.85rem;color:var(--ink-soft)}
+.blur{filter:blur(5px);user-select:none}
+
+/* Para quién */
+.who-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:44px;text-align:left}
+.who-card{border-radius:var(--radius);padding:34px}
+.who-yes{background:linear-gradient(160deg,var(--viel-blue),#0d5a6e);color:#fff}
+.who-no{background:var(--surface);border:1px solid var(--line)}
+.who-card h3{font-size:1.4rem;margin-bottom:18px}
+.who-no .check li::before{background:#e9edf2 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234f5b75' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E") center/11px no-repeat}
+
+/* Quiénes somos */
+.about{background:var(--surface);border-top:1px solid var(--line)}
+.founders{display:grid;grid-template-columns:1fr 1fr;gap:28px;max-width:860px;margin:48px auto 0;text-align:left}
+.founder .photo{position:relative;aspect-ratio:4/5;border-radius:22px;overflow:hidden;background:linear-gradient(160deg,var(--teal-soft),#e8ecf6);border:1px solid var(--line);margin-bottom:20px}
+.founder .photo::before{content:attr(data-initials);position:absolute;inset:0;display:grid;place-items:center;font-family:Archivo,sans-serif;font-weight:800;font-size:3.4rem;color:rgba(34,51,107,.25)}
+.founder .photo::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:linear-gradient(90deg,var(--viel-blue),var(--vpm-green),var(--cq-orange))}
+.founder .photo img{position:relative;width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+.founder h3{font-size:1.45rem}
+.founder .role{font-family:Archivo,sans-serif;font-weight:700;color:var(--vpm-green);font-size:.9rem;margin:2px 0 10px}
+.founder p{color:var(--ink-soft)}
+.creds{list-style:none;display:grid;gap:8px;margin-top:4px}
+.creds li{position:relative;padding-left:18px;color:var(--ink-soft);font-size:.97rem}
+.creds li::before{content:"";position:absolute;left:0;top:.62em;width:8px;height:8px;border-radius:50%;background:var(--cq-orange)}
+
+/* Reserva */
+.booking-inner{max-width:860px;margin:0 auto}
+.goal{margin-top:40px;text-align:left;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:28px}
+.goal-q{font-family:Archivo,sans-serif;font-weight:700;font-size:1.1rem}
+.goal-q span{font-family:Inter,sans-serif;font-weight:400;color:rgba(255,255,255,.6);font-size:.95rem}
+.chips{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}
+.chip{font-family:Archivo,sans-serif;font-weight:600;font-size:1rem;color:#fff;background:rgba(10,18,40,.55);border:1px solid rgba(255,255,255,.18);padding:13px 22px;border-radius:999px;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.chip:hover{border-color:rgba(255,255,255,.45)}
+.chip[aria-pressed="true"]{background:var(--cq-orange);border-color:var(--cq-orange);color:#1b1408}
+.chip[aria-pressed="true"]::before{content:"✓ "}
+.choose{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px}
+.option{border-radius:18px;padding:24px;text-align:left}
+.option h3{font-size:1.15rem;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.option p{font-size:.92rem;margin-bottom:16px}
+.option-now{background:var(--vpm-green)}
+.option-now p{color:rgba(255,255,255,.88)}
+.option-now .btn{background:#fff;color:var(--vpm-green);width:100%}
+.option-later{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14)}
+.option-later p{color:rgba(255,255,255,.75)}
+.option-later .btn{width:100%}
+.booking-box{margin-top:22px;background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 30px 60px -30px rgba(0,0,0,.5)}
+.booking-box iframe{display:block;width:100%;height:760px;border:0}
+.booking-empty{color:var(--ink);padding:48px 28px;text-align:center}
+.booking-empty h3{font-size:1.25rem;margin-bottom:10px}
+.booking-empty p{color:var(--ink-soft);max-width:52ch;margin:0 auto}
+.booking-empty code{background:var(--orange-soft);padding:2px 6px;border-radius:6px;font-size:.9em}
+.trust{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 28px;margin-top:26px;font-size:.9rem;color:rgba(255,255,255,.75)}
+
+/* FAQ */
+.faq-list{max-width:760px;margin:48px auto 0;display:grid;gap:12px}
+details{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 24px}
+summary{cursor:pointer;font-family:Archivo,sans-serif;font-weight:700;list-style:none;display:flex;justify-content:space-between;gap:16px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-size:1.4rem;line-height:1;color:var(--vpm-green);transition:transform .2s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{margin-top:12px;color:var(--ink-soft)}
+
+/* CTA final + footer */
+.final{text-align:center;padding:0 0 80px}
+.final h2{font-size:clamp(1.8rem,3.4vw,2.5rem);max-width:22ch;margin:0 auto 26px}
+footer{border-top:1px solid var(--line);padding:30px 0;font-size:.82rem;color:var(--ink-soft)}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
+
+.sticky-cta{display:none}
+
+@media (max-width:900px){
+  section{padding:68px 0}
+  .hero{padding:120px 0 80px}
+  .hero .wrap,.problem .wrap,.calc .wrap,.who-grid,.route-grid{grid-template-columns:1fr;gap:28px}
+  .arrow{right:50%;top:auto;bottom:-19px;transform:translateX(50%) rotate(90deg)}
+  .booking-box iframe{height:900px}
+}
+@media (max-width:560px){
+  .wrap{padding:0 16px}
+  .nav .btn{display:none}
+  .hero-ctas .btn{width:100%}
+  .sessions,.choose,.founders{grid-template-columns:1fr}
+  .plan,.who-card{padding:26px}
+  .goal{padding:22px}
+  .chip{font-size:.95rem;padding:12px 18px}
+  .sticky-cta{display:block;position:fixed;left:16px;right:16px;bottom:16px;z-index:20;transition:opacity .2s, transform .2s}
+  .sticky-cta .btn{width:100%}
+  .sticky-cta.hide{opacity:0;transform:translateY(20px);pointer-events:none}
+  footer{padding-bottom:96px}
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a href="#" class="logo">Método <span>Viigo</span></a>
+    <a href="#reserva" class="btn btn-orange" data-cta="nav">Diagnóstico gratis</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero dark">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow">Educación en inversión inmobiliaria</span>
+      <h1>Construye tu <em>ruta inmobiliaria</em> y crea el patrimonio para tu jubilación</h1>
+      <p class="lead">Te ayudamos a armar tu propia estrategia de inversión en propiedades, paso a paso y con números claros, para que tu futuro no dependa solo de tu pensión.</p>
+      <div class="hero-ctas">
+        <a href="#reserva" class="btn btn-orange" data-cta="hero">Quiero mi diagnóstico gratis →</a>
+        <a href="#ruta" class="btn btn-ghost">Cómo funciona</a>
+      </div>
+      <p class="hero-note">Sesión online de 30 minutos · Gratis · Puedes conectarte ahora mismo</p>
+    </div>
+    <div class="hero-card">
+      <span class="tag">Gratis · 30 min</span>
+      <h3>En tu sesión de diagnóstico vas a:</h3>
+      <ul class="check">
+        <li>Contarnos tu objetivo y revisar tu punto de partida</li>
+        <li>Conocer el modelo del Método Viigo</li>
+        <li>Ver en vivo la calculadora Viigo aplicada a tu caso</li>
+        <li>Saber si el programa es para ti, sin compromiso</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEMA -->
+<section class="problem">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow">El problema</span>
+      <h2>Trabajas toda la vida, pero ¿qué tendrás cuando dejes de trabajar?</h2>
+      <p class="lead">Muchas personas llegan a la jubilación con ingresos muy por debajo de lo que ganaban. No es falta de esfuerzo: es que nadie nos enseñó a construir patrimonio.</p>
+      <p class="lead" style="margin-top:14px">Las propiedades son una de las formas más usadas para hacerlo. Pero invertir sin una ruta clara genera miedo, dudas y decisiones caras.</p>
+    </div>
+    <div class="quote">
+      <p>“No necesitas que alguien decida por ti. Necesitas una ruta clara para armar tu propia estrategia.”</p>
+      <small>— Método Viigo</small>
+    </div>
+  </div>
+</section>
+
+<!-- RUTA: diagnóstico + programa -->
+<section class="route" id="ruta">
+  <div class="wrap center">
+    <span class="eyebrow">Cómo funciona</span>
+    <h2 class="section-title">Tu ruta inmobiliaria en dos pasos</h2>
+    <p class="lead">Partimos con un diagnóstico gratuito. Si hace sentido para ti, seguimos con el programa de 4 sesiones individuales.</p>
+
+    <div class="route-grid">
+      <div class="plan plan-free">
+        <span class="label">Paso 1</span>
+        <h3>Sesión de diagnóstico</h3>
+        <div class="price">Gratis</div>
+        <p class="sub">30 minutos · Online · Puedes conectarte ahora</p>
+        <ul class="check teal">
+          <li>Definimos tu objetivo</li>
+          <li>Revisamos tu situación actual</li>
+          <li>Conoces el modelo y la calculadora Viigo</li>
+        </ul>
+        <div class="arrow" aria-hidden="true">→</div>
+      </div>
+
+      <div class="plan plan-pro">
+        <span class="label">Paso 2 · Programa Método Viigo</span>
+        <h3>Tu estrategia de inversión</h3>
+        <div class="price">UF 8 <small>por persona</small></div>
+        <p class="sub">4 sesiones individuales, 1 a 1, enfocadas en tu caso</p>
+        <div class="sessions">
+          <div class="session"><b>Diagnóstico</b><p>Tus finanzas y tu capacidad real de inversión.</p></div>
+          <div class="session"><b>Estrategia</b><p>Qué tipo de propiedad calza con tu objetivo.</p></div>
+          <div class="session"><b>Financiamiento</b><p>Crédito, pie, flujos y rentabilidad con números.</p></div>
+          <div class="session"><b>Patrimonio</b><p>Tu ruta inmobiliaria proyectada al largo plazo.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CALCULADORA -->
+<section class="calc" id="calculadora">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow">Nuestra herramienta</span>
+      <h2 class="section-title">La calculadora Viigo</h2>
+      <p class="lead" style="margin-top:16px">Es la herramienta con la que trabajamos tu ruta: simula una inversión con tus números reales y te muestra cómo una propiedad puede convertirse en patrimonio y renta.</p>
+      <p class="lead" style="margin-top:14px">Puedes conocerla ahora. En la sesión de diagnóstico la usamos en vivo con tu caso.</p>
+      <div class="hero-ctas">
+        <a href="#" class="btn btn-teal" id="calc-link" target="_blank" rel="noopener" data-cta="calculadora">Ver la calculadora Viigo</a>
+      </div>
+    </div>
+    <div class="calc-mock" aria-hidden="true">
+      <div class="bar"><i></i><i></i><i></i></div>
+      <div class="calc-row"><span>Valor de la propiedad</span><b class="blur">UF 3.200</b></div>
+      <div class="calc-row"><span>Pie</span><b class="blur">UF 640</b></div>
+      <div class="calc-row"><span>Dividendo estimado</span><b class="blur">$ 520.000</b></div>
+      <div class="calc-row"><span>Arriendo estimado</span><b class="blur">$ 480.000</b></div>
+      <div class="calc-total"><span>Patrimonio proyectado</span><b class="blur">UF 0.000</b></div>
+      <p class="calc-note">Los resultados con tu caso los vemos juntos en la sesión.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PARA QUIÉN -->
+<section style="padding-top:0">
+  <div class="wrap center">
+    <span class="eyebrow">¿Es para ti?</span>
+    <h2 class="section-title">Para personas que quieren tomar el control</h2>
+    <div class="who-grid">
+      <div class="who-card who-yes">
+        <h3>Es para ti si…</h3>
+        <ul class="check">
+          <li>Tienes ingresos estables y quieres hacer algo más con ellos</li>
+          <li>Te preocupa de qué vas a vivir cuando te jubiles</li>
+          <li>Quieres invertir en propiedades pero no sabes por dónde partir</li>
+          <li>Prefieres entender los números antes de decidir</li>
+        </ul>
+      </div>
+      <div class="who-card who-no">
+        <h3>No es para ti si…</h3>
+        <ul class="check">
+          <li>Buscas hacerte rico rápido o sin esfuerzo</li>
+          <li>No estás dispuesto a aprender ni a planificar</li>
+          <li>Solo quieres que alguien te venda una propiedad</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUIÉNES SOMOS -->
+<section class="about" id="quienes-somos">
+  <div class="wrap center">
+    <span class="eyebrow">Quiénes somos</span>
+    <h2 class="section-title">Los creadores del Método Viigo</h2>
+    <p class="lead">Detrás del método está la experiencia de Viel Propiedades, Viel Property Management y Capital Q, acompañando a personas en sus decisiones inmobiliarias.</p>
+    <div class="founders">
+      <!-- Para poner las fotos: guarda las imágenes junto a este archivo con estos nombres
+           (foto-catalina.jpg y foto-sebastian.jpg), idealmente verticales 4:5. -->
+      <article class="founder">
+        <div class="photo" data-initials="CV"><img src="/asesoria/foto-catalina.jpg" alt="Catalina Viel" onerror="this.remove()"></div>
+        <h3>Catalina Viel</h3>
+        <p class="role">Creadora del Método Viigo de Inversión</p>
+        <ul class="creds">
+          <li>Ingeniera Comercial</li>
+          <li>Gerente Comercial de Viel.cl</li>
+          <li>Socia de Capital Q y de Viel PM</li>
+          <li>Coach con PNL y conferencista</li>
+        </ul>
+      </article>
+      <article class="founder">
+        <div class="photo" data-initials="SV"><img src="/asesoria/foto-sebastian.jpg" alt="Sebastián Viel" onerror="this.remove()"></div>
+        <h3>Sebastián Viel</h3>
+        <p class="role">Creador del Método Viigo</p>
+        <ul class="creds">
+          <li>Ingeniero Comercial</li>
+          <li>Gerente General de Viel.cl</li>
+          <li>Socio de Capital Q y de Viel PM</li>
+          <li>Experto en venta e inversión inmobiliaria y estrategia financiera</li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- RESERVA -->
+<section class="dark" id="reserva">
+  <div class="wrap center booking-inner">
+    <span class="eyebrow">Sesión de diagnóstico · Gratis · 30 min</span>
+    <h2 class="section-title">Empieza tu ruta inmobiliaria hoy</h2>
+    <p class="lead">Cuéntanos qué buscas y elige: conéctate ahora mismo o agenda para el horario que más te acomode.</p>
+
+    <div class="goal">
+      <p class="goal-q">¿Qué buscas? <span>(puedes marcar varias)</span></p>
+      <div class="chips" id="chips">
+        <button type="button" class="chip" aria-pressed="false">Complementar mi jubilación</button>
+        <button type="button" class="chip" aria-pressed="false">Mi primera inversión</button>
+        <button type="button" class="chip" aria-pressed="false">Renta por arriendo</button>
+        <button type="button" class="chip" aria-pressed="false">Ordenar mis finanzas</button>
+      </div>
+
+      <div class="choose">
+        <div class="option option-now" id="option-now">
+          <h3><span class="live-dot"></span>Conéctate ahora</h3>
+          <p>Hay una persona del equipo disponible para tu diagnóstico en este momento.</p>
+          <a href="#" class="btn" id="now-link" target="_blank" rel="noopener" data-cta="ahora">Conectarme ahora →</a>
+        </div>
+        <div class="option option-later">
+          <h3>Agenda para después</h3>
+          <p>Elige día y hora. Te llega la invitación con el link a tu correo.</p>
+          <a href="#calendario" class="btn btn-orange" data-cta="agendar">Ver horarios ↓</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="booking-box" id="calendario"></div>
+    <div class="trust">
+      <span>✓ Diagnóstico 100% gratis</span><span>✓ Online, desde donde estés</span><span>✓ Sin compromiso</span>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section>
+  <div class="wrap center">
+    <span class="eyebrow">Preguntas frecuentes</span>
+    <h2 class="section-title">Lo que más nos preguntan</h2>
+  </div>
+  <div class="wrap faq-list">
+    <details><summary>¿La sesión de diagnóstico tiene costo?</summary><p>No. Es gratis, dura 30 minutos y es online. Puedes conectarte ahora o agendar para otro momento.</p></details>
+    <details><summary>¿Cuánto cuesta el programa completo?</summary><p>El programa Método Viigo tiene un valor de UF 8 por persona e incluye 4 sesiones individuales para construir tu ruta inmobiliaria y tu propia estrategia de inversión.</p></details>
+    <details><summary>¿Qué es la calculadora Viigo?</summary><p>Es la herramienta con la que simulamos tu inversión con números reales. Puedes conocerla en esta página y en la sesión la aplicamos a tu caso.</p></details>
+    <details><summary>¿Necesito tener dinero ahorrado para empezar?</summary><p>No necesariamente. En el diagnóstico revisamos tu situación real y vemos qué camino tiene sentido para ti hoy.</p></details>
+    <details><summary>¿Me van a vender una propiedad?</summary><p>El Método Viigo es educación: te enseñamos a armar tu propia estrategia para que tomes tus decisiones de inversión con criterio.</p></details>
+    <details><summary>¿Y si no puedo asistir a la hora que agendé?</summary><p>Puedes reprogramar o cancelar desde el mismo correo de confirmación.</p></details>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="final">
+  <div class="wrap">
+    <h2>El mejor momento para empezar a construir tu patrimonio es hoy</h2>
+    <a href="#reserva" class="btn btn-orange" data-cta="final">Quiero mi diagnóstico gratis →</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="y"></span> Método Viigo. Todos los derechos reservados.</span>
+    <span>Contenido educativo. No constituye asesoría financiera personalizada.</span>
+  </div>
+</footer>
+
+<div class="sticky-cta" id="sticky"><a href="#reserva" class="btn btn-orange" data-cta="sticky">Diagnóstico gratis · 30 min →</a></div>
+
+<script>
+/* ======================= CONFIGURACIÓN ======================= */
+
+// 1) Página de reservas de Google Calendar (Programación de citas > Compartir > Insertar en el sitio web).
+//    Pega el src del iframe: https://calendar.google.com/calendar/appointments/schedules/AcZssZ...?gv=true
+const BOOKING_URL = "";
+
+// 2) Link para "Conéctate ahora". Puede ser:
+//    - una sala fija de Google Meet:  https://meet.google.com/abc-defg-hij
+//    - o WhatsApp:                    https://wa.me/569XXXXXXXX  (se envía el mensaje con el objetivo marcado)
+//    Si lo dejas vacío, la opción "Conéctate ahora" no se muestra.
+const CONECTAR_AHORA_URL = "";
+
+// 3) Link de la landing de la calculadora Viigo (solo visualización, sin descarga del PDF).
+const CALCULADORA_URL = "";
+
+/* ============================================================= */
+
+(function () {
+  // Guarda los UTM de la campaña de Instagram
+  const params = new URLSearchParams(location.search);
+  const utm = {};
+  ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','fbclid'].forEach(k => {
+    if (params.get(k)) utm[k] = params.get(k);
+  });
+  try { if (Object.keys(utm).length) sessionStorage.setItem('viigo_utm', JSON.stringify(utm)); } catch (e) {}
+
+  // Objetivos (chips)
+  const chips = [...document.querySelectorAll('#chips .chip')];
+  const objetivos = () => chips.filter(c => c.getAttribute('aria-pressed') === 'true').map(c => c.textContent.trim());
+  chips.forEach(c => c.addEventListener('click', () => {
+    c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+    updateNowLink();
+  }));
+
+  // Conéctate ahora
+  const nowLink = document.getElementById('now-link');
+  function updateNowLink () {
+    if (!CONECTAR_AHORA_URL) return;
+    let url = CONECTAR_AHORA_URL;
+    if (/wa\.me|whatsapp/.test(url)) {
+      const obj = objetivos();
+      const msg = 'Hola! Quiero mi sesión de diagnóstico gratis del Método Viigo ahora.' +
+        (obj.length ? ' Lo que busco: ' + obj.join(', ') + '.' : '');
+      url += (url.includes('?') ? '&' : '?') + 'text=' + encodeURIComponent(msg);
+    }
+    nowLink.href = url;
+  }
+  if (CONECTAR_AHORA_URL) updateNowLink();
+  else {
+    document.getElementById('option-now').remove();
+    document.querySelector('.choose').style.gridTemplateColumns = '1fr';
+  }
+
+  // Calculadora
+  const calc = document.getElementById('calc-link');
+  if (CALCULADORA_URL) calc.href = CALCULADORA_URL;
+  else { calc.href = '#reserva'; calc.removeAttribute('target'); calc.textContent = 'Verla en mi diagnóstico →'; }
+
+  // Calendario de Google
+  const box = document.getElementById('calendario');
+  if (BOOKING_URL) {
+    const iframe = document.createElement('iframe');
+    iframe.src = BOOKING_URL;
+    iframe.title = 'Agenda tu sesión de diagnóstico';
+    iframe.loading = 'lazy';
+    box.appendChild(iframe);
+  } else {
+    box.innerHTML = '<div class="booking-empty"><h3>Aquí aparecerá tu calendario de reservas</h3>' +
+      '<p>Pega el link de tu página de citas de Google Calendar en <code>BOOKING_URL</code>, al final del archivo.</p></div>';
+  }
+
+  // Píxel de Meta: registra el clic y los objetivos marcados
+  document.querySelectorAll('[data-cta]').forEach(el => el.addEventListener('click', () => {
+    if (!window.fbq) return;
+    const data = { cta: el.dataset.cta, objetivos: objetivos().join(' | ') };
+    if (el.dataset.cta === 'ahora' || el.dataset.cta === 'agendar') fbq('track', 'Lead', data);
+    else fbq('trackCustom', 'ClickCTA', data);
+  }));
+
+  // Botón fijo del móvil: se oculta en la sección de reserva
+  const sticky = document.getElementById('sticky');
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(([e]) => sticky.classList.toggle('hide', e.isIntersecting), { threshold: 0.1 })
+      .observe(document.getElementById('reserva'));
+  }
+
+  document.getElementById('y').textContent = new Date().getFullYear();
+})();
+</script>
+</body>
+</html>

@@ -90,7 +90,9 @@ export function NextMeetingCard({ adv }: { adv: boolean }) {
       <section className="card">
         <span className="eyebrow">Próxima asesoría</span>
         <h3 style={{ margin: '4px 0 2px' }}>Sin asesoría agendada</h3>
-        <p className="note">{adv ? <>Agéndala desde <Link href={href('asesor', 'agenda')}>Agenda</Link>.</> : `${s.adv.first} te enviará la invitación con el link de Google Meet.`}</p>
+        {adv ? (
+          <div className="row" style={{ marginTop: 8 }}><Link className="btn btn-p" href={href('asesor', 'agenda') + '#agendar'}>＋ Agendar asesoría con Meet</Link></div>
+        ) : <p className="note">{`${s.adv.first} te enviará la invitación con el link de Google Meet.`}</p>}
       </section>
     );
   return (
@@ -104,6 +106,7 @@ export function NextMeetingCard({ adv }: { adv: boolean }) {
         {m.meet ? <a className="btn btn-p" href={m.meet} target="_blank" rel="noopener">{adv ? 'Iniciar reunión en Meet' : 'Unirse por Google Meet'}</a>
           : <span className="note">El link de Meet aparecerá aquí.</span>}
         {adv && <Link className="btn btn-g" href={href('asesor', 'agenda')}>Reprogramar en Agenda</Link>}
+        {adv && <Link className="btn btn-g" href={href('asesor', 'agenda') + '#agendar'}>＋ Agendar otra asesoría</Link>}
       </div>
       <p className="note" style={{ flexBasis: '100%' }}>
         La reunión se graba en Meet. Al terminar, la app genera el resumen y extrae los objetivos para que {adv ? 'los revises y apruebes' : s.adv.first + ' los revise antes de publicarlos aquí'}.
@@ -528,6 +531,16 @@ export function Agenda() {
   const [manana] = useState(() => new Date(Date.now() + 864e5).toISOString().slice(0, 10));
   const days = [...new Set(s.citas.map((c) => c.dia))];
 
+  // Al llegar desde un botón "Agendar asesoría", baja directo al formulario.
+  useEffect(() => {
+    if (location.hash !== '#agendar') return;
+    const t = setTimeout(() => {
+      document.getElementById('agendar')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      (document.getElementById('ci-dia') as HTMLInputElement | null)?.focus({ preventScroll: true });
+    }, 150);
+    return () => clearTimeout(t);
+  }, []);
+
   // Aviso al volver de Google después de conectar el calendario.
   useEffect(() => {
     const g = new URLSearchParams(location.search).get('google');
@@ -607,6 +620,7 @@ export function Agenda() {
   return (
     <>
       <Head eb="Agenda" h="Tus asesorías VIIGO" p="Tus próximas asesorías con todos tus clientes." />
+      <div className="row"><a className="btn btn-p" href="#agendar">＋ Agendar asesoría con Meet</a></div>
       {s.google ? (
         <div className="row"><span className="pill p-ok">Google Calendar conectado · {s.google}</span><span className="note">Cada asesoría nueva crea su evento con link de Meet e invita al cliente.</span></div>
       ) : (
@@ -643,7 +657,7 @@ export function Agenda() {
         </section>
       ))}
       <section className="card">
-        <h3>Agendar nueva asesoría</h3>
+        <h3 id="agendar" style={{ scrollMarginTop: 16 }}>Agendar nueva asesoría</h3>
         <form className="fgrid" style={{ marginTop: 6 }} onSubmit={submit}>
           <div className="field"><label htmlFor="ci-cli">Cliente</label>
             <select id="ci-cli" name="cli" required defaultValue={s.clienteId ?? ''}>

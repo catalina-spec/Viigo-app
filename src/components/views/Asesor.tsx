@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useRef, type FormEvent, type ReactNode } from 'react';
 import { AppShell } from '@/components/AppShell';
 import { RutaResultado } from '@/components/Calculadora';
@@ -63,7 +64,7 @@ function PerfilAsesor() {
 }
 
 function Ficha() {
-  const { s, up, toast } = useStore();
+  const { s, up, toast, href } = useStore();
   const P = s.P, cn = nombreCliente(s);
   const priv = (v: ReactNode) => (s.consent ? v : <span className="pill p-lock">Privado</span>);
   const toggle = (id: string) => {
@@ -99,7 +100,8 @@ function Ficha() {
       <section className="card advisor">
         <Avatar src={P.foto} name={`${P.nombre} ${P.apellido}`.trim() || P.mail} size={60} />
         <div className="adv-info"><h3>{`${P.nombre} ${P.apellido}`.trim() || 'Sin nombre aún'}</h3><p className="note">{P.mail}{P.cel ? ' · ' + P.cel : ''}</p></div>
-        <div className="adv-contact"><StagePill k={P.etapa} /><span className="note">{yearsLeft(P.edad, P.retiro)} años para jubilar (a los {P.retiro})</span></div>
+        <div className="adv-contact"><StagePill k={P.etapa} /><span className="note">{yearsLeft(P.edad, P.retiro)} años para jubilar (a los {P.retiro})</span>
+          <Link className="btn btn-p" href={href('asesor', 'agenda') + '#agendar'}>＋ Agendar asesoría con Meet</Link></div>
       </section>
       {!P.nombre && <p className="watermark">{P.mail} todavía no completa su perfil.</p>}
       <div className="grid3">

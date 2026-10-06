@@ -105,7 +105,7 @@ export async function loadCliente(sb: SupabaseClient, me: Me, id: string): Promi
     route: ruta0 && esRutaVigente(ruta0.resultado) ? { result: ruta0.resultado, date: fmtFecha(ruta0.aceptada_en) } : null,
     calc: ruta0 && esRutaVigente(ruta0.resultado) ? { ...ruta0.resultado.params } : calcDefault(p.edad ?? 30),
     alts: (alts.data ?? []).map((a): Alternativa => ({
-      id: a.id, nombre: a.nombre, comuna: a.comuna, tipo: a.tipo, uf: +a.precio_uf, m2: +(a.m2 ?? 0), arriendo: +(a.arriendo ?? 0),
+      id: a.id, nombre: a.nombre, comuna: a.comuna, tipo: a.tipo, uf: +a.precio_uf, link: a.link ?? '', m2: +(a.m2 ?? 0), arriendo: +(a.arriendo ?? 0),
       pts: a.puntaje, origen: a.origen, nota: a.nota,
     })).reverse(),
     objetivos: (objs.data ?? []).map((o): Objetivo => ({ id: o.id, x: o.texto, from: o.origen, active: o.activo })),
@@ -159,8 +159,8 @@ export async function sync(sb: SupabaseClient, me: Me, a: State, b: State): Prom
   const A = byId(a.alts), B = byId(b.alts);
   for (const [id, x] of B) {
     const old = A.get(id);
-    if (!old) jobs.push(sb.from('alternativas').insert({ id, cliente_id: cid, origen: x.origen, nombre: x.nombre, comuna: x.comuna, tipo: x.tipo, precio_uf: x.uf, m2: x.m2 || null, arriendo: x.arriendo || null, nota: x.nota, puntaje: x.pts }));
-    else if (!same(old, x)) jobs.push(sb.from('alternativas').update({ puntaje: x.pts, nota: x.nota }).eq('id', id));
+    if (!old) jobs.push(sb.from('alternativas').insert({ id, cliente_id: cid, origen: x.origen, nombre: x.nombre, comuna: x.comuna, tipo: x.tipo, precio_uf: x.uf, m2: x.m2 || null, arriendo: x.arriendo || null, nota: x.nota, puntaje: x.pts, link: x.link || null }));
+    else if (!same(old, x)) jobs.push(sb.from('alternativas').update({ puntaje: x.pts, nota: x.nota, link: x.link || null }).eq('id', id));
   }
   for (const id of A.keys()) if (!B.has(id)) jobs.push(sb.from('alternativas').delete().eq('id', id));
 

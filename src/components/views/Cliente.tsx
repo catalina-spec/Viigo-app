@@ -182,7 +182,7 @@ function Ruta() {
       <div className="cv-accept" style={{ position: 'static' }}>
         <span className="pill p-ok" style={{ fontSize: 13 }}>✓ Ruta aceptada el {s.route.date}</span>
         <button className="btn btn-p" onClick={() => { up((d) => { d.calc = { ...r.params }; }); setEditando(true); }}>Modificar mi ruta</button>
-        <span className="note">Al modificarla, cambia los datos y aparece el botón "Aceptar esta nueva ruta".</span>
+        <span className="note">Al modificarla, cambia los datos y aparece el botón “Aceptar esta nueva ruta”.</span>
       </div>
       <RutaResultado r={r} />
     </>

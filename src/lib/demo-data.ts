@@ -28,7 +28,7 @@ export type Objetivo = { id: string; x: string; from: string; active: boolean };
 export type Pendiente = { id: string; x: string; who: string; done: boolean; active: boolean };
 export type Alternativa = {
   id: string; nombre: string; comuna: string; tipo: string; uf: number; m2: number; arriendo: number;
-  pts: number | null; origen: 'asesor' | 'cliente'; nota: string;
+  pts: number | null; origen: 'asesor' | 'cliente'; nota: string; link?: string;
 };
 export type Debt = Record<'tipo' | 'inst' | 'orig' | 'saldo' | 'cuota' | 'tasa' | 'plazo' | 'rest', string | number>;
 export type Msg = { me: boolean; x: string; t: string };
@@ -74,7 +74,7 @@ export const PENDIENTES: Pendiente[] = [
 ];
 
 export const ALTS: Alternativa[] = [
-  {id:'a1', nombre:'Depto 2D1B · Av. Irarrázaval', comuna:'Ñuñoa', tipo:'Departamento', uf:3200, m2:52, arriendo:470000, pts:84, origen:'asesor', nota:'Cerca del metro. Buen arriendo para la zona. Revisar gastos comunes.'},
+  {id:'a1', nombre:'Depto 2D1B · Av. Irarrázaval', comuna:'Ñuñoa', tipo:'Departamento', uf:3200, m2:52, arriendo:470000, pts:84, origen:'asesor', nota:'Cerca del metro. Buen arriendo para la zona. Revisar gastos comunes.', link:'https://www.viel.cl'},
   {id:'a2', nombre:'Depto 2D2B · Metro Manuel Montt', comuna:'Providencia', tipo:'Departamento', uf:3450, m2:55, arriendo:490000, pts:76, origen:'asesor', nota:'Más caro por m², pero con alta demanda de arriendo.'},
   {id:'a3', nombre:'Depto 1D1B · Príncipe de Gales', comuna:'La Reina', tipo:'Departamento', uf:2900, m2:44, arriendo:400000, pts:null, origen:'cliente', nota:'Lo vi en un portal. ¿Vale la pena evaluarlo?'},
 ];

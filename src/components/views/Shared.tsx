@@ -264,6 +264,18 @@ async function importXlsx(file: File, up: ReturnType<typeof useStore>['up'], toa
 }
 
 /* ───────── alternativas ───────── */
+/** Deja solo links web válidos (http/https). Si falta "https://", lo agrega. */
+export function limpiarLink(v: string): string {
+  const t = v.trim();
+  if (!t) return '';
+  try {
+    const u = new URL(/^https?:\/\//i.test(t) ? t : `https://${t}`);
+    return u.hostname.includes('.') ? u.toString() : '';
+  } catch {
+    return '';
+  }
+}
+
 export function AltCard({ a, adv }: { a: Alternativa; adv: boolean }) {
   const { s, up, toast, href } = useStore();
   const yieldB = a.arriendo && a.uf ? (a.arriendo * 12) / (a.uf * UF) : 0;
@@ -287,6 +299,17 @@ export function AltCard({ a, adv }: { a: Alternativa; adv: boolean }) {
       </div>
       {a.nota ? <p className="note2">{a.nota}</p> : null}
       <div className="row">
+        {a.link && <a className="btn btn-p" href={a.link} target="_blank" rel="noopener noreferrer">Ver propiedad ↗</a>}
+        {adv && a.origen === 'asesor' && (
+          <button className="btn btn-g" onClick={() => {
+            const nuevo = window.prompt('Link de la propiedad (portal, corredor o ficha):', a.link ?? '');
+            if (nuevo === null) return;
+            const link = limpiarLink(nuevo);
+            if (nuevo.trim() && !link) return toast('Ese link no es válido. Copia la dirección completa desde el navegador.');
+            up((d) => { d.alts.find((y) => y.id === a.id)!.link = link; });
+            toast(link ? `Link guardado. ${nombreCliente(s)} ya puede abrir la propiedad.` : 'Link quitado.');
+          }}>{a.link ? 'Cambiar link' : 'Agregar link'}</button>
+        )}
         {adv ? (
           a.pts == null && (
             <button className="btn btn-g" onClick={() => {
@@ -314,7 +337,7 @@ export function AltForm({ adv }: { adv: boolean }) {
     const f = new FormData(e.currentTarget);
     const v = (k: string) => String(f.get(k) ?? '').trim();
     up((d) => {
-      d.alts.unshift({ id: crypto.randomUUID(), nombre: v('nombre'), comuna: v('comuna'), tipo: v('tipo'), uf: +v('uf') || 0, m2: +v('m2') || 0, arriendo: +v('arr') || 0, pts: null, origen: adv ? 'asesor' : 'cliente', nota: v('nota') });
+      d.alts.unshift({ id: crypto.randomUUID(), nombre: v('nombre'), comuna: v('comuna'), tipo: v('tipo'), uf: +v('uf') || 0, m2: +v('m2') || 0, arriendo: +v('arr') || 0, pts: null, origen: adv ? 'asesor' : 'cliente', nota: v('nota'), link: limpiarLink(v('link')) });
     });
     toast(adv ? `Alternativa sugerida. ${nombreCliente(s)} la ve en su carpeta.` : 'Alternativa guardada.');
     ref.current?.reset();
@@ -329,6 +352,7 @@ export function AltForm({ adv }: { adv: boolean }) {
         <div className="field"><label htmlFor="al-uf">Precio (UF)</label><input id="al-uf" name="uf" type="number" inputMode="decimal" min={0} step={10} required /></div>
         <div className="field"><label htmlFor="al-m2">Superficie (m²)</label><input id="al-m2" name="m2" type="number" inputMode="decimal" min={0} step={1} /></div>
         <div className="field"><label htmlFor="al-arr">Arriendo estimado ($/mes)</label><input id="al-arr" name="arr" type="number" inputMode="numeric" min={0} step={10000} /></div>
+        <div className="field" style={{ gridColumn: '1/-1' }}><label htmlFor="al-link">Link de la propiedad</label><input id="al-link" name="link" type="url" inputMode="url" placeholder="https://… (portal inmobiliario, corredor o ficha)" /><span className="hint">Opcional. Aparece como botón “Ver propiedad”.</span></div>
         <div className="field" style={{ gridColumn: '1/-1' }}><label htmlFor="al-nota">{adv ? 'Por qué la sugieres' : 'Nota para ti o tu asesor'}</label><input id="al-nota" name="nota" placeholder="Opcional" /></div>
         <div className="row"><button className="btn btn-p" type="submit">{adv ? `Sugerir a ${nombreCliente(s)}` : 'Guardar alternativa'}</button></div>
       </form>

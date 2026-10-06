@@ -3,6 +3,7 @@
 import { useEffect, useRef, type FormEvent, type ReactNode } from 'react';
 import { AppShell } from '@/components/AppShell';
 import { RutaResultado } from '@/components/Calculadora';
+import { FASES } from '@/lib/calc';
 import { nombreCliente, useStore } from '@/lib/store';
 import { resizeImage, fmtCorta } from '@/lib/data';
 import { clp, ufs } from '@/lib/format';
@@ -105,7 +106,7 @@ function Ficha() {
         <div className="card kv"><span className="k">Ingreso objetivo al jubilar</span><span className="v num">{priv(P.ingresoJub ? clp(P.ingresoJub) + '/mes' : 'No informado')}</span></div>
         <div className="card kv"><span className="k">Saldo AFP</span><span className="v num">{priv(P.afp ? clp(+P.afp) : 'No informado')}</span></div>
         <div className="card kv"><span className="k">Ruta aceptada</span>
-          <span className="v">{s.route ? (s.route.result.mult > 1 ? `${s.route.result.mult}x patrimonio` : 'Sí') : 'Aún no'}</span>
+          <span className="v">{s.route ? <span className={`pill p-${FASES[s.route.result.faseInicial].k}`} style={{ fontSize: 14 }}>Empieza en {FASES[s.route.result.faseInicial].l}</span> : 'Aún no'}</span>
           <span className="s">{s.route ? `Primera propiedad ${ufs(s.route.result.params.precio)} · ${s.route.date}` : `${cn} la acepta en su calculadora`}</span></div>
       </div>
       {s.route && (

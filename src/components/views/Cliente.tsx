@@ -1,15 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import type { FormEvent, ReactNode } from 'react';
+import { useState, type FormEvent, type ReactNode } from 'react';
 import { AppShell } from '@/components/AppShell';
+import { Calculadora, RutaResultado } from '@/components/Calculadora';
 import { useStore } from '@/lib/store';
 import { STAGES, type StageKey } from '@/lib/demo-data';
 import { resizeImage } from '@/lib/data';
-import { ufs } from '@/lib/format';
 import {
   AltCard, AltForm, Avatar, Biblioteca, ChatView, ConsentCard, FinView, Head, MeetingCard,
-  NextMeetingCard, RetireCards, RouteTable, fechaLarga, useCopy, yearsLeft,
+  NextMeetingCard, fechaLarga, useCopy, yearsLeft,
 } from './Shared';
 
 function Inicio() {
@@ -73,8 +73,8 @@ function Inicio() {
       {!s.route && (
         <section className="empty">
           <h3>Aún no eliges tu ruta</h3>
-          <p>Usa la calculadora VIIGO en la biblioteca, revisa tu proyección y acepta la ruta que te acomode.</p>
-          <Link className="btn btn-p" href={href('cliente', 'biblioteca')}>Abrir la calculadora</Link>
+          <p>Usa la calculadora VIIGO para proyectar tu ruta hasta los 65, con tu multiplicador de patrimonio, y acéptala cuando te haga sentido.</p>
+          <Link className="btn btn-p" href={href('cliente', 'ruta')}>Abrir la calculadora</Link>
         </section>
       )}
       <div className="grid2">
@@ -163,44 +163,27 @@ function Perfil() {
 }
 
 function Ruta() {
-  const { s, href } = useStore();
-  if (!s.route)
+  const { s, up } = useStore();
+  const [editando, setEditando] = useState(false);
+  // Sin ruta aceptada (o modificándola): la calculadora completa.
+  if (!s.route || editando)
     return (
       <>
-        <Head eb="Mi ruta" h="Tu ruta inmobiliaria" />
-        <section className="empty">
-          <h3>Todavía no aceptas una ruta</h3>
-          <p>Entra a la calculadora VIIGO, prueba distintos valores y acepta la ruta que más te acomode. Aparecerá aquí.</p>
-          <Link className="btn btn-p" href={href('cliente', 'biblioteca')}>Ir a la calculadora</Link>
-        </section>
+        <Head eb="Mi ruta" h={s.route ? 'Modifica tu ruta' : 'Arma tu ruta inmobiliaria'}
+          p={s.route ? `Tu ruta aceptada el ${s.route.date} sigue vigente hasta que aceptes una nueva.` : 'Ingresa los datos de tu primera inversión, revisa tu ruta hasta los 65 y acéptala cuando te haga sentido. Puedes modificarla cuando quieras.'} />
+        {s.route && <div className="row"><button className="btn btn-g" onClick={() => setEditando(false)}>← Volver a mi ruta aceptada</button></div>}
+        <Calculadora role="cliente" />
       </>
     );
-  const r = s.route.result, p = r.params;
+  const r = s.route.result;
   return (
     <>
-      <Head eb="Mi ruta" h="Tu ruta inmobiliaria" p={`Aceptada el ${s.route.date}. Cada ciclo dura 8 años. Desde la propiedad final vives de su arriendo.`} />
-      <section className="card">
-        <div className="route">
-          {r.steps.map((st, i) => (
-            <div key={i} className={`stage ${i === 0 ? 'now' : ''}`}>
-              <span className={`pill p-${st.ph.k}`} style={{ alignSelf: 'flex-start' }}>{st.ph.l.replace('VIIGO ', '')}</span>
-              <span className="ages num">{st.a0}{st.final ? ` → ${r.retiro}+ años` : ` → ${st.a1} años`}</span>
-              <h4>{st.final ? 'Propiedad final' : 'Ciclo ' + (i + 1)}</h4>
-              <span className="price num">{ufs(st.price)}</span>
-              <p>{st.final ? 'La conservas y te entrega ingreso mensual.' : `Pie ${ufs(st.pie)} · liberas ${ufs(st.cap ?? 0)}`}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-      <RetireCards r={r} />
-      <section className="card">
-        <h3>Detalle de tu ruta</h3>
-        <RouteTable r={r} />
-        <p className="note" style={{ marginTop: 10 }}>
-          Primera propiedad UF {p.precio.toLocaleString('es-CL')}, pie {p.pie}%, tasa {String(p.tasa).replace('.', ',')}%, crédito a {p.plazo} años. Proyección referencial.
-        </p>
-        <div className="row" style={{ marginTop: 10 }}><Link className="btn btn-g" href={href('cliente', 'biblioteca')}>Recalcular en la calculadora</Link></div>
-      </section>
+      <Head eb="Mi ruta" h="Tu ruta inmobiliaria" p={`Aceptada el ${s.route.date}. ${s.adv.first} la ve en tu ficha.`} />
+      <div className="row">
+        <button className="btn btn-p" onClick={() => { up((d) => { d.calc = { ...r.params }; }); setEditando(true); }}>Modificar mi ruta</button>
+        <span className="note">Puedes cambiarla las veces que quieras.</span>
+      </div>
+      <RutaResultado r={r} />
     </>
   );
 }

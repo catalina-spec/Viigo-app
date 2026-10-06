@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { toCita, toMeeting } from '@/lib/data';
 import { nombreCliente, useStore } from '@/lib/store';
-import { calcRoute, finTotals, type RouteResult } from '@/lib/calc';
+import { finTotals } from '@/lib/calc';
+import { Calculadora } from '@/components/Calculadora';
 import { UF, clp, initials, nowStr, pct, ufs } from '@/lib/format';
 import { FIN, STAGES, SESIONES, type Alternativa, type Cita, type Debt, type Meeting } from '@/lib/demo-data';
 import type { Role } from '@/lib/tabs';
@@ -262,97 +263,6 @@ async function importXlsx(file: File, up: ReturnType<typeof useStore>['up'], toa
   }
 }
 
-/* ───────── calculadora ───────── */
-export function RouteTable({ r }: { r: RouteResult }) {
-  return (
-    <div className="tbl">
-      <table className="num">
-        <thead><tr><th>Etapa</th><th>Edad</th><th className="r">Propiedad</th><th className="r">Pie</th><th className="r">Dividendo/mes</th><th className="r">Arriendo/mes</th><th className="r">Flujo/mes</th><th className="r">Capital que liberas</th></tr></thead>
-        <tbody>
-          {r.steps.map((st, i) => (
-            <tr key={i}>
-              <td><span className={`pill p-${st.ph.k}`}>{st.ph.l}</span></td>
-              <td>{st.a0}{st.final ? '+' : ' → ' + st.a1}</td>
-              <td className="r">{ufs(st.price)}</td>
-              <td className="r">{ufs(st.pie)}</td>
-              <td className="r">{clp(st.div * UF)}</td>
-              <td className="r">{clp(st.arr * UF)}</td>
-              <td className="r" style={{ color: st.flujo >= 0 ? 'var(--ok)' : 'var(--lock)' }}>{st.flujo >= 0 ? '+' : ''}{clp(st.flujo * UF)}</td>
-              <td className="r">{st.final ? 'Propiedad final' : ufs(st.cap ?? 0)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-export function RetireCards({ r }: { r: RouteResult }) {
-  const { s } = useStore();
-  const goal = +s.P.ingresoJub || 0, inc = r.ingreso * UF;
-  return (
-    <>
-      <div className="grid3">
-        <div className="card kv"><span className="k">Valor propiedad a los {r.retiro}</span><span className="v num">{ufs(r.val)}</span><span className="s">{clp(r.val * UF)}</span></div>
-        <div className="card kv"><span className="k">Patrimonio neto a los {r.retiro}</span><span className="v num">{ufs(r.neto)}</span><span className="s">Deuda restante {ufs(r.sal)}</span></div>
-        <div className="card kv"><span className="k">Ingreso mensual a los {r.retiro}</span><span className="v num">{clp(inc)}</span>
-          <span className="s">{r.sal > 0 ? `Sube a ${clp(r.arrFull * UF)} al pagar el crédito (${r.pagada} años)` : 'Crédito pagado'}</span></div>
-      </div>
-      {goal ? (
-        <div className="goal">
-          <span>Tu objetivo de ingreso en la jubilación: <b className="num">{clp(goal)}/mes</b></span>
-          <span className="note">Con arriendo {inc >= goal ? 'lo cubres' : 'cubres ' + pct(inc / goal)}{r.sal > 0 ? ' al jubilar' : ''}. Tu AFP se suma a esto.</span>
-        </div>
-      ) : null}
-    </>
-  );
-}
-
-export function CalcView({ role }: { role: Role }) {
-  const { s, up, toast, href } = useStore();
-  const c = s.calc;
-  const r = calcRoute(s.P.edad, s.P.retiro, c);
-  const accepted = s.route && JSON.stringify(s.route.result.params) === JSON.stringify(r.params);
-  const set = (k: keyof typeof c) => (e: { target: { value: string } }) => up((d) => { d.calc[k] = +e.target.value || 0; });
-  return (
-    <section className="card" id="calculadora">
-      <span className="eyebrow">Calculadora VIIGO</span>
-      <h3 style={{ marginTop: 4 }}>Conoce tu ruta inmobiliaria</h3>
-      <p className="note" style={{ marginBottom: 14 }}>
-        {role === 'asesor' ? `Usa la edad de ${nombreCliente(s)} (${s.P.edad} años) y su edad de jubilación (${s.P.retiro}) de su perfil.` : `Usamos tu edad (${s.P.edad} años) y tu edad de jubilación (${s.P.retiro}) de tu perfil.`} Ajusta los datos de tu primera propiedad.
-      </p>
-      <div className="fgrid">
-        <div className="field"><label htmlFor="c-precio">Precio primera propiedad (UF)</label><input type="number" inputMode="decimal" id="c-precio" value={c.precio} min={500} step={50} onChange={set('precio')} /></div>
-        <div className="field"><label htmlFor="c-pie">Pie (%)</label><input type="number" inputMode="decimal" id="c-pie" value={c.pie} min={10} max={60} step={1} onChange={set('pie')} /></div>
-        <div className="field"><label htmlFor="c-tasa">Tasa hipotecaria anual (%)</label><input type="number" inputMode="decimal" id="c-tasa" value={c.tasa} min={1} max={12} step={0.1} onChange={set('tasa')} /></div>
-        <div className="field"><label htmlFor="c-plazo">Plazo del crédito (años)</label>
-          <select id="c-plazo" value={c.plazo} onChange={set('plazo')}>{[15, 20, 25, 30].map((y) => <option key={y} value={y}>{y} años</option>)}</select></div>
-      </div>
-      <div className="calc-out">
-        <p className="note">{r.cycles} ciclo{r.cycles === 1 ? '' : 's'} de 8 años y una propiedad final. El último ciclo con venta cierra antes de los 58.</p>
-        <RouteTable r={r} />
-        <RetireCards r={r} />
-        <div className="row">
-          {role === 'asesor' ? (
-            <span className="note">Solo {nombreCliente(s)} puede aceptar su ruta desde su portal. Usa la calculadora para mostrarle escenarios en la sesión.</span>
-          ) : accepted ? (
-            <><span className="pill p-ok">Esta es tu ruta aceptada</span><Link className="btn btn-g" href={href('cliente', 'ruta')}>Ver en Mi ruta</Link></>
-          ) : (
-            <>
-              <button className="btn btn-p" onClick={() => {
-                up((d) => { d.route = { result: r, date: new Date().toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' }) }; });
-                toast(`Ruta aceptada. Ya la ves en Mi ruta y ${s.adv.first} la ve en tu ficha.`);
-              }}>Aceptar esta ruta</button>
-              <span className="note">Se guardará en Mi ruta y {s.adv.first} la verá en tu ficha.</span>
-            </>
-          )}
-        </div>
-        <p className="note">Proyección referencial: plusvalía 1% anual, arriendo 5% anual en START y 6% desde GROW, 90% de ocupación, UF {clp(UF)}. Pie de cada salto: 20% GROW, 25% EQUITY, 40% LEGACY.</p>
-      </div>
-    </section>
-  );
-}
-
 /* ───────── alternativas ───────── */
 export function AltCard({ a, adv }: { a: Alternativa; adv: boolean }) {
   const { s, up, toast, href } = useStore();
@@ -530,7 +440,7 @@ export function Biblioteca({ role }: { role: Role }) {
           ))}
         </div>
       </section>
-      <CalcView role={role} />
+      <Calculadora role={role} />
       <div className="grid2">
         {items.map(([tag, h, p, b]) => (
           <article className="card lib" key={h}><span className="tag">{tag}</span><h3>{h}</h3><p>{p}</p><button className="btn btn-g" style={{ alignSelf: 'flex-start' }} onClick={res}>{b}</button></article>

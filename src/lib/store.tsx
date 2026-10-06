@@ -6,7 +6,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type * as D from './demo-data';
 import * as DEMO from './demo-data';
 import { hrefFor, type Role } from './tabs';
-import type { CalcParams, RouteResult } from './calc';
+import { calcDefault, type CalcParams, type RouteResult } from './calc';
 import type { Me } from './supabase/server';
 import { createClient } from './supabase/client';
 import { loadCliente, loadInicial, savePlanilla, sync, toCita } from './data';
@@ -49,7 +49,7 @@ const empty = (me: Me): State => ({
   P: { nombre: '', apellido: '', mail: me.email, cel: '', edad: 30, retiro: 65, etapa: 'start', ingresoJub: 0, afp: '', foto: null },
   adv: { id: null, name: 'Tu asesor VIIGO', first: 'tu asesor', role: 'Asesor VIIGO · Viel.cl', phone: '', wa: '', mail: '', photo: null },
   consent: false, dur: '30', grantedUntil: null, grantedUntilISO: null, route: null, draftMsg: '',
-  calc: { precio: 3200, pie: 20, tasa: 4.5, plazo: 25 }, log: [], msgs: [], proxima: null, meetings: [],
+  calc: calcDefault(30), log: [], msgs: [], proxima: null, meetings: [],
   draft: { resumen: '', acuerdos: '', objs: [] }, objetivos: [], pendientes: [], alts: [], F: {}, debts: [], citas: [], google: null,
   finTab: 'patrimonio', sesion: 1,
 });
@@ -90,7 +90,7 @@ function demoState(me: Me): State {
       const inicio = i === 0 ? proxima.inicio! : en(i + 3, 10 + 2 * i);
       return { ...toCita({ id: c.id, cliente_id: 'demo', inicio, sesion: c.ses, meet_url: null, calendar_event_id: 'demo' }), cliente: c.cliente };
     }),
-    google: 'catalina@viel.cl', sesion: 4,
+    google: 'catalina@viel.cl', sesion: 4, calc: calcDefault(DEMO.PROFILE.edad),
   };
 }
 

@@ -6,6 +6,7 @@ import type { Me } from './supabase/server';
 import type { State } from './store';
 import type { Advisor, Alternativa, Cita, Debt, Meeting, Msg, Objetivo, Pendiente, Profile, StageKey } from './demo-data';
 import { SESIONES } from './demo-data';
+import { calcDefault, esRutaVigente } from './calc';
 
 type Row = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -101,8 +102,8 @@ export async function loadCliente(sb: SupabaseClient, me: Me, id: string): Promi
     consent: vigente, grantedUntil: vigente ? (per!.hasta ? fmtFecha(per!.hasta) : 'que lo quites') : null, grantedUntilISO: vigente ? per!.hasta : null,
     F: (plan.data?.valores as Record<string, number>) ?? {},
     debts: (plan.data?.deudas as Debt[]) ?? [],
-    route: ruta0 ? { result: ruta0.resultado, date: fmtFecha(ruta0.aceptada_en) } : null,
-    calc: ruta0 ? { precio: ruta0.parametros.precio, pie: ruta0.parametros.pie, tasa: ruta0.parametros.tasa, plazo: ruta0.parametros.plazo } : { precio: 3200, pie: 20, tasa: 4.5, plazo: 25 },
+    route: ruta0 && esRutaVigente(ruta0.resultado) ? { result: ruta0.resultado, date: fmtFecha(ruta0.aceptada_en) } : null,
+    calc: ruta0 && esRutaVigente(ruta0.resultado) ? { ...ruta0.resultado.params } : calcDefault(p.edad ?? 30),
     alts: (alts.data ?? []).map((a): Alternativa => ({
       id: a.id, nombre: a.nombre, comuna: a.comuna, tipo: a.tipo, uf: +a.precio_uf, m2: +(a.m2 ?? 0), arriendo: +(a.arriendo ?? 0),
       pts: a.puntaje, origen: a.origen, nota: a.nota,

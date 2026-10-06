@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, type FormEvent, type ReactNode } from 'react';
 import { AppShell } from '@/components/AppShell';
+import { RutaResultado } from '@/components/Calculadora';
 import { nombreCliente, useStore } from '@/lib/store';
 import { resizeImage, fmtCorta } from '@/lib/data';
 import { clp, ufs } from '@/lib/format';
@@ -103,9 +104,18 @@ function Ficha() {
       <div className="grid3">
         <div className="card kv"><span className="k">Ingreso objetivo al jubilar</span><span className="v num">{priv(P.ingresoJub ? clp(P.ingresoJub) + '/mes' : 'No informado')}</span></div>
         <div className="card kv"><span className="k">Saldo AFP</span><span className="v num">{priv(P.afp ? clp(+P.afp) : 'No informado')}</span></div>
-        <div className="card kv"><span className="k">Ruta aceptada</span><span className="v">{s.route ? s.route.result.cycles + ' ciclos + final' : 'Aún no'}</span>
-          <span className="s">{s.route ? `Primera propiedad ${ufs(s.route.result.params.precio)} · ${s.route.date}` : 'El cliente la acepta en la calculadora'}</span></div>
+        <div className="card kv"><span className="k">Ruta aceptada</span>
+          <span className="v">{s.route ? (s.route.result.mult > 1 ? `${s.route.result.mult}x patrimonio` : 'Sí') : 'Aún no'}</span>
+          <span className="s">{s.route ? `Primera propiedad ${ufs(s.route.result.params.precio)} · ${s.route.date}` : `${cn} la acepta en su calculadora`}</span></div>
       </div>
+      {s.route && (
+        <details className="card">
+          <summary style={{ cursor: 'pointer' }}>
+            <b>Ver la ruta que aceptó {cn}</b> <span className="note">· {s.route.date} · patrimonio a los 65: {ufs(s.route.result.patrimonio)}</span>
+          </summary>
+          <div style={{ marginTop: 14 }}><RutaResultado r={s.route.result} /></div>
+        </details>
+      )}
       <section className="card">
         <h3>Objetivos del cliente</h3>
         <p className="note" style={{ margin: '-4px 0 10px' }}>{cn} solo ve los que actives. Los objetivos de cada reunión llegan aquí al aprobar el resumen.</p>

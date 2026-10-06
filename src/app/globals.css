@@ -358,9 +358,12 @@ label.btn{cursor:pointer}
 .eco-item{display:flex;flex-direction:column;gap:8px;padding:16px;border:1px solid var(--line);border-top:4px solid var(--eco);border-radius:var(--r-sm);background:var(--surface-2);color:var(--ink);text-decoration:none;transition:transform .15s,box-shadow .15s}
 .eco-item:hover{transform:translateY(-2px);box-shadow:0 8px 24px -14px rgba(13,27,62,.35)}
 @media (prefers-reduced-motion:reduce){.eco-item{transition:none}.eco-item:hover{transform:none}}
-.eco-logo{height:44px;display:flex;align-items:center}
-.eco-logo img{max-height:44px;max-width:160px;object-fit:contain}
+.eco-logo{height:64px;display:flex;align-items:center}
+.eco-logo img{max-height:64px;max-width:190px;object-fit:contain}
 .eco-logo b{font-family:var(--serif);font-size:24px;color:var(--ink)}
 .eco-logo b span{color:var(--eco)}
 .eco-txt{font-size:13.5px;color:var(--muted);flex:1}
 .eco-cta{font-size:13.5px;font-weight:700;color:var(--ink)}
+.eco-logo img{background:#fff;border-radius:8px;padding:4px 8px}
+.eco-off{cursor:default}
+.eco-off:hover{transform:none;box-shadow:none}

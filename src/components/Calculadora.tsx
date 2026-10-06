@@ -168,8 +168,9 @@ export function Calculadora({ role }: { role: Role }) {
           ) : esLaAceptada ? (
             <>
               <span className="pill p-ok">✓ Esta es tu ruta aceptada · {s.route!.date}</span>
+              <button className="btn btn-p" disabled style={{ opacity: 0.45, cursor: 'not-allowed' }}>Aceptar esta nueva ruta</button>
+              <span className="note">Cambia algún dato arriba (precio, pie, tasa o plazo) para armar otra ruta y aceptarla.</span>
               <Link className="btn btn-g" href={href('cliente', 'ruta')}>Ver en Mi ruta</Link>
-              <span className="note">Cambia cualquier dato arriba para probar otra ruta.</span>
             </>
           ) : (
             <>

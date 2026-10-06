@@ -179,9 +179,10 @@ function Ruta() {
   return (
     <>
       <Head eb="Mi ruta" h="Tu ruta inmobiliaria" p={`Aceptada el ${s.route.date}. ${s.adv.first} la ve en tu ficha.`} />
-      <div className="row">
+      <div className="cv-accept" style={{ position: 'static' }}>
+        <span className="pill p-ok" style={{ fontSize: 13 }}>✓ Ruta aceptada el {s.route.date}</span>
         <button className="btn btn-p" onClick={() => { up((d) => { d.calc = { ...r.params }; }); setEditando(true); }}>Modificar mi ruta</button>
-        <span className="note">Puedes cambiarla las veces que quieras.</span>
+        <span className="note">Al modificarla, cambia los datos y aparece el botón "Aceptar esta nueva ruta".</span>
       </div>
       <RutaResultado r={r} />
     </>

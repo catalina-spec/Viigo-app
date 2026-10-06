@@ -7,7 +7,7 @@ type Empresa = { nombre: string; marca: [string, string]; color: string; logo?: 
 const EMPRESAS: Empresa[] = [
   { nombre: 'Viel.cl', marca: ['Viel', '.cl'], color: '#22336B', logo: '/logos/viel.png', activo: true, url: 'https://viel.cl', para: 'Busca propiedades para comprar o arrendar, con el equipo que te acompaña en tu ruta.', cta: 'Ver propiedades' },
   { nombre: 'Viel PM', marca: ['Viel', ' PM'], color: '#008A8A', logo: '/logos/vielpm.svg', activo: true, url: 'https://vielpm.cl', para: '¿Compraste tu propiedad de inversión? Te la administramos: arriendo, cobranza y mantención.', cta: 'Administrar mi propiedad' },
-  { nombre: 'Capital Q', marca: ['Capital', ' Q'], color: '#5D63F5', logo: '/logos/capitalq.png', logoAlto: 34, activo: false, url: 'https://capitalq.cl', para: 'Conoce proyectos nuevos preevaluados para tu siguiente etapa VIIGO.', cta: 'Ver proyectos nuevos' },
+  { nombre: 'Capital Q', marca: ['Capital', ' Q'], color: '#5D63F5', logo: '/logos/capitalq.png', logoAlto: 26, activo: false, url: 'https://capitalq.cl', para: 'Conoce proyectos nuevos preevaluados para tu siguiente etapa VIIGO.', cta: 'Ver proyectos nuevos' },
 ];
 
 export function Ecosistema() {

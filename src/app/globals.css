@@ -350,3 +350,17 @@ label.btn{cursor:pointer}
 .cv-conclusion p{color:rgba(255,255,255,.55);font-size:14px;max-width:48ch;margin:0 auto}
 .cv-accept{position:sticky;bottom:12px;z-index:5;display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;box-shadow:0 8px 30px rgba(13,27,62,.12)}
 @media (max-width:760px){.cv-accept{bottom:calc(72px + env(safe-area-inset-bottom,0px))}}
+
+/* ───────── Ecosistema inmobiliario Viel ───────── */
+.eco-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:900px){.eco-grid{grid-template-columns:1fr}}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .eco-logo b span{color:color-mix(in srgb,var(--eco) 55%,white)}}
+.eco-item{display:flex;flex-direction:column;gap:8px;padding:16px;border:1px solid var(--line);border-top:4px solid var(--eco);border-radius:var(--r-sm);background:var(--surface-2);color:var(--ink);text-decoration:none;transition:transform .15s,box-shadow .15s}
+.eco-item:hover{transform:translateY(-2px);box-shadow:0 8px 24px -14px rgba(13,27,62,.35)}
+@media (prefers-reduced-motion:reduce){.eco-item{transition:none}.eco-item:hover{transform:none}}
+.eco-logo{height:44px;display:flex;align-items:center}
+.eco-logo img{max-height:44px;max-width:160px;object-fit:contain}
+.eco-logo b{font-family:var(--serif);font-size:24px;color:var(--ink)}
+.eco-logo b span{color:var(--eco)}
+.eco-txt{font-size:13.5px;color:var(--muted);flex:1}
+.eco-cta{font-size:13.5px;font-weight:700;color:var(--ink)}

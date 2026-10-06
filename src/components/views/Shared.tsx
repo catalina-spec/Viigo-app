@@ -6,6 +6,7 @@ import { toCita, toMeeting } from '@/lib/data';
 import { nombreCliente, useStore } from '@/lib/store';
 import { finTotals } from '@/lib/calc';
 import { Calculadora } from '@/components/Calculadora';
+import { Ecosistema } from '@/components/Ecosistema';
 import { UF, clp, initials, nowStr, pct, ufs } from '@/lib/format';
 import { FIN, STAGES, SESIONES, type Alternativa, type Cita, type Debt, type Meeting } from '@/lib/demo-data';
 import type { Role } from '@/lib/tabs';
@@ -470,6 +471,7 @@ export function Biblioteca({ role }: { role: Role }) {
           <article className="card lib" key={h}><span className="tag">{tag}</span><h3>{h}</h3><p>{p}</p><button className="btn btn-g" style={{ alignSelf: 'flex-start' }} onClick={res}>{b}</button></article>
         ))}
       </div>
+      <Ecosistema />
     </>
   );
 }

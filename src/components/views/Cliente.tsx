@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { AppShell } from '@/components/AppShell';
 import { Calculadora, RutaResultado } from '@/components/Calculadora';
+import { Ecosistema } from '@/components/Ecosistema';
 import { useStore } from '@/lib/store';
 import { STAGES, type StageKey } from '@/lib/demo-data';
 import { resizeImage } from '@/lib/data';
@@ -102,6 +103,7 @@ function Inicio() {
       {last && <div className="head" style={{ marginTop: 6 }}><span className="eyebrow">Resumen de tu última asesoría VIIGO</span></div>}
       {last && <MeetingCard m={last} />}
       {pending && <p className="note">El resumen de tu última asesoría está en revisión. {A.first} lo publicará aquí cuando lo apruebe.</p>}
+      <Ecosistema />
     </>
   );
 }

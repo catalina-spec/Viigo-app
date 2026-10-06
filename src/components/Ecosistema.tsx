@@ -2,12 +2,12 @@
 // Para cambiar un texto por el logo, guarda el archivo en /public/logos y escribe su ruta en `logo`.
 // Para activar el link de una empresa (p. ej. Capital Q cuando tenga su web), cambia `activo` a true.
 
-type Empresa = { nombre: string; marca: [string, string]; color: string; logo?: string; url: string; para: string; cta: string; activo: boolean };
+type Empresa = { nombre: string; marca: [string, string]; color: string; logo?: string; logoAlto?: number; url: string; para: string; cta: string; activo: boolean };
 
 const EMPRESAS: Empresa[] = [
   { nombre: 'Viel.cl', marca: ['Viel', '.cl'], color: '#22336B', logo: '/logos/viel.png', activo: true, url: 'https://viel.cl', para: 'Busca propiedades para comprar o arrendar, con el equipo que te acompaña en tu ruta.', cta: 'Ver propiedades' },
   { nombre: 'Viel PM', marca: ['Viel', ' PM'], color: '#008A8A', logo: '/logos/vielpm.svg', activo: true, url: 'https://vielpm.cl', para: '¿Compraste tu propiedad de inversión? Te la administramos: arriendo, cobranza y mantención.', cta: 'Administrar mi propiedad' },
-  { nombre: 'Capital Q', marca: ['Capital', ' Q'], color: '#5D63F5', logo: '/logos/capitalq.png', activo: false, url: 'https://capitalq.cl', para: 'Conoce proyectos nuevos preevaluados para tu siguiente etapa VIIGO.', cta: 'Ver proyectos nuevos' },
+  { nombre: 'Capital Q', marca: ['Capital', ' Q'], color: '#5D63F5', logo: '/logos/capitalq.png', logoAlto: 34, activo: false, url: 'https://capitalq.cl', para: 'Conoce proyectos nuevos preevaluados para tu siguiente etapa VIIGO.', cta: 'Ver proyectos nuevos' },
 ];
 
 export function Ecosistema() {
@@ -22,7 +22,7 @@ export function Ecosistema() {
             <>
               <span className="eco-logo" aria-label={e.nombre}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                {e.logo ? <img src={e.logo} alt={e.nombre} /> : <b>{e.marca[0]}<span>{e.marca[1]}</span></b>}
+                {e.logo ? <img src={e.logo} alt={e.nombre} style={e.logoAlto ? { maxHeight: e.logoAlto } : undefined} /> : <b>{e.marca[0]}<span>{e.marca[1]}</span></b>}
               </span>
               <span className="eco-txt">{e.para}</span>
               {e.activo ? <span className="eco-cta">{e.cta} ↗</span> : <span className="pill p-warn" style={{ alignSelf: 'flex-start' }}>Próximamente</span>}

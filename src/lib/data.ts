@@ -7,6 +7,7 @@ import type { State } from './store';
 import type { Advisor, Alternativa, Cita, Debt, Meeting, Msg, Objetivo, Pendiente, Profile, StageKey } from './demo-data';
 import { SESIONES } from './demo-data';
 import { calcDefault, esRutaVigente } from './calc';
+import { combinar, type SesionApp } from './programa';
 
 type Row = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -49,18 +50,20 @@ export function toCita(r: Row): Cita {
 export async function loadInicial(sb: SupabaseClient, me: Me): Promise<Partial<State>> {
   if (me.rol === 'cliente') return { clientes: [], ...(await loadCliente(sb, me, me.id)) };
 
-  const [{ data: yo }, { data: clientes }, { data: citas }, { data: google }] = await Promise.all([
+  const [{ data: yo }, { data: clientes }, { data: citas }, { data: google }, { data: prog }, { data: editor }] = await Promise.all([
     sb.from('perfiles').select('*').eq('id', me.id).single(),
     sb.from('perfiles').select('id,nombre,apellido,email,asesor_id').eq('rol', 'cliente').order('creado_en', { ascending: false }),
     sb.from('reuniones').select('*, cliente:perfiles!reuniones_cliente_id_fkey(nombre,apellido,email)')
       .eq('estado', 'agendada').gte('inicio', new Date(Date.now() - 2 * 3600e3).toISOString()).order('inicio'),
     sb.rpc('google_conectado'),
+    sb.from('programa_sesiones').select('n,data'),
+    sb.rpc('puede_editar_programa'),
   ]);
   const lista = (clientes ?? []).map((c) => ({ id: c.id, nombre: c.nombre, apellido: c.apellido, email: c.email, mio: c.asesor_id === me.id }));
   let elegido: string | null = null;
   try { elegido = localStorage.getItem('viigo_cliente'); } catch {}
   if (!lista.some((c) => c.id === elegido)) elegido = (lista.find((c) => c.mio) ?? lista[0])?.id ?? null;
-  const base: Partial<State> = { clientes: lista, adv: toAdvisor(yo), citas: (citas ?? []).map(toCita), google: (google as string | null) ?? null };
+  const base: Partial<State> = { clientes: lista, adv: toAdvisor(yo), citas: (citas ?? []).map(toCita), google: (google as string | null) ?? null, programa: combinar(prog as { n: number; data: SesionApp }[] | null), puedeEditar: editor === true };
   if (!elegido) return { ...base, clienteId: null, P: blankProfile() };
   return { ...base, ...(await loadCliente(sb, me, elegido)), adv: toAdvisor(yo) };
 }

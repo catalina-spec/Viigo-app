@@ -6,6 +6,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type * as D from './demo-data';
 import * as DEMO from './demo-data';
 import { hrefFor, type Role } from './tabs';
+import { PROGRAMA_BASE, type SesionApp } from './programa';
 import { calcDefault, type CalcParams, type RouteResult } from './calc';
 import type { Me } from './supabase/server';
 import { createClient } from './supabase/client';
@@ -40,6 +41,10 @@ export type State = {
   citas: D.Cita[];
   /** Asesor: correo de Google conectado para Calendar/Meet, o null. */
   google: string | null;
+  /** Contenido de las 4 sesiones (base + lo editado en la app). */
+  programa: SesionApp[];
+  /** El asesor conectado puede editar el programa. */
+  puedeEditar: boolean;
   finTab: string;
   sesion: number;
 };
@@ -50,7 +55,7 @@ const empty = (me: Me): State => ({
   adv: { id: null, name: 'Tu asesor VIIGO', first: 'tu asesor', role: 'Asesor VIIGO · Viel.cl', phone: '', wa: '', mail: '', photo: null },
   consent: false, dur: '30', grantedUntil: null, grantedUntilISO: null, route: null, draftMsg: '',
   calc: calcDefault(30), log: [], msgs: [], proxima: null, meetings: [],
-  draft: { resumen: '', acuerdos: '', objs: [] }, objetivos: [], pendientes: [], alts: [], F: {}, debts: [], citas: [], google: null,
+  draft: { resumen: '', acuerdos: '', objs: [] }, objetivos: [], pendientes: [], alts: [], F: {}, debts: [], citas: [], google: null, programa: PROGRAMA_BASE, puedeEditar: false,
   finTab: 'patrimonio', sesion: 1,
 });
 
@@ -66,6 +71,8 @@ type Ctx = {
   rpc: (fn: string, args: Record<string, unknown>) => Promise<void>;
   /** true en la vista demo (/demo): datos de ejemplo, no se guarda nada. */
   demo: boolean;
+  /** Guarda el contenido de una sesión (editores). Devuelve un error o null. */
+  guardarSesion: (ses: SesionApp) => Promise<string | null>;
   /** Dirección de una sección, respetando si estamos en /demo. */
   href: (role: Role, id: string) => string;
 };
@@ -90,7 +97,7 @@ function demoState(me: Me): State {
       const inicio = i === 0 ? proxima.inicio! : en(i + 3, 10 + 2 * i);
       return { ...toCita({ id: c.id, cliente_id: 'demo', inicio, sesion: c.ses, meet_url: null, calendar_event_id: 'demo' }), cliente: c.cliente };
     }),
-    google: 'catalina@viel.cl', sesion: 4, calc: calcDefault(DEMO.PROFILE.edad),
+    google: 'catalina@viel.cl', puedeEditar: true, sesion: 4, calc: calcDefault(DEMO.PROFILE.edad),
   };
 }
 
@@ -167,7 +174,17 @@ export function StoreProvider({ me, demo = false, children }: { me: Me; demo?: b
     if (error) console.error(fn, error);
   }, [sb, demo]);
 
-  return <StoreCtx.Provider value={{ s, up, toast, toastText, elegirCliente: demo ? async () => {} : elegirCliente, rpc, demo, href }}>{children}</StoreCtx.Provider>;
+  const guardarSesion = useCallback(async (ses: SesionApp) => {
+    if (!demo) {
+      const { error } = await sb.from('programa_sesiones').upsert({ n: ses.n, data: ses, actualizado_en: new Date().toISOString() });
+      if (error) { console.error(error); return 'No se pudo guardar la sesión. Revisa tu conexión.'; }
+    }
+    const apply = (prev: State) => ({ ...prev, programa: prev.programa.map((x) => (x.n === ses.n ? ses : x)) });
+    setS((prev) => { const next = apply(prev); if (synced.current) synced.current = apply(synced.current); return next; });
+    return null;
+  }, [sb, demo]);
+
+  return <StoreCtx.Provider value={{ s, up, toast, toastText, elegirCliente: demo ? async () => {} : elegirCliente, rpc, demo, href, guardarSesion }}>{children}</StoreCtx.Provider>;
 }
 
 export function useStore() {

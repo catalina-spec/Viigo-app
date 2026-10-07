@@ -479,50 +479,6 @@ export function Biblioteca({ role }: { role: Role }) {
   );
 }
 
-/* ───────── sesiones (solo asesor) ───────── */
-export function Sesiones() {
-  const { s: st, up } = useStore();
-  const s = SESIONES.find((x) => x.n === st.sesion) ?? SESIONES[0];
-  return (
-    <>
-      <Head eb="Sesiones" h="Programa de asesoría VIIGO" p="Solo tú ves esta sección. Cada semana trae sus objetivos, las láminas, el relato, las preguntas de coaching y las 2 preguntas de cierre." />
-      <div className="watermark">{st.citas[0] ? <>Próxima sesión: {st.citas[0].cliente} · <b>Semana {st.citas[0].ses} · {SESIONES[st.citas[0].ses - 1].titulo}</b> · {st.citas[0].dia}, {st.citas[0].hora}</> : 'No tienes sesiones agendadas.'}</div>
-      <div className="seg" role="group" aria-label="Elegir semana">
-        {SESIONES.map((x) => <button key={x.n} aria-pressed={x.n === s.n} onClick={() => up((d) => { d.sesion = x.n; })}>Semana {x.n}</button>)}
-      </div>
-      <section className="card">
-        <div className="vault-bar">
-          <div><span className="eyebrow">Semana {s.n} de {SESIONES.length}</span><h3 style={{ margin: '4px 0 0' }}>{s.titulo}</h3></div>
-          <span className="pill p-adv">{s.dur}</span>
-        </div>
-        <p className="note2" style={{ marginTop: 12 }}><b>Resultado esperado:</b> {s.meta}</p>
-        <div className="ghead">Objetivos de la sesión</div>
-        <ul className="clean">{s.obj.map((o) => <li key={o}><span className="chk" /><div>{o}</div></li>)}</ul>
-      </section>
-      <section className="card">
-        <h3>Láminas a usar</h3>
-        <div className="slides">{s.laminas.map((l, i) => <div className="slide" key={l}><span className="snum num">{i + 1}</span><span className="stit">{l}</span><span className="sbrand">VIIGO · Viel.cl</span></div>)}</div>
-        <p className="note" style={{ marginTop: 10 }}>Pronto: cada lámina abrirá tu presentación en esa página.</p>
-      </section>
-      <section className="card">
-        <h3>Relato del asesor</h3>
-        <div className="script">{s.relato.map(([t, m, x]) => <div className="sblock" key={t}><div className="sh"><b>{t}</b><span className="pill p-warn num">{m}</span></div><p>{x}</p></div>)}</div>
-      </section>
-      <section className="card">
-        <h3>Preguntas de coaching</h3>
-        <ul className="clean">{s.preguntas.map((q) => <li key={q}><span className="chk" /><div>{q}</div></li>)}</ul>
-      </section>
-      <div className="grid2">
-        <section className="card"><h3>Tarea para el cliente</h3><p>{s.tarea}</p></section>
-        <section className="card"><h3>Cierre: las 2 preguntas</h3>
-          <ol style={{ margin: 0, paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 6 }}>{s.cierre.map((q) => <li key={q}>{q}</li>)}</ol>
-          <p className="note" style={{ marginTop: 8 }}>Anota sus respuestas textuales en la ficha del cliente.</p>
-        </section>
-      </div>
-    </>
-  );
-}
-
 /* ───────── agenda (Google Calendar) ───────── */
 export function Agenda() {
   const { s, up, toast, href, demo } = useStore();
@@ -676,3 +632,5 @@ export function Agenda() {
     </>
   );
 }
+
+export { Sesiones } from '@/components/Sesiones';

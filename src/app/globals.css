@@ -374,3 +374,17 @@ label.btn{cursor:pointer}
 .sheet-bg{z-index:40}
 
 .login .code-input{font-size:28px!important;letter-spacing:10px;text-align:center;font-variant-numeric:tabular-nums;padding-block:12px}
+
+/* ───────── Sesiones: láminas con link y editor ───────── */
+a.slide-link{text-decoration:none;transition:transform .15s,box-shadow .15s;outline-offset:3px}
+a.slide-link:hover{transform:translateY(-2px);box-shadow:0 10px 24px -12px rgba(13,27,62,.6)}
+a.slide-link .sbrand{color:var(--gold)}
+@media (prefers-reduced-motion:reduce){a.slide-link{transition:none}a.slide-link:hover{transform:none}}
+.sedit{display:flex;flex-direction:column;gap:12px}
+.sedit textarea{border:1.5px solid var(--line);border-radius:var(--r-sm);padding:9px 12px;font:inherit;background:var(--surface);color:var(--ink);width:100%;resize:vertical}
+.sedit-rows{display:flex;flex-direction:column;gap:8px}
+.sedit-row{display:grid;grid-template-columns:24px minmax(0,1.2fr) minmax(0,1fr) auto;gap:8px;align-items:center}
+.sedit-relato{display:grid;grid-template-columns:minmax(0,1fr) 110px auto;gap:8px;padding:10px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface-2)}
+.sedit-relato textarea{grid-column:1/-1}
+.sedit-row input,.sedit-relato input{border:1.5px solid var(--line);border-radius:var(--r-sm);padding:8px 10px;font:inherit;background:var(--surface);color:var(--ink);min-width:0;width:100%}
+@media (max-width:640px){.sedit-row{grid-template-columns:24px 1fr auto}.sedit-row input[type=url]{grid-column:2/-1}}

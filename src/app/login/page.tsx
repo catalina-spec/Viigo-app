@@ -12,7 +12,7 @@ function Login() {
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [msg, setMsg] = useState<string | null>(params.get('error') ? 'El link expiró o ya se usó. Pide uno nuevo.' : null);
+  const [msg, setMsg] = useState<string | null>(params.get('error') ? 'El acceso expiró o ya se usó. Pide un código nuevo.' : null);
 
   const send = async (e: FormEvent) => {
     e.preventDefault();
@@ -31,11 +31,11 @@ function Login() {
     else setSent(true);
   };
 
-  // Alternativa al link: el código de 6 dígitos del mismo correo (útil si abres el correo en otro dispositivo).
+  // Entrada con el código de 6 dígitos del correo: funciona dentro de la app instalada y en cualquier dispositivo.
   const verify = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const token = String(new FormData(e.currentTarget).get('code') ?? '').replace(/\D/g, '');
-    if (token.length < 6) return setMsg('El código tiene 6 dígitos.');
+    if (token.length !== 6) return setMsg('El código tiene 6 números. Revisa el correo.');
     setBusy(true);
     const { error } = await createClient().auth.verifyOtp({ email: email.trim().toLowerCase(), token, type: 'email' });
     setBusy(false);
@@ -52,23 +52,26 @@ function Login() {
         </div>
         {!sent ? (
           <>
-            <p className="note" style={{ fontSize: 14 }}>Entra con tu correo. Te enviamos un link de acceso, sin contraseñas.</p>
+            <p className="note" style={{ fontSize: 14 }}>Entra con tu correo. Te enviamos un código de 6 números, sin contraseñas.</p>
             <form className="field" onSubmit={send}>
               <label htmlFor="mail">Tu correo</label>
               <input id="mail" type="email" required placeholder="nombre@correo.cl" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-              <button className="btn btn-p" type="submit" style={{ marginTop: 8 }} disabled={busy}>{busy ? 'Enviando…' : 'Enviarme el link de acceso'}</button>
+              <button className="btn btn-p" type="submit" style={{ marginTop: 8 }} disabled={busy}>{busy ? 'Enviando…' : 'Enviarme el código'}</button>
             </form>
           </>
         ) : (
           <>
             <p style={{ fontSize: 15 }}>Te enviamos un correo a <b>{email}</b>.</p>
-            <p className="note" style={{ fontSize: 14 }}>Ábrelo y haz clic en el link para entrar. Si el correo trae un código de 6 dígitos, también puedes escribirlo aquí:</p>
+            <p className="note" style={{ fontSize: 14 }}>Escribe aquí el código de 6 números que llegó a tu correo (desde Mi Ruta VIIGO · soporte@viel.cl):</p>
             <form className="field" onSubmit={verify}>
-              <label htmlFor="code">Código</label>
-              <input id="code" name="code" inputMode="numeric" autoComplete="one-time-code" maxLength={8} placeholder="123456" />
+              <label htmlFor="code">Código de 6 números</label>
+              <input id="code" name="code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} pattern="[0-9]*" placeholder="123456" autoFocus className="code-input" />
               <button className="btn btn-p" type="submit" style={{ marginTop: 8 }} disabled={busy}>Entrar</button>
             </form>
-            <button className="btn btn-g" onClick={() => { setSent(false); setMsg(null); }}>Usar otro correo</button>
+            <div className="row" style={{ flexWrap: "nowrap" }}>
+              <button className="btn btn-g" disabled={busy} onClick={(e) => send(e)}>Enviarme otro código</button>
+              <button className="btn btn-g" onClick={() => { setSent(false); setMsg(null); }}>Usar otro correo</button>
+            </div>
           </>
         )}
         {msg && <p className="watermark">{msg}</p>}

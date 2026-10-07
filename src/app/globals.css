@@ -372,3 +372,5 @@ label.btn{cursor:pointer}
 .install-sheet{display:flex!important;flex-direction:column;gap:10px;position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(520px,100%);z-index:41;background:var(--surface);color:var(--ink);border-radius:18px 18px 0 0;padding:12px 20px calc(20px + env(safe-area-inset-bottom,0px))}
 .install-sheet ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:15px}
 .sheet-bg{z-index:40}
+
+.login .code-input{font-size:28px!important;letter-spacing:10px;text-align:center;font-variant-numeric:tabular-nums;padding-block:12px}

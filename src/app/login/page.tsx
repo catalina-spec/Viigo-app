@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState, type FormEvent } from 'react';
 import { createClient as createPlainClient } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
+import { InstalarApp } from '@/components/Pwa';
 
 function Login() {
   const router = useRouter();
@@ -72,6 +73,7 @@ function Login() {
         )}
         {msg && <p className="watermark">{msg}</p>}
         <p className="note">¿No te llega? Revisa la carpeta de spam o promociones.</p>
+        <div className="row" style={{ justifyContent: 'center' }}><InstalarApp className="btn btn-g" /></div>
       </div>
     </div>
   );

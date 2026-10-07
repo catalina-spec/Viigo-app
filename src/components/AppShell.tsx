@@ -7,6 +7,7 @@ import { useStore } from '@/lib/store';
 import { createClient } from '@/lib/supabase/client';
 import { TABS, type Role } from '@/lib/tabs';
 import { Icon } from './Icon';
+import { InstalarApp } from './Pwa';
 
 // Secciones del asesor que dependen de tener un cliente elegido.
 const CLIENT_TABS = new Set(['asesorias', 'alternativas', 'planilla', 'mensajes']);
@@ -65,6 +66,7 @@ export function AppShell({ role, tab, children }: { role: Role; tab: string; chi
                 ))}
               </select>
             )}
+            <InstalarApp />
             {!demo && <button className="out" onClick={salir} title={s.me.email}>Salir</button>}
           </div>
         </div>

@@ -4,7 +4,7 @@
 // El cliente ingresa su primera inversión, ve su ruta hasta los 65 y el multiplicador de patrimonio,
 // y la acepta. Puede modificarla y volver a aceptarla las veces que quiera.
 
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useStore } from '@/lib/store';
 import { MontoInput } from '@/components/Monto';
 import { FASES, JUBILACION, calcRoute, validar, type CalcParams, type RouteResult } from '@/lib/calc';
@@ -121,10 +121,12 @@ export function RutaResultado({ r }: { r: RouteResult }) {
 }
 
 /* ───────── calculadora con formulario ───────── */
-export function Calculadora({ role }: { role: Role }) {
+export function Calculadora({ role, onAceptada }: { role: Role; onAceptada?: () => void }) {
   const { s, up, toast, href } = useStore();
+  const router = useRouter();
   const c = s.calc;
   const err = validar(c);
+  const vacia = !c.precio && !c.pie && !c.tasa && !c.plazo;
   const r = err ? null : calcRoute(c);
   const acc = s.route?.result;
   const esLaAceptada = !!acc && JSON.stringify(acc.params) === JSON.stringify(c);
@@ -134,7 +136,11 @@ export function Calculadora({ role }: { role: Role }) {
     if (!r) return;
     const nueva = !!acc;
     up((d) => { d.route = { result: r, date: new Date().toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' }) }; });
-    toast(nueva ? `Ruta actualizada. ${s.adv.first} ya ve tu nueva ruta.` : `Ruta aceptada. Ya la ves en Mi ruta y ${s.adv.first} la ve en tu ficha.`);
+    toast(nueva ? `Ruta actualizada. ${s.adv.first} ya ve tu nueva ruta.` : `Ruta aceptada. ${s.adv.first} la ve en tu ficha.`);
+    // Directo a ver la ruta aceptada.
+    if (onAceptada) onAceptada();
+    else router.push(href('cliente', 'ruta'));
+    window.scrollTo({ top: 0 });
   };
   const volver = () => acc && up((d) => { d.calc = { ...acc.params }; });
 
@@ -148,16 +154,16 @@ export function Calculadora({ role }: { role: Role }) {
 
       <div className="card cv-form">
         <h3>Datos de tu inversión</h3>
-        <p className="note" style={{ marginTop: -6, marginBottom: 14 }}>Valores en UF. La tasa corresponde a la oferta de tu banco. Los resultados se actualizan solos.</p>
+        <p className="note" style={{ marginTop: -6, marginBottom: 14 }}>Valores en UF. La tasa corresponde a la oferta de tu banco (puedes escribirla con coma, por ejemplo 4,5). Al completar los datos aparece tu ruta.</p>
         <div className="fgrid">
-          <div className="field"><label htmlFor="cv-edad">Edad actual</label><input id="cv-edad" type="number" inputMode="numeric" min={18} max={64} value={c.edad || ''} onChange={set('edad')} /><span className="hint">Entre 22 y 64 años</span></div>
-          <div className="field"><label htmlFor="cv-precio">Precio propiedad (UF)</label><MontoInput id="cv-precio" moneda="uf" value={c.precio} onValue={(n) => up((d) => { d.calc.precio = n; })} /></div>
-          <div className="field"><label htmlFor="cv-pie">Pie (UF)</label><MontoInput id="cv-pie" moneda="uf" value={c.pie} onValue={(n) => up((d) => { d.calc.pie = n; })} /><span className="hint">{c.precio > 0 ? Math.round((c.pie / c.precio) * 100) : 0}% del precio</span></div>
-          <div className="field"><label htmlFor="cv-tasa">Tasa hipotecaria anual (%)</label><input id="cv-tasa" type="number" inputMode="decimal" min={1} max={12} step={0.1} value={c.tasa || ''} onChange={set('tasa')} /></div>
+          <div className="field"><label htmlFor="cv-edad">Edad actual</label><MontoInput id="cv-edad" moneda="clp" placeholder="Ej.: 35" value={c.edad} onValue={(n) => up((d) => { d.calc.edad = Math.min(n, 99); })} /><span className="hint">Entre 22 y 64 años</span></div>
+          <div className="field"><label htmlFor="cv-precio">Precio propiedad (UF)</label><MontoInput id="cv-precio" moneda="uf" placeholder="Ej.: 3.000" value={c.precio} onValue={(n) => up((d) => { d.calc.precio = n; })} /></div>
+          <div className="field"><label htmlFor="cv-pie">Pie (UF)</label><MontoInput id="cv-pie" moneda="uf" placeholder="Ej.: 600" value={c.pie} onValue={(n) => up((d) => { d.calc.pie = n; })} /><span className="hint">{c.precio > 0 && c.pie > 0 ? Math.round((c.pie / c.precio) * 100) + '% del precio' : 'Mínimo 10% del precio'}</span></div>
+          <div className="field"><label htmlFor="cv-tasa">Tasa hipotecaria anual (%)</label><MontoInput id="cv-tasa" moneda="uf" placeholder="Ej.: 4,5" value={c.tasa} onValue={(n) => up((d) => { d.calc.tasa = n; })} /></div>
           <div className="field"><label htmlFor="cv-plazo">Plazo del crédito</label>
-            <select id="cv-plazo" value={c.plazo} onChange={set('plazo')}>{PLAZOS.map(([m, l]) => <option key={m} value={m}>{l}</option>)}</select></div>
+            <select id="cv-plazo" value={c.plazo || ''} onChange={set('plazo')}><option value="" disabled>Elige el plazo</option>{PLAZOS.map(([m, l]) => <option key={m} value={m}>{l}</option>)}</select></div>
         </div>
-        {err && <p className="watermark" style={{ marginTop: 12 }}>{err}</p>}
+        {err && (vacia ? <p className="note" style={{ marginTop: 12 }}>Completa tu edad, el precio, el pie, la tasa y el plazo para ver tu ruta.</p> : <p className="watermark" style={{ marginTop: 12 }}>{err}</p>)}
       </div>
 
       {r && <RutaResultado r={r} />}
@@ -171,7 +177,6 @@ export function Calculadora({ role }: { role: Role }) {
               <span className="pill p-ok">✓ Esta es tu ruta aceptada · {s.route!.date}</span>
               <button className="btn btn-p" disabled style={{ opacity: 0.45, cursor: 'not-allowed' }}>Aceptar esta nueva ruta</button>
               <span className="note">Cambia algún dato arriba (precio, pie, tasa o plazo) para armar otra ruta y aceptarla.</span>
-              <Link className="btn btn-g" href={href('cliente', 'ruta')}>Ver en Mi ruta</Link>
             </>
           ) : (
             <>

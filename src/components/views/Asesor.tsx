@@ -96,11 +96,11 @@ function Ficha() {
   const desde = P.creado ? new Date(P.creado).toLocaleDateString('es-CL', { month: 'long', year: 'numeric' }) : '';
   return (
     <>
-      <Head eb="Cliente" h={`${P.nombre} ${P.apellido}`.trim() || P.mail} p={`${P.nombre ? P.edad + ' años · ' : ''}Cliente desde ${desde}`} />
+      <Head eb="Cliente" h={`${P.nombre} ${P.apellido}`.trim() || P.mail} p={`${P.edad ? P.edad + ' años · ' : ''}Cliente desde ${desde}`} />
       <section className="card advisor">
         <Avatar src={P.foto} name={`${P.nombre} ${P.apellido}`.trim() || P.mail} size={60} />
         <div className="adv-info"><h3>{`${P.nombre} ${P.apellido}`.trim() || 'Sin nombre aún'}</h3><p className="note">{P.mail}{P.cel ? ' · ' + P.cel : ''}</p></div>
-        <div className="adv-contact"><StagePill k={P.etapa} /><span className="note">{yearsLeft(P.edad, P.retiro)} años para jubilar (a los {P.retiro})</span>
+        <div className="adv-contact"><StagePill k={P.etapa} /><span className="note">{P.edad ? `${yearsLeft(P.edad, P.retiro)} años para jubilar (a los ${P.retiro})` : 'Edad no informada'}</span>
           <Link className="btn btn-p" href={href('asesor', 'agenda') + '#agendar'}>＋ Agendar asesoría con Meet</Link></div>
       </section>
       <section className="card" style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>

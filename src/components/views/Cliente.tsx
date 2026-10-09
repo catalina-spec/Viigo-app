@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { AppShell } from '@/components/AppShell';
 import { Calculadora, RutaResultado } from '@/components/Calculadora';
@@ -58,8 +59,8 @@ function Inicio() {
         </div>
         <div>
           <span className="eyebrow on">Para tu jubilación faltan</span>
-          <div className="years num">{yl}</div>
-          <div className="years-sub">años · jubilas a los {P.retiro}, en {new Date().getFullYear() + yl}</div>
+          <div className="years num">{P.edad ? yl : '—'}</div>
+          <div className="years-sub">{P.edad ? <>años · jubilas a los {P.retiro}, en {new Date().getFullYear() + yl}</> : <>Agrega tu edad en <Link href={href('cliente', 'perfil')} style={{ color: 'inherit' }}>Mi perfil</Link></>}</div>
         </div>
       </section>
       <section className="card advisor">
@@ -112,8 +113,15 @@ function Inicio() {
   );
 }
 
+/** Edad escrita por la persona; si está vacía o fuera de rango, queda sin informar (0). */
+const edadValida = (t: string, min: number, max: number) => {
+  const n = Number(t.replace(/D/g, ''));
+  return n >= min && n <= max ? n : 0;
+};
+
 function Perfil() {
-  const { s, up, toast } = useStore();
+  const { s, up, toast, href } = useStore();
+  const router = useRouter();
   const P = s.P;
   const m = s.moneda;
   // Montos en pesos (así se guardan); se muestran e ingresan en la moneda elegida.
@@ -126,11 +134,12 @@ function Perfil() {
     up((d) => {
       Object.assign(d.P, {
         nombre: v('nombre'), apellido: v('apellido'), cel: v('cel'),
-        edad: +v('edad') || P.edad, retiro: +v('retiro') || P.retiro, etapa: v('etapa') as StageKey,
+        edad: edadValida(v('edad'), 18, 90), retiro: edadValida(v('retiro'), 50, 80) || 65, etapa: v('etapa') as StageKey,
         ingresoJub: ing || 0, afp: afp === '' || !afp ? '' : afp,
       });
     });
     toast('Perfil guardado.');
+    router.push(href('cliente', 'inicio'));
   };
   const photo = async (file?: File) => {
     if (!file) return;
@@ -148,19 +157,19 @@ function Perfil() {
       <form className="card" onSubmit={submit} key={JSON.stringify(P)}>
         <div className="advisor" style={{ marginBottom: 18 }}>
           <Avatar src={P.foto} name={`${P.nombre} ${P.apellido}`} size={72} />
-          <div className="adv-info"><h3>{P.nombre} {P.apellido}</h3><p className="note">{STAGES[P.etapa].label} · {yearsLeft(P.edad, P.retiro)} años para jubilar</p></div>
+          <div className="adv-info"><h3>{P.nombre} {P.apellido}</h3><p className="note">{STAGES[P.etapa].label}{P.edad ? ` · ${yearsLeft(P.edad, P.retiro)} años para jubilar` : ''}</p></div>
           <div className="adv-contact">
             <label className="btn btn-g" htmlFor="p-foto">{P.foto ? 'Cambiar foto' : 'Subir foto de perfil'}</label>
             <input type="file" id="p-foto" accept="image/*" hidden onChange={(e) => photo(e.target.files?.[0])} />
           </div>
         </div>
         <div className="fgrid">
-          <div className="field"><label htmlFor="p-nombre">Nombre</label><input id="p-nombre" name="nombre" defaultValue={P.nombre} required autoComplete="given-name" /></div>
-          <div className="field"><label htmlFor="p-apellido">Apellido</label><input id="p-apellido" name="apellido" defaultValue={P.apellido} required autoComplete="family-name" /></div>
+          <div className="field"><label htmlFor="p-nombre">Nombre</label><input id="p-nombre" name="nombre" defaultValue={P.nombre} autoComplete="given-name" /></div>
+          <div className="field"><label htmlFor="p-apellido">Apellido</label><input id="p-apellido" name="apellido" defaultValue={P.apellido} autoComplete="family-name" /></div>
           <div className="field"><label htmlFor="p-mail">Correo</label><input id="p-mail" name="mail" type="email" defaultValue={P.mail} disabled /><span className="hint">Es tu correo de acceso.</span></div>
           <div className="field"><label htmlFor="p-cel">Celular</label><input id="p-cel" name="cel" type="tel" defaultValue={P.cel} autoComplete="tel" /></div>
-          <div className="field"><label htmlFor="p-edad">Edad</label><input id="p-edad" name="edad" type="number" inputMode="numeric" min={18} max={64} defaultValue={P.edad} /></div>
-          <div className="field"><label htmlFor="p-retiro">Edad en que quieres jubilar</label><input id="p-retiro" name="retiro" type="number" inputMode="numeric" min={50} max={75} defaultValue={P.retiro} /></div>
+          <div className="field"><label htmlFor="p-edad">Edad</label><input id="p-edad" name="edad" type="text" inputMode="numeric" maxLength={2} placeholder="Si no quieres, déjalo en blanco" defaultValue={P.edad || ''} /></div>
+          <div className="field"><label htmlFor="p-retiro">Edad en que quieres jubilar</label><input id="p-retiro" name="retiro" type="text" inputMode="numeric" maxLength={2} placeholder="Ej.: 65" defaultValue={P.retiro || ''} /></div>
           <div className="field"><label htmlFor="p-etapa">Etapa VIIGO con la que te identificas</label>
             <select id="p-etapa" name="etapa" defaultValue={P.etapa}>{Object.entries(STAGES).map(([k, st]) => <option key={k} value={k}>{st.label}</option>)}</select></div>
           <div className="field" style={{ gridColumn: '1/-1' }}><label>Moneda de tus montos</label><MonedaToggle /></div>
@@ -183,7 +192,7 @@ function Ruta() {
         <Head eb="Mi ruta" h={s.route ? 'Modifica tu ruta' : 'Arma tu ruta inmobiliaria'}
           p={s.route ? `Tu ruta aceptada el ${s.route.date} sigue vigente hasta que aceptes una nueva.` : 'Ingresa los datos de tu primera inversión, revisa tu ruta hasta los 65 y acéptala cuando te haga sentido. Puedes modificarla cuando quieras.'} />
         {s.route && <div className="row"><button className="btn btn-g" onClick={() => setEditando(false)}>← Volver a mi ruta aceptada</button></div>}
-        <Calculadora role="cliente" />
+        <Calculadora role="cliente" onAceptada={() => setEditando(false)} />
       </>
     );
   const r = s.route.result;

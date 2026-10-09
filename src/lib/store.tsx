@@ -56,7 +56,7 @@ const empty = (me: Me): State => ({
   P: { nombre: '', apellido: '', mail: me.email, cel: '', edad: 30, retiro: 65, etapa: 'start', ingresoJub: 0, afp: '', foto: null },
   adv: { id: null, name: 'Tu asesor VIIGO', first: 'tu asesor', role: 'Asesor VIIGO · Viel.cl', phone: '', wa: '', mail: '', photo: null },
   consent: false, dur: '30', grantedUntil: null, grantedUntilISO: null, route: null, draftMsg: '',
-  calc: calcDefault(30), log: [], msgs: [], proxima: null, meetings: [],
+  calc: calcDefault(0), log: [], msgs: [], proxima: null, meetings: [],
   draft: { resumen: '', acuerdos: '', objs: [] }, objetivos: [], pendientes: [], alts: [], F: {}, debts: [], citas: [], google: null, programa: PROGRAMA_BASE, puedeEditar: false, moneda: 'clp',
   finTab: 'patrimonio', sesion: 1,
 });

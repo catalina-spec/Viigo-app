@@ -78,6 +78,7 @@ export function validar(p: CalcParams): string | null {
   if (p.pie >= p.precio) return 'El pie no puede ser mayor o igual al precio.';
   if (p.pie / p.precio < 0.1) return 'El pie mínimo recomendado es 10% del precio.';
   if (!(p.tasa > 0)) return 'Ingresa la tasa del crédito.';
+  if (!(p.plazo > 0)) return 'Elige el plazo del crédito.';
   return null;
 }
 
@@ -123,4 +124,5 @@ export function calcRoute(p: CalcParams): RouteResult {
 /** ¿Es una ruta guardada con el motor actual? (las antiguas se piden aceptar de nuevo) */
 export const esRutaVigente = (r: unknown): r is RouteResult => !!r && (r as RouteResult).v === 2;
 
-export const calcDefault = (edad: number): CalcParams => ({ edad: edad || 32, precio: 2500, pie: 500, tasa: 4.8, plazo: 240 });
+/** Calculadora vacía (sin valores predeterminados); solo la edad viene del perfil si se conoce. */
+export const calcDefault = (edad: number): CalcParams => ({ edad: edad || 0, precio: 0, pie: 0, tasa: 0, plazo: 0 });

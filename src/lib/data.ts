@@ -84,7 +84,7 @@ export async function loadCliente(sb: SupabaseClient, me: Me, id: string): Promi
 
   const P: Profile = {
     id: p.id, creado: p.creado_en, plan: p.plan ?? 'diagnostico', terminos: p.terminos_version, nombre: p.nombre, apellido: p.apellido, mail: p.email, cel: p.celular,
-    edad: p.edad ?? 30, retiro: p.edad_retiro ?? 65, etapa: p.etapa as StageKey, foto: p.foto_url,
+    edad: p.edad ?? 0, retiro: p.edad_retiro ?? 65, etapa: p.etapa as StageKey, foto: p.foto_url,
     ingresoJub: priv.data?.ingreso_jubilacion ?? 0, afp: priv.data?.saldo_afp ?? '',
   };
 
@@ -106,7 +106,7 @@ export async function loadCliente(sb: SupabaseClient, me: Me, id: string): Promi
     F: (plan.data?.valores as Record<string, number>) ?? {},
     debts: (plan.data?.deudas as Debt[]) ?? [],
     route: ruta0 && esRutaVigente(ruta0.resultado) ? { result: ruta0.resultado, date: fmtFecha(ruta0.aceptada_en) } : null,
-    calc: ruta0 && esRutaVigente(ruta0.resultado) ? { ...ruta0.resultado.params } : calcDefault(p.edad ?? 30),
+    calc: ruta0 && esRutaVigente(ruta0.resultado) ? { ...ruta0.resultado.params } : calcDefault(p.edad ?? 0),
     alts: (alts.data ?? []).map((a): Alternativa => ({
       id: a.id, nombre: a.nombre, comuna: a.comuna, tipo: a.tipo, uf: +a.precio_uf, link: a.link ?? '', m2: +(a.m2 ?? 0), arriendo: +(a.arriendo ?? 0),
       pts: a.puntaje, origen: a.origen, nota: a.nota,
@@ -131,7 +131,7 @@ export async function sync(sb: SupabaseClient, me: Me, a: State, b: State): Prom
 
   if (cliente && !same(a.P, b.P)) {
     const P = b.P;
-    jobs.push(sb.from('perfiles').update({ nombre: P.nombre, apellido: P.apellido, celular: P.cel, edad: P.edad, edad_retiro: P.retiro, etapa: P.etapa, foto_url: P.foto }).eq('id', cid));
+    jobs.push(sb.from('perfiles').update({ nombre: P.nombre, apellido: P.apellido, celular: P.cel, edad: P.edad || null, edad_retiro: P.retiro || 65, etapa: P.etapa, foto_url: P.foto }).eq('id', cid));
     jobs.push(sb.from('datos_privados').upsert({ cliente_id: cid, ingreso_jubilacion: P.ingresoJub || null, saldo_afp: P.afp === '' ? null : P.afp, actualizado_en: new Date().toISOString() }));
   }
   if (asesor && a.P.plan !== b.P.plan && b.P.plan) {

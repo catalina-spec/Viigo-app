@@ -15,7 +15,7 @@ import { TABS_PROGRAMA, tienePrograma } from './Programa';
 const CLIENT_TABS = new Set(['asesorias', 'alternativas', 'planilla', 'mensajes']);
 
 export function AppShell({ role, tab, children }: { role: Role; tab: string; children: ReactNode }) {
-  const { s, toastText, elegirCliente, href, demo } = useStore();
+  const { s, toastText, elegirCliente, href, demo, refrescar, toast } = useStore();
   const router = useRouter();
   const [more, setMore] = useState(false);
   const pending = s.meetings.filter((m) => m.status === 'revision').length;
@@ -70,6 +70,7 @@ export function AppShell({ role, tab, children }: { role: Role; tab: string; chi
               </select>
             )}
             <InstalarApp />
+            {!demo && role === 'asesor' && <button className="out" title="Traer los últimos cambios de tus clientes" onClick={async () => { await refrescar(); toast('Datos actualizados.'); }}>↻ Actualizar</button>}
             {!demo && <button className="out" onClick={salir} title={s.me.email}>Salir</button>}
           </div>
         </div>

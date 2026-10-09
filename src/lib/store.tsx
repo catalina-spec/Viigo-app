@@ -69,6 +69,8 @@ type Ctx = {
   toastText: string | null;
   /** Asesor: cambia el cliente que está viendo. */
   elegirCliente: (id: string) => Promise<void>;
+  /** Vuelve a leer los datos desde la base de datos (sin perder lo que se está escribiendo). */
+  refrescar: () => Promise<void>;
   /** Llama una función de la base de datos (p. ej. registrar que el asesor abrió la planilla). */
   rpc: (fn: string, args: Record<string, unknown>) => Promise<void>;
   /** true en la vista demo (/demo): datos de ejemplo, no se guarda nada. */
@@ -157,7 +159,10 @@ export function StoreProvider({ me, demo = false, children }: { me: Me; demo?: b
     if (me.rol === 'cliente' && s.clienteId && (JSON.stringify(prev.F) !== JSON.stringify(s.F) || JSON.stringify(prev.debts) !== JSON.stringify(s.debts))) {
       if (planTimer.current) clearTimeout(planTimer.current);
       const { F, debts, clienteId } = s;
-      planTimer.current = setTimeout(() => savePlanilla(sb, clienteId, F, debts).then((err) => err && toast(err)), 800);
+      planTimer.current = setTimeout(() => {
+        planTimer.current = null;
+        savePlanilla(sb, clienteId, F, debts).then((err) => err && toast(err));
+      }, 800);
     }
   }, [s, sb, me, toast]);
 
@@ -168,6 +173,44 @@ export function StoreProvider({ me, demo = false, children }: { me: Me; demo?: b
       return d;
     });
   }, []);
+
+  // ───────── Actualización automática ─────────
+  // Trae los cambios que hicieron otras personas (p. ej. el cliente aceptó su ruta) sin borrar
+  // lo que se está escribiendo en este momento (borradores, calculadora, mensajes sin enviar).
+  const refrescando = useRef(false);
+  const refrescar = useCallback(async () => {
+    if (demo || refrescando.current || planTimer.current) return;
+    refrescando.current = true;
+    try {
+      const datos = await loadInicial(sb, me);
+      setS((prev) => {
+        if (prev.loading) return prev;
+        const locales = { draft: prev.draft, draftMsg: prev.draftMsg, calc: prev.calc, finTab: prev.finTab, sesion: prev.sesion, moneda: prev.moneda };
+        // Si el asesor cambió de cliente mientras se cargaba, no mezclar datos.
+        if (me.rol === 'asesor' && datos.clienteId !== prev.clienteId) return prev;
+        const next = { ...prev, ...datos, ...locales, loading: false };
+        synced.current = next;
+        return next;
+      });
+    } catch (e) {
+      console.error('refrescar', e);
+    } finally {
+      refrescando.current = false;
+    }
+  }, [sb, me, demo]);
+
+  useEffect(() => {
+    if (demo) return;
+    const alVolver = () => { if (document.visibilityState === 'visible') refrescar(); };
+    document.addEventListener('visibilitychange', alVolver);
+    window.addEventListener('focus', alVolver);
+    const t = setInterval(alVolver, 60_000);
+    return () => {
+      document.removeEventListener('visibilitychange', alVolver);
+      window.removeEventListener('focus', alVolver);
+      clearInterval(t);
+    };
+  }, [demo, refrescar]);
 
   const elegirCliente = useCallback(async (id: string) => {
     try { localStorage.setItem('viigo_cliente', id); } catch {}
@@ -207,7 +250,7 @@ export function StoreProvider({ me, demo = false, children }: { me: Me; demo?: b
     return null;
   }, [sb, demo, me.id]);
 
-  return <StoreCtx.Provider value={{ s, up, toast, toastText, elegirCliente: demo ? async () => {} : elegirCliente, rpc, demo, href, guardarSesion, aceptarTerminos }}>{children}</StoreCtx.Provider>;
+  return <StoreCtx.Provider value={{ s, up, toast, toastText, elegirCliente: demo ? async () => {} : elegirCliente, refrescar, rpc, demo, href, guardarSesion, aceptarTerminos }}>{children}</StoreCtx.Provider>;
 }
 
 export function useStore() {

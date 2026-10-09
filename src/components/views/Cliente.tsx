@@ -67,10 +67,14 @@ function Inicio() {
       </section>
       <section className="card advisor">
         <Avatar src={A.photo} name={A.name} size={64} />
-        <div className="adv-info"><span className="eyebrow">Tu asesor</span><h3>{A.name}</h3><p className="note">{A.role}</p></div>
+        <div className="adv-info">
+          <span className="eyebrow">Tu asesor</span>
+          {/* Nombre y, debajo, su correo. Si aún no completa su nombre, no repetimos el correo. */}
+          <h3>{A.name === A.mail ? 'Tu asesor VIIGO' : A.name}</h3>
+          {A.mail && <a className="adv-mail" href={`mailto:${A.mail}`}>{A.mail}</a>}
+        </div>
         <div className="adv-contact">
           {A.phone && <div className="crow"><span className="k">Celular</span><a className="v num" href={`tel:${A.phone.replace(/\s/g, '')}`} style={{ color: 'inherit' }}>{A.phone}</a><button className="mini" onClick={() => copy(A.phone)}>Copiar</button></div>}
-          {A.mail && <div className="crow"><span className="k">Correo</span><a className="v" href={`mailto:${A.mail}`} style={{ color: 'inherit' }}>{A.mail}</a><button className="mini" onClick={() => copy(A.mail)}>Copiar</button></div>}
           <div className="row">
             {A.wa && <a className="btn btn-p" href={`https://wa.me/${A.wa}`} target="_blank" rel="noopener">Escribir por WhatsApp</a>}
             <Link className="btn btn-g" href={href('cliente', 'mensajes')}>Mensaje en el portal</Link>

@@ -7,6 +7,7 @@ import { nombreCliente, useStore } from '@/lib/store';
 import { finTotals } from '@/lib/calc';
 import { Calculadora } from '@/components/Calculadora';
 import { Ecosistema } from '@/components/Ecosistema';
+import { MontoInput, MonedaToggle, aUnidad, aVista } from '@/components/Monto';
 import { UF, clp, initials, nowStr, pct, ufs } from '@/lib/format';
 import { FIN, STAGES, SESIONES, sesionNombre, sesionTitulo, type Alternativa, type Cita, type Debt, type Meeting } from '@/lib/demo-data';
 import type { Role } from '@/lib/tabs';
@@ -122,10 +123,15 @@ const DEBT_KEYS = ['tipo', 'inst', 'orig', 'saldo', 'cuota', 'tasa', 'plazo', 'r
 export function FinView({ ro }: { ro: boolean }) {
   const { s, up, toast } = useStore();
   const T = finTotals(s.F, s.debts);
+  const m = s.moneda;
+  const sim = m === 'uf' ? 'UF' : '$';
+  // Un monto en pesos, mostrado en la moneda elegida (y en la otra, como referencia).
+  const ver = (pesos: number) => (m === 'uf' ? 'UF ' + (pesos / UF).toLocaleString('es-CL', { maximumFractionDigits: 1 }) : clp(pesos));
+  const otra = (pesos: number) => (m === 'uf' ? clp(pesos) : ufs(pesos / UF));
   const eqTxt = (k: string, u: string) => {
     const v = +s.F[k] || 0;
     if (!v) return '';
-    return u === 'uf' ? clp(v * UF) : ufs(v / UF);
+    return otra(u === 'uf' ? v * UF : v);
   };
 
   let body: ReactNode;
@@ -137,15 +143,15 @@ export function FinView({ ro }: { ro: boolean }) {
         {gr.rows.map(([k, l, u]) => (
           <div className="frow" key={k}>
             <span className="lbl">{l}</span>
-            <input type="number" inputMode="decimal" min={0} step="any" value={s.F[k] || ''} placeholder={u === 'uf' ? 'UF' : '$'} aria-label={l} disabled={ro}
-              onChange={(e) => up((d) => { d.F[k] = e.target.value === '' ? 0 : +e.target.value; })} />
+            <MontoInput value={aVista(+s.F[k] || 0, u, m)} moneda={m} ariaLabel={l} disabled={ro}
+              onValue={(n) => up((d) => { d.F[k] = aUnidad(n, u, m); })} />
             <span className="eq num">{eqTxt(k, u)}</span>
           </div>
         ))}
         <div className="frow tot">
           <span>Total {gr.t.toLowerCase().split(' (')[0]}</span>
-          <span className="val num">{clp(T[gr.tot as keyof typeof T])}</span>
-          <span className="eq num">{ufs(T[gr.tot as keyof typeof T] / UF)}</span>
+          <span className="val num">{ver(T[gr.tot as keyof typeof T])}</span>
+          <span className="eq num">{otra(T[gr.tot as keyof typeof T])}</span>
         </div>
       </div>
     ));
@@ -154,12 +160,18 @@ export function FinView({ ro }: { ro: boolean }) {
       <>
         <div className="tbl">
           <table className="debt num">
-            <thead><tr><th>Tipo</th><th>Institución</th><th className="r">Monto original</th><th className="r">Saldo actual</th><th className="r">Cuota mensual</th><th className="r">Tasa anual %</th><th className="r">Plazo (meses)</th><th className="r">Restante</th></tr></thead>
+            <thead><tr><th>Tipo</th><th>Institución</th><th className="r">Monto original ({sim})</th><th className="r">Saldo actual ({sim})</th><th className="r">Cuota mensual ({sim})</th><th className="r">Tasa anual %</th><th className="r">Plazo (meses)</th><th className="r">Restante</th></tr></thead>
             <tbody>
               {s.debts.map((dbt, i) => (
                 <tr key={i}>
                   {DEBT_KEYS.map((k) => {
                     const txt = k === 'tipo' || k === 'inst';
+                    if (k === 'orig' || k === 'saldo' || k === 'cuota') return (
+                      <td key={k}>
+                        <MontoInput value={aVista(+dbt[k] || 0, 'clp', m)} moneda={m} ariaLabel={k} disabled={ro} style={{ width: 130 }}
+                          onValue={(n) => up((d) => { d.debts[i][k] = n ? aUnidad(n, 'clp', m) : ''; })} />
+                      </td>
+                    );
                     return (
                       <td key={k}>
                         <input type={txt ? 'text' : 'number'} step="any" className={['tasa', 'plazo', 'rest'].includes(k) ? 'w-s' : ''} value={dbt[k]} aria-label={k} disabled={ro}
@@ -169,7 +181,7 @@ export function FinView({ ro }: { ro: boolean }) {
                   })}
                 </tr>
               ))}
-              <tr><td colSpan={3}><b>Totales</b></td><td className="r"><b>{clp(T.deuda)}</b></td><td className="r"><b>{clp(T.cuotas)}</b></td><td colSpan={3}></td></tr>
+              <tr><td colSpan={3}><b>Totales</b></td><td className="r"><b>{ver(T.deuda)}</b></td><td className="r"><b>{ver(T.cuotas)}</b></td><td colSpan={3}></td></tr>
             </tbody>
           </table>
         </div>
@@ -190,13 +202,13 @@ export function FinView({ ro }: { ro: boolean }) {
     body = (
       <>
         <div className="grid3" style={{ marginTop: 6 }}>
-          <div className="card kv"><span className="k">Flujo neto mensual disponible</span><span className="v num">{clp(T.flujo)}</span><span className="s">Ingresos − gastos − cuotas</span></div>
-          <div className="card kv"><span className="k">Patrimonio neto</span><span className="v num">{clp(T.neto)}</span><span className="s">{ufs(T.neto / UF)}</span></div>
+          <div className="card kv"><span className="k">Flujo neto mensual disponible</span><span className="v num">{ver(T.flujo)}</span><span className="s">Ingresos − gastos − cuotas</span></div>
+          <div className="card kv"><span className="k">Patrimonio neto</span><span className="v num">{ver(T.neto)}</span><span className="s">{otra(T.neto)}</span></div>
           <div className="card kv"><span className="k">Salud financiera</span><span className={`v sig ${sig[0]}`}>{sig[1]}</span><span className="s">Endeudamiento {pct(T.ratio)}</span></div>
         </div>
         <div className="tbl" style={{ marginTop: 12 }}>
           <table className="num"><tbody>
-            {rows.map(([l, v]) => <tr key={l}><td>{l}</td><td className="r">{clp(v)}</td></tr>)}
+            {rows.map(([l, v]) => <tr key={l}><td>{l}</td><td className="r">{ver(v)}</td></tr>)}
             <tr><td>% del ingreso destinado a ahorro</td><td className="r">{pct(T.pctA)}</td></tr>
           </tbody></table>
         </div>
@@ -211,6 +223,7 @@ export function FinView({ ro }: { ro: boolean }) {
           <h3 style={{ margin: 0 }}>Matriz de Análisis Financiero VIIGO</h3>
           <p className="note">Valor UF de referencia: {clp(UF)}</p>
         </div>
+        <MonedaToggle />
         {ro ? <span className="pill p-warn">Solo lectura</span> : (
           <div className="row">
             <label className="btn btn-g" htmlFor="xlsx-in">Importar mi Excel</label>

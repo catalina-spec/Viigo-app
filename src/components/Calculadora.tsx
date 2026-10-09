@@ -6,6 +6,7 @@
 
 import Link from 'next/link';
 import { useStore } from '@/lib/store';
+import { MontoInput } from '@/components/Monto';
 import { FASES, JUBILACION, calcRoute, validar, type CalcParams, type RouteResult } from '@/lib/calc';
 import { UF, clp, pct } from '@/lib/format';
 import type { Role } from '@/lib/tabs';
@@ -150,8 +151,8 @@ export function Calculadora({ role }: { role: Role }) {
         <p className="note" style={{ marginTop: -6, marginBottom: 14 }}>Valores en UF. La tasa corresponde a la oferta de tu banco. Los resultados se actualizan solos.</p>
         <div className="fgrid">
           <div className="field"><label htmlFor="cv-edad">Edad actual</label><input id="cv-edad" type="number" inputMode="numeric" min={18} max={64} value={c.edad || ''} onChange={set('edad')} /><span className="hint">Entre 22 y 64 años</span></div>
-          <div className="field"><label htmlFor="cv-precio">Precio propiedad (UF)</label><input id="cv-precio" type="number" inputMode="decimal" min={500} step={50} value={c.precio || ''} onChange={set('precio')} /></div>
-          <div className="field"><label htmlFor="cv-pie">Pie (UF)</label><input id="cv-pie" type="number" inputMode="decimal" min={50} step={50} value={c.pie || ''} onChange={set('pie')} /><span className="hint">{c.precio > 0 ? Math.round((c.pie / c.precio) * 100) : 0}% del precio</span></div>
+          <div className="field"><label htmlFor="cv-precio">Precio propiedad (UF)</label><MontoInput id="cv-precio" moneda="uf" value={c.precio} onValue={(n) => up((d) => { d.calc.precio = n; })} /></div>
+          <div className="field"><label htmlFor="cv-pie">Pie (UF)</label><MontoInput id="cv-pie" moneda="uf" value={c.pie} onValue={(n) => up((d) => { d.calc.pie = n; })} /><span className="hint">{c.precio > 0 ? Math.round((c.pie / c.precio) * 100) : 0}% del precio</span></div>
           <div className="field"><label htmlFor="cv-tasa">Tasa hipotecaria anual (%)</label><input id="cv-tasa" type="number" inputMode="decimal" min={1} max={12} step={0.1} value={c.tasa || ''} onChange={set('tasa')} /></div>
           <div className="field"><label htmlFor="cv-plazo">Plazo del crédito</label>
             <select id="cv-plazo" value={c.plazo} onChange={set('plazo')}>{PLAZOS.map(([m, l]) => <option key={m} value={m}>{l}</option>)}</select></div>

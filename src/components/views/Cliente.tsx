@@ -5,6 +5,8 @@ import { useState, type FormEvent, type ReactNode } from 'react';
 import { AppShell } from '@/components/AppShell';
 import { Calculadora, RutaResultado } from '@/components/Calculadora';
 import { Ecosistema } from '@/components/Ecosistema';
+import { MontoInput, MonedaToggle, aUnidad, aVista } from '@/components/Monto';
+import { UF, clp, ufs } from '@/lib/format';
 import { OfertaPrograma, TABS_PROGRAMA, tienePrograma } from '@/components/Programa';
 import { useStore } from '@/lib/store';
 import { STAGES, type StageKey } from '@/lib/demo-data';
@@ -113,6 +115,10 @@ function Inicio() {
 function Perfil() {
   const { s, up, toast } = useStore();
   const P = s.P;
+  const m = s.moneda;
+  // Montos en pesos (así se guardan); se muestran e ingresan en la moneda elegida.
+  const [ing, setIng] = useState<number>(P.ingresoJub || 0);
+  const [afp, setAfp] = useState<number | ''>(P.afp);
   const submit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
@@ -121,7 +127,7 @@ function Perfil() {
       Object.assign(d.P, {
         nombre: v('nombre'), apellido: v('apellido'), cel: v('cel'),
         edad: +v('edad') || P.edad, retiro: +v('retiro') || P.retiro, etapa: v('etapa') as StageKey,
-        ingresoJub: +v('ing') || 0, afp: v('afp') === '' ? '' : +v('afp'),
+        ingresoJub: ing || 0, afp: afp === '' || !afp ? '' : afp,
       });
     });
     toast('Perfil guardado.');
@@ -157,8 +163,9 @@ function Perfil() {
           <div className="field"><label htmlFor="p-retiro">Edad en que quieres jubilar</label><input id="p-retiro" name="retiro" type="number" inputMode="numeric" min={50} max={75} defaultValue={P.retiro} /></div>
           <div className="field"><label htmlFor="p-etapa">Etapa VIIGO con la que te identificas</label>
             <select id="p-etapa" name="etapa" defaultValue={P.etapa}>{Object.entries(STAGES).map(([k, st]) => <option key={k} value={k}>{st.label}</option>)}</select></div>
-          <div className="field"><label htmlFor="p-ing">Ingreso mensual que quieres al jubilar ($)</label><input id="p-ing" name="ing" type="number" inputMode="numeric" min={0} step={50000} defaultValue={P.ingresoJub} /><span className="hint">Privado · lo usamos para comparar con tu ruta</span></div>
-          <div className="field"><label htmlFor="p-afp">Saldo actual en tu AFP ($) <span className="opt-tag">Voluntario</span></label><input id="p-afp" name="afp" type="number" inputMode="numeric" min={0} step={100000} defaultValue={P.afp} placeholder="Puedes dejarlo en blanco" /><span className="hint">Solo si quieres. Nos ayuda a proyectar tu jubilación completa.</span></div>
+          <div className="field" style={{ gridColumn: '1/-1' }}><label>Moneda de tus montos</label><MonedaToggle /></div>
+          <div className="field"><label htmlFor="p-ing">Ingreso mensual que quieres al jubilar ({m === 'uf' ? 'UF' : '$'})</label><MontoInput id="p-ing" moneda={m} value={aVista(ing, 'clp', m)} onValue={(n) => setIng(aUnidad(n, 'clp', m))} /><span className="hint">{ing ? (m === 'uf' ? clp(ing) : ufs(ing / UF)) + ' · ' : ''}Privado · lo usamos para comparar con tu ruta</span></div>
+          <div className="field"><label htmlFor="p-afp">Saldo actual en tu AFP ({m === 'uf' ? 'UF' : '$'}) <span className="opt-tag">Voluntario</span></label><MontoInput id="p-afp" moneda={m} value={aVista(+afp || 0, 'clp', m)} onValue={(n) => setAfp(n ? aUnidad(n, 'clp', m) : '')} placeholder="Puedes dejarlo en blanco" /><span className="hint">{afp ? (m === 'uf' ? clp(+afp) : ufs(+afp / UF)) + ' · ' : ''}Solo si quieres. Nos ayuda a proyectar tu jubilación completa.</span></div>
         </div>
         <div className="row" style={{ marginTop: 16 }}><button className="btn btn-p" type="submit">Guardar cambios</button></div>
       </form>

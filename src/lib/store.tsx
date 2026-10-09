@@ -45,6 +45,8 @@ export type State = {
   programa: SesionApp[];
   /** El asesor conectado puede editar el programa. */
   puedeEditar: boolean;
+  /** Moneda en que se ven e ingresan los montos (perfil y planilla). */
+  moneda: 'clp' | 'uf';
   finTab: string;
   sesion: number;
 };
@@ -55,7 +57,7 @@ const empty = (me: Me): State => ({
   adv: { id: null, name: 'Tu asesor VIIGO', first: 'tu asesor', role: 'Asesor VIIGO · Viel.cl', phone: '', wa: '', mail: '', photo: null },
   consent: false, dur: '30', grantedUntil: null, grantedUntilISO: null, route: null, draftMsg: '',
   calc: calcDefault(30), log: [], msgs: [], proxima: null, meetings: [],
-  draft: { resumen: '', acuerdos: '', objs: [] }, objetivos: [], pendientes: [], alts: [], F: {}, debts: [], citas: [], google: null, programa: PROGRAMA_BASE, puedeEditar: false,
+  draft: { resumen: '', acuerdos: '', objs: [] }, objetivos: [], pendientes: [], alts: [], F: {}, debts: [], citas: [], google: null, programa: PROGRAMA_BASE, puedeEditar: false, moneda: 'clp',
   finTab: 'patrimonio', sesion: 1,
 });
 
@@ -125,6 +127,15 @@ export function StoreProvider({ me, demo = false, children }: { me: Me; demo?: b
       synced.current = next;
       return next;
     });
+  }, []);
+
+  // Moneda preferida guardada en este dispositivo.
+  useEffect(() => {
+    let m: string | null = null;
+    try { m = localStorage.getItem('viigo_moneda'); } catch {}
+    if (m !== 'uf') return;
+    const t = setTimeout(() => setS((prev) => ({ ...prev, moneda: 'uf' })), 0);
+    return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {

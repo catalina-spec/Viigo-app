@@ -416,3 +416,10 @@ a.slide-link .sbrand{color:var(--gold)}
 /* Flecha para volver (la app instalada no tiene el botón "atrás" del navegador) */
 .back{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#fff;flex:0 0 auto;padding:0}
 .back:hover{background:rgba(255,255,255,.16)}
+
+/* Calculadora fija en el inicio del cliente */
+.calc-card{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 100%);color:var(--on-navy);border-radius:var(--r);padding:20px 22px;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.calc-card-txt{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1 1 280px}
+.calc-card h3{color:#fff;font-size:20px;margin:2px 0 0}
+.calc-card p{color:var(--on-navy-muted);font-size:14px}
+.calc-card b{color:var(--gold)}

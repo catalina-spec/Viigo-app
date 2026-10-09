@@ -121,7 +121,7 @@ export function RutaResultado({ r }: { r: RouteResult }) {
 }
 
 /* ───────── calculadora con formulario ───────── */
-export function Calculadora({ role, onAceptada }: { role: Role; onAceptada?: () => void }) {
+export function Calculadora({ role, onAceptada, sinPortada = false }: { role: Role; onAceptada?: () => void; sinPortada?: boolean }) {
   const { s, up, toast, href } = useStore();
   const router = useRouter();
   const c = s.calc;
@@ -146,11 +146,11 @@ export function Calculadora({ role, onAceptada }: { role: Role; onAceptada?: () 
 
   return (
     <section className="cv-wrap" id="calculadora">
-      <header className="cv-hero">
+      {!sinPortada && <header className="cv-hero">
         <span className="cv-hero-tag">Herramienta exclusiva</span>
         <h2>Calculadora <span>VIIGO</span></h2>
         <p>Ingresa los datos de tu primera inversión y proyectamos tu ruta patrimonial completa hasta la jubilación.</p>
-      </header>
+      </header>}
 
       <div className="card cv-form">
         <h3>Datos de tu inversión</h3>
@@ -171,7 +171,7 @@ export function Calculadora({ role, onAceptada }: { role: Role; onAceptada?: () 
       {r && (
         <div className="cv-accept">
           {role === 'asesor' ? (
-            <p className="note">Solo el cliente puede aceptar su ruta desde su portal. Usa la calculadora para mostrarle escenarios en la sesión.</p>
+            <p className="note">Escenario de prueba: no se guarda ni cambia la ruta del cliente. Solo el cliente puede aceptar su ruta desde su portal.</p>
           ) : esLaAceptada ? (
             <>
               <span className="pill p-ok">✓ Esta es tu ruta aceptada · {s.route!.date}</span>

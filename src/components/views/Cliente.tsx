@@ -7,6 +7,7 @@ import { AppShell } from '@/components/AppShell';
 import { Calculadora, RutaResultado } from '@/components/Calculadora';
 import { Ecosistema } from '@/components/Ecosistema';
 import { MontoInput, MonedaToggle, aUnidad, aVista } from '@/components/Monto';
+import { FASES } from '@/lib/calc';
 import { UF, clp, ufs } from '@/lib/format';
 import { OfertaPrograma, TABS_PROGRAMA, tienePrograma } from '@/components/Programa';
 import { useStore } from '@/lib/store';
@@ -75,13 +76,26 @@ function Inicio() {
           </div>
         </div>
       </section>
-      {!s.route && (
-        <section className="empty">
-          <h3>Aún no eliges tu ruta</h3>
-          <p>Usa la calculadora VIIGO para proyectar tu ruta hasta los 65, con tu multiplicador de patrimonio, y acéptala cuando te haga sentido.</p>
-          <Link className="btn btn-p" href={href('cliente', 'ruta')}>Abrir la calculadora</Link>
-        </section>
-      )}
+      {/* Calculadora VIIGO: tarjeta fija en el inicio. */}
+      <section className="calc-card">
+        <div className="calc-card-txt">
+          <span className="eyebrow on">Calculadora VIIGO</span>
+          {s.route ? (
+            <>
+              <h3>Tu ruta aceptada · {FASES[s.route.result.faseInicial].l}</h3>
+              <p>Patrimonio a los 65: <b className="num">{ufs(s.route.result.patrimonio)}</b>{s.route.result.mult > 1 ? <> · multiplicador <b>{s.route.result.mult}x</b></> : null}. Puedes probar otros escenarios cuando quieras.</p>
+            </>
+          ) : (
+            <>
+              <h3>Proyecta tu ruta hasta los 65</h3>
+              <p>Ingresa los datos de tu primera inversión y ve tu patrimonio, tu ingreso al jubilar y tu multiplicador.</p>
+            </>
+          )}
+        </div>
+        <div className="row">
+          <Link className="btn btn-meet" style={{ marginTop: 0 }} href={href('cliente', 'ruta')}>{s.route ? 'Ver mi ruta' : 'Abrir la calculadora'}</Link>
+        </div>
+      </section>
       <div className="grid2">
         <section className="card">
           <h3>Tus objetivos</h3>

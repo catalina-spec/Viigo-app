@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useRef, type FormEvent, type ReactNode } from 'react';
 import { AppShell } from '@/components/AppShell';
-import { RutaResultado } from '@/components/Calculadora';
+import { Calculadora, RutaResultado } from '@/components/Calculadora';
 import { FASES } from '@/lib/calc';
 import { nombreCliente, useStore } from '@/lib/store';
 import { resizeImage, fmtCorta } from '@/lib/data';
@@ -140,6 +140,12 @@ function Ficha() {
           <div style={{ marginTop: 14 }}><RutaResultado r={s.route.result} /></div>
         </details>
       )}
+      <details className="card">
+        <summary style={{ cursor: 'pointer' }}>
+          <b>Calculadora para la sesión</b> <span className="note">· muestra escenarios a {cn}; no se guarda ni cambia su ruta</span>
+        </summary>
+        <div style={{ marginTop: 14 }}><Calculadora role="asesor" sinPortada /></div>
+      </details>
       <section className="card">
         <h3>Objetivos del cliente</h3>
         <p className="note" style={{ margin: '-4px 0 10px' }}>{cn} solo ve los que actives. Los objetivos de cada reunión llegan aquí al aprobar el resumen.</p>

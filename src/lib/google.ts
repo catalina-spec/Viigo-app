@@ -17,6 +17,7 @@ export function problemaClaves(): string | null {
   if (!id || !secret) return 'Faltan GOOGLE_CLIENT_ID o GOOGLE_CLIENT_SECRET en Vercel.';
   if (id.startsWith('GOCSPX-') || secret.endsWith('.apps.googleusercontent.com')) return 'En Vercel, GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET están intercambiados.';
   if (!id.endsWith('.apps.googleusercontent.com')) return 'GOOGLE_CLIENT_ID en Vercel no tiene el formato correcto: debe terminar en .apps.googleusercontent.com.';
+  if (secret.length < 20) return 'GOOGLE_CLIENT_SECRET en Vercel está incompleto: copia el secreto completo (empieza con GOCSPX- y tiene unos 35 caracteres).';
   return null;
 }
 

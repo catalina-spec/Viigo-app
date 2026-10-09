@@ -516,9 +516,13 @@ export function Agenda() {
   }, []);
 
   // Aviso al volver de Google después de conectar el calendario.
+  const [errorGoogle, setErrorGoogle] = useState<string | null>(null);
   useEffect(() => {
-    const g = new URLSearchParams(location.search).get('google');
+    const q = new URLSearchParams(location.search);
+    const g = q.get('google');
     if (!g) return;
+    const detalle = q.get('detalle');
+    if (g !== 'ok') setTimeout(() => setErrorGoogle(detalle || (g === 'claves' ? 'Claves de Google incompletas en Vercel.' : 'Error desconocido.')), 0);
     toast(g === 'ok' ? 'Google Calendar conectado. Tus nuevas asesorías tendrán link de Meet.' : g === 'claves' ? 'Las claves de Google en Vercel están incompletas o mal pegadas. Revisa GOOGLE_CLIENT_SECRET: debe tener el secreto completo.' : 'No se pudo conectar Google Calendar. Inténtalo de nuevo.');
     history.replaceState(null, '', location.pathname);
   }, [toast]);
@@ -601,6 +605,7 @@ export function Agenda() {
         <section className="card" style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
           <div><h3 style={{ marginBottom: 4 }}>Conecta tu Google Calendar</h3><p className="note">Así cada asesoría que agendes aparece en tu calendario con su link de Meet, y el cliente recibe la invitación por correo.</p></div>
           <a className="btn btn-p" href="/api/google/connect">Conectar Google Calendar</a>
+          {errorGoogle && <p className="watermark" style={{ width: '100%', margin: 0 }}>No se pudo conectar. Motivo: {errorGoogle}</p>}
         </section>
       )}
       {!days.length && <section className="empty"><h3>No tienes asesorías agendadas</h3><p>Agenda la primera con el formulario de abajo.</p></section>}

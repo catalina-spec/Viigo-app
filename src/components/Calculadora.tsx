@@ -168,16 +168,11 @@ export function Calculadora({ role, onAceptada, sinPortada = false }: { role: Ro
 
       {r && <RutaResultado r={r} />}
 
-      {r && (
+      {/* Si los datos son los de la ruta ya aceptada, no hay nada que aceptar: no se muestra la barra. */}
+      {r && (role === 'asesor' || !esLaAceptada) && (
         <div className="cv-accept">
           {role === 'asesor' ? (
             <p className="note">Escenario de prueba: no se guarda ni cambia la ruta del cliente. Solo el cliente puede aceptar su ruta desde su portal.</p>
-          ) : esLaAceptada ? (
-            <>
-              <span className="pill p-ok">✓ Esta es tu ruta aceptada · {s.route!.date}</span>
-              <button className="btn btn-p" disabled style={{ opacity: 0.45, cursor: 'not-allowed' }}>Aceptar esta nueva ruta</button>
-              <span className="note">Cambia algún dato arriba (precio, pie, tasa o plazo) para armar otra ruta y aceptarla.</span>
-            </>
           ) : (
             <>
               <button className="btn btn-p" onClick={aceptar}>{acc ? 'Aceptar esta nueva ruta' : 'Aceptar esta ruta'}</button>

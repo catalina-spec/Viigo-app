@@ -441,3 +441,8 @@ a.slide-link .sbrand{color:var(--gold)}
 .compra-der{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:0 0 auto}
 .pill.ok{background:var(--ok-bg);color:var(--ok)}
 .compra .pill:not(.ok){background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+
+/* Confirmación simple (p. ej. antes de modificar la ruta) */
+.confirm-bg{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.45)}
+.confirm{position:fixed;z-index:51;left:50%;top:50%;transform:translate(-50%,-50%);width:min(380px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:16px;box-shadow:0 16px 40px rgba(0,0,0,.35);padding:22px 20px 18px}
+.confirm p{margin:0 0 18px;font-size:16px;font-weight:600;line-height:1.45}

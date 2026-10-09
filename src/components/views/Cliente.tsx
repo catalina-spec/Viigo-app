@@ -200,6 +200,7 @@ function Perfil() {
 function Ruta() {
   const { s, up } = useStore();
   const [editando, setEditando] = useState(false);
+  const [confirmar, setConfirmar] = useState(false);
   // Sin ruta aceptada (o modificándola): la calculadora completa.
   if (!s.route || editando)
     return (
@@ -213,12 +214,22 @@ function Ruta() {
   const r = s.route.result;
   return (
     <>
-      <Head eb="Mi ruta" h="Tu ruta inmobiliaria" p={`Aceptada el ${s.route.date}. ${s.adv.first} la ve en tu ficha.`} />
-      <div className="cv-accept" style={{ position: 'static' }}>
-        <span className="pill p-ok" style={{ fontSize: 13 }}>✓ Ruta aceptada el {s.route.date}</span>
-        <button className="btn btn-p" onClick={() => { up((d) => { d.calc = { ...r.params }; }); setEditando(true); }}>Modificar mi ruta</button>
-        <span className="note">Al modificarla, cambia los datos y aparece el botón “Aceptar esta nueva ruta”.</span>
+      <Head eb="Mi ruta" h="Tu ruta inmobiliaria" />
+      <div className="row" style={{ marginTop: -6, marginBottom: 18 }}>
+        <button className="btn btn-p" onClick={() => setConfirmar(true)}>Modificar mi ruta</button>
       </div>
+      {confirmar && (
+        <>
+          <div className="confirm-bg" onClick={() => setConfirmar(false)} />
+          <div className="confirm" role="alertdialog" aria-modal="true" aria-labelledby="conf-t">
+            <p id="conf-t">Al modificar tu ruta, se cambiarán los datos ingresados.</p>
+            <div className="row" style={{ justifyContent: 'flex-end' }}>
+              <button className="btn btn-g" onClick={() => setConfirmar(false)}>Cancelar</button>
+              <button className="btn btn-p" onClick={() => { up((d) => { d.calc = { ...r.params }; }); setConfirmar(false); setEditando(true); }}>Aceptar</button>
+            </div>
+          </div>
+        </>
+      )}
       <RutaResultado r={r} />
     </>
   );

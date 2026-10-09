@@ -51,10 +51,21 @@ export function AppShell({ role, tab, children }: { role: Role; tab: string; chi
       )}
       <header className="top">
         <div className="top-in">
+          <div className="row" style={{ gap: 10, flexWrap: 'nowrap', alignItems: 'center' }}>
+          {tab !== 'inicio' && (
+            <button className="back" aria-label="Volver" title="Volver" onClick={() => {
+              // Vuelve a la pantalla anterior; si se abrió directo aquí, al inicio.
+              if (window.history.length > 1) router.back();
+              else router.push(href(role, 'inicio'));
+            }}>
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+            </button>
+          )}
           <Link className="brand" href={href(role, 'inicio')}>
             <h1>Mi Ruta <span>VIIGO</span></h1>
             <small>Viel.cl</small>
           </Link>
+          </div>
           <div className="row" style={{ gap: 10 }}>
             {demo && (
               <div className="role" role="group" aria-label="Cambiar de vista">

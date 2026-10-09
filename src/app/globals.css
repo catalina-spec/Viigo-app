@@ -449,3 +449,10 @@ a.slide-link .sbrand{color:var(--gold)}
 
 .adv-mail{display:block;color:var(--muted);font-size:14px;text-decoration:none;overflow-wrap:anywhere;margin-top:2px}
 .adv-mail:hover{color:var(--ink);text-decoration:underline}
+
+/* Avisos de mensajes nuevos */
+.dot.msg{background:#E0453A;color:#fff}
+.btn-badge{position:relative;gap:8px}
+.btn-badge .dot{margin-left:6px}
+.aviso-msg{display:flex;flex-wrap:wrap;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-left:4px solid #E0453A;border-radius:12px;padding:10px 14px;margin-bottom:16px;font-size:14px}
+.aviso-msg .link{background:none;border:0;padding:0;font:inherit;font-weight:700;color:var(--ink);text-decoration:underline;cursor:pointer}

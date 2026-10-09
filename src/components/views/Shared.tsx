@@ -378,9 +378,14 @@ export function AltForm({ adv }: { adv: boolean }) {
 
 /* ───────── mensajes ───────── */
 export function ChatView({ role, eb, h, p }: { role: Role; eb: string; h: string; p: string }) {
-  const { s, up, toast } = useStore();
+  const { s, up, toast, marcarLeidos } = useStore();
   const mine = role === 'cliente';
   const chatRef = useRef<HTMLDivElement>(null);
+  // Al ver la conversación, los mensajes recibidos quedan leídos (y se apaga el aviso).
+  const sinLeer = s.clienteId ? s.noLeidos[s.clienteId] ?? 0 : 0;
+  useEffect(() => {
+    if (s.clienteId && sinLeer > 0) marcarLeidos(s.clienteId);
+  }, [s.clienteId, sinLeer, marcarLeidos]);
   const [draft, setDraft] = [mine ? s.draftMsg : undefined, (v: string) => mine && up((d) => { d.draftMsg = v; })];
   const send = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

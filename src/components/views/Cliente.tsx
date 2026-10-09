@@ -27,6 +27,7 @@ function Inicio() {
   const last = approved[approved.length - 1];
   const pending = s.meetings.some((m) => m.status === 'revision');
   const yl = yearsLeft(P.edad, P.retiro);
+  const sinLeer = s.clienteId ? s.noLeidos[s.clienteId] ?? 0 : 0;
   return (
     <>
       <Head eb={P.nombre ? 'Hola, ' + P.nombre : 'Bienvenido'} h="Tu ruta VIIGO" />
@@ -77,7 +78,7 @@ function Inicio() {
           {A.phone && <div className="crow"><span className="k">Celular</span><a className="v num" href={`tel:${A.phone.replace(/\s/g, '')}`} style={{ color: 'inherit' }}>{A.phone}</a><button className="mini" onClick={() => copy(A.phone)}>Copiar</button></div>}
           <div className="row">
             {A.wa && <a className="btn btn-p" href={`https://wa.me/${A.wa}`} target="_blank" rel="noopener">Escribir por WhatsApp</a>}
-            <Link className="btn btn-g" href={href('cliente', 'mensajes')}>Mensaje en el portal</Link>
+            <Link className="btn btn-g btn-badge" href={href('cliente', 'mensajes')}>Mensaje en el portal{sinLeer > 0 && <span className="dot msg" aria-label={`${sinLeer} sin leer`}>{sinLeer}</span>}</Link>
           </div>
         </div>
       </section>

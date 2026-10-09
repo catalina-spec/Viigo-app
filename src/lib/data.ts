@@ -47,8 +47,18 @@ export function toCita(r: Row): Cita {
 }
 
 /* ───────── carga inicial ───────── */
+/** Mensajes sin leer por cliente. Si la función aún no existe en la base de datos, no hay avisos. */
+async function loadNoLeidos(sb: SupabaseClient): Promise<Record<string, number>> {
+  const { data, error } = await sb.rpc('mensajes_sin_leer');
+  if (error) return {};
+  return Object.fromEntries(((data ?? []) as { cliente_id: string; n: number }[]).map((r) => [r.cliente_id, r.n]));
+}
+
 export async function loadInicial(sb: SupabaseClient, me: Me): Promise<Partial<State>> {
-  if (me.rol === 'cliente') return { clientes: [], ...(await loadCliente(sb, me, me.id)) };
+  if (me.rol === 'cliente') {
+    const [datos, noLeidos] = await Promise.all([loadCliente(sb, me, me.id), loadNoLeidos(sb)]);
+    return { clientes: [], ...datos, noLeidos };
+  }
 
   const [{ data: yo }, { data: clientes }, { data: citas }, { data: google }, { data: prog }, { data: editor }] = await Promise.all([
     sb.from('perfiles').select('*').eq('id', me.id).single(),
@@ -59,11 +69,12 @@ export async function loadInicial(sb: SupabaseClient, me: Me): Promise<Partial<S
     sb.from('programa_sesiones').select('n,data'),
     sb.rpc('puede_editar_programa'),
   ]);
+  const noLeidos = await loadNoLeidos(sb);
   const lista = (clientes ?? []).map((c) => ({ id: c.id, nombre: c.nombre, apellido: c.apellido, email: c.email, mio: c.asesor_id === me.id, plan: c.plan }));
   let elegido: string | null = null;
   try { elegido = localStorage.getItem('viigo_cliente'); } catch {}
   if (!lista.some((c) => c.id === elegido)) elegido = (lista.find((c) => c.mio) ?? lista[0])?.id ?? null;
-  const base: Partial<State> = { clientes: lista, adv: toAdvisor(yo), citas: (citas ?? []).map(toCita), google: (google as string | null) ?? null, programa: combinar(prog as { n: number; data: SesionApp }[] | null), puedeEditar: editor === true };
+  const base: Partial<State> = { clientes: lista, adv: toAdvisor(yo), citas: (citas ?? []).map(toCita), google: (google as string | null) ?? null, programa: combinar(prog as { n: number; data: SesionApp }[] | null), puedeEditar: editor === true, noLeidos };
   if (!elegido) return { ...base, clienteId: null, P: blankProfile() };
   return { ...base, ...(await loadCliente(sb, me, elegido)), adv: toAdvisor(yo) };
 }

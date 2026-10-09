@@ -49,6 +49,8 @@ export type State = {
   moneda: 'clp' | 'uf';
   finTab: string;
   sesion: number;
+  /** Mensajes recibidos sin leer, por cliente (para el cliente: solo el suyo). */
+  noLeidos: Record<string, number>;
 };
 
 const empty = (me: Me): State => ({
@@ -58,7 +60,7 @@ const empty = (me: Me): State => ({
   consent: false, dur: '30', grantedUntil: null, grantedUntilISO: null, route: null, draftMsg: '',
   calc: calcDefault(0), log: [], msgs: [], proxima: null, meetings: [],
   draft: { resumen: '', acuerdos: '', objs: [] }, objetivos: [], pendientes: [], alts: [], F: {}, debts: [], citas: [], google: null, programa: PROGRAMA_BASE, puedeEditar: false, moneda: 'clp',
-  finTab: 'patrimonio', sesion: 1,
+  finTab: 'patrimonio', sesion: 1, noLeidos: {},
 });
 
 type Ctx = {
@@ -79,6 +81,8 @@ type Ctx = {
   aceptarTerminos: (version: string) => Promise<string | null>;
   /** Guarda el contenido de una sesión (editores). Devuelve un error o null. */
   guardarSesion: (ses: SesionApp) => Promise<string | null>;
+  /** Marca como leídos los mensajes recibidos en la conversación de ese cliente. */
+  marcarLeidos: (clienteId: string) => Promise<void>;
   /** Dirección de una sección, respetando si estamos en /demo. */
   href: (role: Role, id: string) => string;
 };
@@ -96,7 +100,7 @@ function demoState(me: Me): State {
     P: { ...DEMO.PROFILE, id: 'demo', creado: '2026-08-01T12:00:00Z' },
     adv: { ...DEMO.ADV, id: 'demo-adv', nombre: 'Catalina', apellido: 'Viel' },
     log: [{ t: '23 sep, 18:42', x: 'Andrés actualizó su planilla financiera.' }],
-    msgs: DEMO.MSGS, meetings: DEMO.MEETINGS, proxima,
+    msgs: DEMO.MSGS, meetings: DEMO.MEETINGS, proxima, noLeidos: { demo: 1 },
     draft: { resumen: rev.resumen, acuerdos: rev.acuerdos.join('\n'), objs: rev.obj.map((x) => ({ x, act: true })) },
     objetivos: DEMO.OBJETIVOS, pendientes: DEMO.PENDIENTES, alts: DEMO.ALTS, F: DEMO.FIN_VALUES, debts: DEMO.DEBTS,
     citas: DEMO.CITAS.map((c, i) => {
@@ -212,6 +216,31 @@ export function StoreProvider({ me, demo = false, children }: { me: Me; demo?: b
     };
   }, [demo, refrescar]);
 
+  // Mensajes nuevos al instante: si llega uno, se recargan los datos (y aparecen los avisos).
+  useEffect(() => {
+    if (demo) return;
+    const canal = sb.channel('mensajes-nuevos')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mensajes' }, () => { refrescar(); })
+      .subscribe();
+    return () => { sb.removeChannel(canal); };
+  }, [sb, demo, refrescar]);
+
+  // Número en el ícono de la app instalada (si el celular lo permite).
+  const totalNoLeidos = Object.values(s.noLeidos).reduce((a, b) => a + b, 0);
+  useEffect(() => {
+    const nav = navigator as Navigator & { setAppBadge?: (n?: number) => Promise<void>; clearAppBadge?: () => Promise<void> };
+    if (totalNoLeidos) nav.setAppBadge?.(totalNoLeidos).catch(() => {});
+    else nav.clearAppBadge?.().catch(() => {});
+  }, [totalNoLeidos]);
+
+  const marcarLeidos = useCallback(async (clienteId: string) => {
+    const apply = (prev: State) => ({ ...prev, noLeidos: { ...prev.noLeidos, [clienteId]: 0 } });
+    setS((prev) => { const next = apply(prev); if (synced.current) synced.current = apply(synced.current); return next; });
+    if (demo) return;
+    const { error } = await sb.rpc('marcar_mensajes_leidos', { p_cliente: clienteId });
+    if (error) console.error('marcar_mensajes_leidos', error);
+  }, [sb, demo]);
+
   const elegirCliente = useCallback(async (id: string) => {
     try { localStorage.setItem('viigo_cliente', id); } catch {}
     setS((prev) => ({ ...prev, loading: true }));
@@ -250,7 +279,7 @@ export function StoreProvider({ me, demo = false, children }: { me: Me; demo?: b
     return null;
   }, [sb, demo, me.id]);
 
-  return <StoreCtx.Provider value={{ s, up, toast, toastText, elegirCliente: demo ? async () => {} : elegirCliente, refrescar, rpc, demo, href, guardarSesion, aceptarTerminos }}>{children}</StoreCtx.Provider>;
+  return <StoreCtx.Provider value={{ s, up, toast, toastText, elegirCliente: demo ? async () => {} : elegirCliente, refrescar, rpc, demo, href, guardarSesion, aceptarTerminos, marcarLeidos }}>{children}</StoreCtx.Provider>;
 }
 
 export function useStore() {

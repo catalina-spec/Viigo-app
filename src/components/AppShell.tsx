@@ -23,7 +23,11 @@ export function AppShell({ role, tab, children }: { role: Role; tab: string; chi
   const [cuenta, setCuenta] = useState<null | 'main' | 'perfil'>(null);
   const [cuentaTop, setCuentaTop] = useState(64);
   const pending = s.meetings.filter((m) => m.status === 'revision').length;
-  const badge = (id: string) => (role === 'asesor' && id === 'asesorias' && pending ? pending : 0);
+  const sinLeer = s.clienteId ? s.noLeidos[s.clienteId] ?? 0 : 0;
+  const badge = (id: string) => (id === 'mensajes' ? sinLeer : role === 'asesor' && id === 'asesorias' && pending ? pending : 0);
+  const dotClass = (id: string) => (id === 'mensajes' ? 'dot msg' : 'dot');
+  // Asesor: otros clientes con mensajes nuevos (además del que está viendo).
+  const otrosConMensajes = role === 'asesor' ? s.clientes.filter((c) => c.id !== s.clienteId && (s.noLeidos[c.id] ?? 0) > 0) : [];
   const tabs = TABS[role].filter((t) => !t.oculta);
   const mobileTabs = tabs.filter((t) => t.mobile);
   const moreTabs = tabs.filter((t) => !t.mobile);
@@ -81,7 +85,7 @@ export function AppShell({ role, tab, children }: { role: Role; tab: string; chi
             {!demo && role === 'asesor' && s.clientes.length > 0 && (
               <select className="pick" aria-label="Cliente" value={s.clienteId ?? ''} onChange={(e) => elegirCliente(e.target.value)}>
                 {s.clientes.map((c) => (
-                  <option key={c.id} value={c.id}>{`${c.nombre} ${c.apellido}`.trim() || c.email}{c.mio ? '' : ' · otro asesor'}</option>
+                  <option key={c.id} value={c.id}>{(s.noLeidos[c.id] ? '🔴 ' : '') + (`${c.nombre} ${c.apellido}`.trim() || c.email)}{c.mio ? '' : ' · otro asesor'}{s.noLeidos[c.id] ? ` · ${s.noLeidos[c.id]} mensaje${s.noLeidos[c.id] > 1 ? 's' : ''} nuevo${s.noLeidos[c.id] > 1 ? 's' : ''}` : ''}</option>
                 ))}
               </select>
             )}
@@ -101,11 +105,27 @@ export function AppShell({ role, tab, children }: { role: Role; tab: string; chi
           {tabs.map((t) => (
             <Link key={t.id} href={href(role, t.id)} aria-current={tab === t.id ? 'page' : undefined}>
               <span>{t.label}{bloq(t.id) && <span className="lock" aria-label="Bloqueado">🔒</span>}</span>
-              {badge(t.id) ? <span className="dot">{badge(t.id)}</span> : null}
+              {badge(t.id) ? <span className={dotClass(t.id)}>{badge(t.id)}</span> : null}
             </Link>
           ))}
         </nav>
-        <main>{body}</main>
+        <main>
+          {otrosConMensajes.length > 0 && !s.loading && (
+            <div className="aviso-msg" role="status">
+              <span className="dot msg" aria-hidden="true">!</span>
+              <span>Mensajes nuevos de </span>
+              {otrosConMensajes.map((c, i) => (
+                <span key={c.id}>
+                  {i > 0 && ', '}
+                  <button className="link" onClick={async () => { await elegirCliente(c.id); router.push(href(role, 'mensajes')); }}>
+                    {`${c.nombre} ${c.apellido}`.trim() || c.email} ({s.noLeidos[c.id]})
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+          {body}
+        </main>
       </div>
 
       <nav className="bottomnav" aria-label="Secciones">
@@ -113,7 +133,7 @@ export function AppShell({ role, tab, children }: { role: Role; tab: string; chi
           <Link key={t.id} href={href(role, t.id)} aria-current={tab === t.id ? 'page' : undefined} onClick={() => setMore(false)}>
             <Icon name={t.icon} />
             <span>{t.short}</span>
-            {badge(t.id) ? <span className="dot">{badge(t.id)}</span> : null}
+            {badge(t.id) ? <span className={dotClass(t.id)}>{badge(t.id)}</span> : null}
           </Link>
         ))}
         <button type="button" aria-expanded={more} aria-current={moreActive ? 'page' : undefined} onClick={() => setMore(!more)}>

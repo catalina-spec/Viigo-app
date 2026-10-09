@@ -18,7 +18,7 @@ export function OfertaPrograma({ compacta = false }: { compacta?: boolean }) {
   const msg = encodeURIComponent(`Hola ${A.first}, quiero contratar el Programa VIIGO.`);
   return (
     <section className="card oferta">
-      <span className="eyebrow on">Programa VIIGO · 4 sesiones 1 a 1</span>
+      <span className="eyebrow on">Programa VIIGO · 4 sesiones 1 a 1 · UF 8 por persona</span>
       <h3>{compacta ? 'Esta sección es parte del Programa VIIGO' : 'Arma tu ruta completa con tu asesor'}</h3>
       <ul className="clean">
         <li><span className="chk">✓</span><div>4 sesiones individuales por Google Meet, agendadas desde la app</div></li>

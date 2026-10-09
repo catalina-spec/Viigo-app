@@ -5,7 +5,6 @@ import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'rea
 import { toCita, toMeeting } from '@/lib/data';
 import { nombreCliente, useStore } from '@/lib/store';
 import { finTotals } from '@/lib/calc';
-import { Calculadora } from '@/components/Calculadora';
 import { Ecosistema } from '@/components/Ecosistema';
 import { MontoInput, MonedaToggle, aUnidad, aVista } from '@/components/Monto';
 import { UF, clp, initials, nowStr, pct, ufs } from '@/lib/format';
@@ -461,7 +460,7 @@ export function ConsentCard() {
 }
 
 /* ───────── biblioteca ───────── */
-export function Biblioteca({ role }: { role: Role }) {
+export function Biblioteca(_props: { role: Role }) { // eslint-disable-line @typescript-eslint/no-unused-vars
   const { toast } = useStore();
   const res = () => toast('Pronto: aquí se abre el material.');
   const items = [
@@ -481,7 +480,6 @@ export function Biblioteca({ role }: { role: Role }) {
           ))}
         </div>
       </section>
-      <Calculadora role={role} />
       <div className="grid2">
         {items.map(([tag, h, p, b]) => (
           <article className="card lib" key={h}><span className="tag">{tag}</span><h3>{h}</h3><p>{p}</p><button className="btn btn-g" style={{ alignSelf: 'flex-start' }} onClick={res}>{b}</button></article>

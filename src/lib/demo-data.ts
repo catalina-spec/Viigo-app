@@ -175,7 +175,7 @@ export const SESIONES: Sesion[] = [
    ['Su etapa','10 min','Sin propiedades: START. Con plusvalía acumulada: GROW. Con arriendo que cubre dividendos: EQUITY. Con 49+ o cerca de los 58: LEGACY.'],
    ['Cierre','5 min','Deja la tarea y haz las 2 preguntas. Tono de acompañamiento, nunca de juicio.']],
   preguntas:['¿Qué sientes al ver tu patrimonio neto en un solo número?','¿A dónde se va la plata que no ves?','Si tuvieras que liberar $200.000 al mes para tu ruta, ¿de dónde saldrían?','¿Tu plata de hoy está trabajando para ti o solo está guardada?','Con estos números, ¿en qué etapa te ubicas de verdad?'],
-  tarea:'Probar la Calculadora VIIGO en su biblioteca, actualizar la simulación bancaria con el monto definido y anotar sus dudas.',
+  tarea:'Probar la Calculadora VIIGO en Mi ruta, actualizar la simulación bancaria con el monto definido y anotar sus dudas.',
   cierre:['¿Cuál es el número de tu planilla que más te llamó la atención y por qué?','¿Qué decisión sobre tu plata tomarías distinto desde hoy?']},
  {n:4, titulo:'Proyección a 65 con la Calculadora VIIGO', dur:'60 min',
   meta:'El cliente ve su patrimonio e ingreso a los 65, entiende el plazo del crédito y sale con su ruta armada.',

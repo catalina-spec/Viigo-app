@@ -57,7 +57,7 @@ export function InstalarApp({ className = 'out' }: { className?: string }) {
       <button className={className} onClick={instalar}>Instalar app</button>
       {ayuda && (
         <>
-          <div className="sheet-bg" style={{ display: 'block' }} onClick={() => setAyuda(false)} />
+          <div className="sheet-bg install-bg" style={{ display: "block" }} onClick={() => setAyuda(false)} />
           <div className="sheet install-sheet" role="dialog" aria-label="Instalar en iPhone">
             <span className="grip" />
             <h3>Instala Mi Ruta VIIGO en tu iPhone</h3>

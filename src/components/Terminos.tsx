@@ -4,7 +4,7 @@
 // (y cada vez que sube TERMINOS_VERSION).
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useStore } from '@/lib/store';
 import { TERMINOS, TERMINOS_FECHA, TERMINOS_VERSION } from '@/lib/terminos';
 
@@ -26,7 +26,19 @@ export function TerminosGate() {
   const { s, aceptarTerminos, toast } = useStore();
   const [ok, setOk] = useState(false);
   const [busy, setBusy] = useState(false);
-  if (s.loading || s.P.terminos === TERMINOS_VERSION) return null;
+  const abierta = !s.loading && s.P.terminos !== TERMINOS_VERSION;
+
+  // Mientras se muestran los términos, la pantalla de atrás queda quieta (también en iPhone).
+  useEffect(() => {
+    if (!abierta) return;
+    const y = window.scrollY;
+    const b = document.body.style;
+    const prev = { position: b.position, top: b.top, width: b.width, overflow: b.overflow };
+    Object.assign(b, { position: 'fixed', top: -y + 'px', width: '100%', overflow: 'hidden' });
+    return () => { Object.assign(b, prev); window.scrollTo(0, y); };
+  }, [abierta]);
+
+  if (!abierta) return null;
 
   const aceptar = async () => {
     setBusy(true);
@@ -40,13 +52,15 @@ export function TerminosGate() {
       <div className="terms-card">
         <span className="eyebrow">Antes de empezar</span>
         <h2 id="terms-h">Términos y condiciones y privacidad</h2>
-        <p className="note">Lee cómo cuidamos tu información. Para usar Mi Ruta VIIGO necesitamos que los aceptes.</p>
-        <div className="terms-scroll"><TextoTerminos /></div>
-        <label className="terms-check">
-          <input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} />
-          <span>Leí y acepto los <Link href="/terminos" target="_blank">términos y condiciones y la política de privacidad</Link> de Mi Ruta VIIGO.</span>
-        </label>
-        <button className="btn btn-p" disabled={!ok || busy} onClick={aceptar}>{busy ? 'Guardando…' : 'Acepto y continuar'}</button>
+        <p className="note">Lee cómo cuidamos tu información. Desliza hasta el final para aceptarlos y continuar.</p>
+        <TextoTerminos />
+        <div className="terms-accept">
+          <label className="terms-check">
+            <input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} />
+            <span>Leí y acepto los <Link href="/terminos" target="_blank">términos y condiciones y la política de privacidad</Link> de Mi Ruta VIIGO.</span>
+          </label>
+          <button className="btn btn-p" disabled={!ok || busy} onClick={aceptar}>{busy ? 'Guardando…' : 'Acepto y continuar'}</button>
+        </div>
       </div>
     </div>
   );

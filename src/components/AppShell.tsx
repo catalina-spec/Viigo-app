@@ -114,7 +114,7 @@ export function AppShell({ role, tab, children }: { role: Role; tab: string; chi
           </div>
         </>
       )}
-      {role === 'cliente' && !demo && <TerminosGate />}
+      {role === 'cliente' && <TerminosGate />}
       {toastText && <div className="toast" role="status">{toastText}</div>}
     </>
   );

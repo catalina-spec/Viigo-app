@@ -10,6 +10,7 @@ export const TERMINOS: Seccion[] = [
   {
     t: '1. Qué es Mi Ruta VIIGO',
     p: [
+      'Mi Ruta VIIGO es operada por Viel Propiedades Dos Ltda., RUT 78.451.680-6 (“Viel”, “nosotros”), responsable del tratamiento de tus datos personales. Contacto: soporte@viel.cl.',
       'Mi Ruta VIIGO es la aplicación del Método VIIGO de Viel.cl. Te permite usar la Calculadora VIIGO y la Biblioteca VIIGO y, si contratas el Programa VIIGO, acceder a tus sesiones de asesoría, tu planilla financiera y tu ruta inmobiliaria.',
       'El Método VIIGO es un programa educativo. Las proyecciones son referenciales y no constituyen asesoría financiera, tributaria ni legal personalizada, ni una recomendación de compra. Las decisiones de inversión son siempre tuyas.',
     ],

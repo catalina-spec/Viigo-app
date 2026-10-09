@@ -45,7 +45,7 @@ export const MEET_URL = 'https://meet.google.com/';
 
 export const PROFILE: Profile = {
   nombre: 'Andrés', apellido: 'Muñoz', mail: 'andres.munoz@correo.cl', cel: '+56 9 8765 4321',
-  edad: 28, retiro: 65, etapa: 'start', ingresoJub: 1500000, afp: '', foto: null, plan: 'programa', terminos: 'v1',
+  edad: 28, retiro: 65, etapa: 'start', ingresoJub: 1500000, afp: '', foto: null, plan: 'programa', terminos: null,
 };
 
 export const MEETINGS: Meeting[] = [

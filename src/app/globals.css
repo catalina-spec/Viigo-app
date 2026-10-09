@@ -390,10 +390,11 @@ a.slide-link .sbrand{color:var(--gold)}
 @media (max-width:640px){.sedit-row{grid-template-columns:24px 1fr auto}.sedit-row input[type=url]{grid-column:2/-1}}
 
 /* ───────── Términos y condiciones ───────── */
-.terms-gate{position:fixed;inset:0;z-index:60;background:rgba(8,14,32,.72);display:grid;place-items:center;padding:16px;padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
-.terms-card{width:100%;max-width:620px;max-height:100%;display:flex;flex-direction:column;gap:12px;background:var(--surface);color:var(--ink);border-radius:16px;padding:22px 20px;box-shadow:0 30px 60px -30px rgba(0,0,0,.6)}
+/* Toda la ventana se desplaza como una sola página; la pantalla de atrás queda quieta. */
+.terms-gate{position:fixed;inset:0;z-index:60;background:rgba(8,14,32,.78);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(24px + env(safe-area-inset-bottom,0px))}
+.terms-card{width:100%;max-width:620px;margin:0 auto;display:flex;flex-direction:column;gap:12px;background:var(--surface);color:var(--ink);border-radius:16px;padding:22px 20px;box-shadow:0 30px 60px -30px rgba(0,0,0,.6)}
 .terms-card h2{font-size:clamp(22px,4vw,28px)}
-.terms-scroll{overflow-y:auto;border:1px solid var(--line);border-radius:var(--r-sm);padding:14px 16px;background:var(--surface-2);min-height:120px;flex:1}
+.terms-accept{display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--line);padding-top:16px;margin-top:4px}
 .terms-text{display:flex;flex-direction:column;gap:14px;font-size:14.5px}
 .terms-text h3{font-family:var(--sans);font-size:15px;font-weight:700;margin-bottom:4px}
 .terms-text p{color:var(--muted);margin-bottom:6px}

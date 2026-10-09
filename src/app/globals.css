@@ -423,3 +423,21 @@ a.slide-link .sbrand{color:var(--gold)}
 .calc-card h3{color:#fff;font-size:20px;margin:2px 0 0}
 .calc-card p{color:var(--on-navy-muted);font-size:14px}
 .calc-card b{color:var(--gold)}
+
+/* Círculo de cuenta del cliente (arriba a la derecha) y su menú */
+.cuenta-btn{background:none;border:0;padding:0;border-radius:50%;cursor:pointer;display:inline-flex}
+.cuenta-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.cuenta-bg{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.25)}
+.cuenta-menu{position:fixed;top:calc(64px + env(safe-area-inset-top,0px));right:12px;z-index:41;width:min(290px,calc(100vw - 24px));background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.28);padding:6px;display:flex;flex-direction:column}
+.cuenta-menu a,.cuenta-menu button{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;padding:13px 12px;border:0;background:none;border-radius:10px;color:var(--ink);text-decoration:none;font:inherit;font-size:15px;font-weight:600;text-align:left;cursor:pointer}
+.cuenta-menu a:hover,.cuenta-menu button:hover{background:var(--surface-2)}
+.cuenta-quien{padding:10px 12px 12px;border-bottom:1px solid var(--line);margin-bottom:4px;display:flex;flex-direction:column;min-width:0}
+.cuenta-quien small{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cuenta-menu .cuenta-salir{color:#C0392B}
+.cuenta-menu .cuenta-volver{justify-content:flex-start;color:var(--muted);border-bottom:1px solid var(--line);border-radius:10px 10px 0 0;margin-bottom:4px}
+.compra{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.compra>div:first-child{display:flex;flex-direction:column;min-width:0}
+.compra small{color:var(--muted)}
+.compra-der{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:0 0 auto}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}
+.compra .pill:not(.ok){background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}

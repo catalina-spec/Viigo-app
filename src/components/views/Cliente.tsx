@@ -11,6 +11,7 @@ import { FASES } from '@/lib/calc';
 import { UF, clp, ufs } from '@/lib/format';
 import { OfertaPrograma, TABS_PROGRAMA, tienePrograma } from '@/components/Programa';
 import { useStore } from '@/lib/store';
+import { TextoTerminos } from '@/components/Terminos';
 import { STAGES, type StageKey } from '@/lib/demo-data';
 import { resizeImage } from '@/lib/data';
 import {
@@ -223,12 +224,44 @@ function Ruta() {
   );
 }
 
+function Compras() {
+  const { s } = useStore();
+  const programa = tienePrograma(s.P.plan);
+  return (
+    <>
+      <Head eb="Mi perfil" h="Mis compras" p="Los servicios VIIGO que tienes con Viel.cl." />
+      <section className="card compra">
+        <div><b>Sesión de diagnóstico</b><small>Primera reunión con tu asesor por Meet</small></div>
+        <div className="compra-der"><span className="pill ok">Incluida</span><small>Gratis</small></div>
+      </section>
+      <section className="card compra">
+        <div><b>Programa VIIGO</b><small>4 sesiones con Meet, planilla financiera y alternativas de inversión</small></div>
+        <div className="compra-der">{programa ? <span className="pill ok">Activo</span> : <span className="pill">No contratado</span>}<small>UF 8</small></div>
+      </section>
+      {!programa && <OfertaPrograma compacta />}
+      <p className="note">¿Dudas con un pago o una boleta? Escríbenos a soporte@viel.cl.</p>
+    </>
+  );
+}
+
+function Terminos() {
+  const { s } = useStore();
+  return (
+    <>
+      <Head eb="Mi perfil" h="Términos y condiciones" p={s.P.terminos ? 'Ya los aceptaste. Aquí puedes volver a leerlos cuando quieras.' : undefined} />
+      <section className="card"><TextoTerminos /></section>
+    </>
+  );
+}
+
 export function ClienteApp({ tab }: { tab: string }) {
   const { s } = useStore();
   const approved = s.meetings.filter((m) => m.status === 'aprobado');
   const views: Record<string, () => ReactNode> = {
     inicio: () => <Inicio />,
     perfil: () => <Perfil />,
+    compras: () => <Compras />,
+    terminos: () => <Terminos />,
     ruta: () => <Ruta />,
     alternativas: () => (
       <>

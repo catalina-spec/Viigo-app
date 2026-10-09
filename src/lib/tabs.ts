@@ -1,7 +1,8 @@
 export type Role = 'cliente' | 'asesor';
-export type Tab = { id: string; label: string; short: string; icon: string; mobile?: boolean };
+export type Tab = { id: string; label: string; short: string; icon: string; mobile?: boolean; oculta?: boolean };
 
 // Secciones de cada portal. "mobile" = aparece en el menú inferior del celular; el resto va en "Más".
+// "oculta" = no aparece en los menús; se abre desde el círculo del perfil.
 export const TABS: Record<Role, Tab[]> = {
   cliente: [
     { id: 'inicio', label: 'Inicio', short: 'Inicio', icon: 'home', mobile: true },
@@ -12,6 +13,8 @@ export const TABS: Record<Role, Tab[]> = {
     { id: 'planilla', label: 'Mi planilla', short: 'Planilla', icon: 'sheet' },
     { id: 'biblioteca', label: 'Biblioteca VIIGO', short: 'Biblioteca', icon: 'book' },
     { id: 'mensajes', label: 'Mensajes', short: 'Mensajes', icon: 'chat', mobile: true },
+    { id: 'compras', label: 'Mis compras', short: 'Compras', icon: 'user', oculta: true },
+    { id: 'terminos', label: 'Términos y condiciones', short: 'Términos', icon: 'user', oculta: true },
   ],
   asesor: [
     { id: 'inicio', label: 'Ficha del cliente', short: 'Ficha', icon: 'user', mobile: true },

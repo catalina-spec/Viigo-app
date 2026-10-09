@@ -10,6 +10,7 @@ import { Icon } from './Icon';
 import { InstalarApp } from './Pwa';
 import { TerminosGate } from './Terminos';
 import { TABS_PROGRAMA, tienePrograma } from './Programa';
+import { Avatar } from './views/Shared';
 
 // Secciones del asesor que dependen de tener un cliente elegido.
 const CLIENT_TABS = new Set(['asesorias', 'alternativas', 'planilla', 'mensajes']);
@@ -18,15 +19,19 @@ export function AppShell({ role, tab, children }: { role: Role; tab: string; chi
   const { s, toastText, elegirCliente, href, demo, refrescar, toast } = useStore();
   const router = useRouter();
   const [more, setMore] = useState(false);
+  // Menú del círculo del cliente: cerrado, principal o el submenú "Mi perfil".
+  const [cuenta, setCuenta] = useState<null | 'main' | 'perfil'>(null);
+  const [cuentaTop, setCuentaTop] = useState(64);
   const pending = s.meetings.filter((m) => m.status === 'revision').length;
   const badge = (id: string) => (role === 'asesor' && id === 'asesorias' && pending ? pending : 0);
-  const tabs = TABS[role];
+  const tabs = TABS[role].filter((t) => !t.oculta);
   const mobileTabs = tabs.filter((t) => t.mobile);
   const moreTabs = tabs.filter((t) => !t.mobile);
   const moreActive = moreTabs.some((t) => t.id === tab);
   const bloq = (id: string) => role === 'cliente' && !s.loading && !tienePrograma(s.P.plan) && TABS_PROGRAMA.has(id);
 
   const salir = async () => {
+    if (demo) { router.push('/demo'); return; }
     await createClient().auth.signOut();
     router.replace('/login');
     router.refresh();
@@ -82,7 +87,11 @@ export function AppShell({ role, tab, children }: { role: Role; tab: string; chi
             )}
             <InstalarApp />
             {!demo && role === 'asesor' && <button className="out" title="Traer los últimos cambios de tus clientes" onClick={async () => { await refrescar(); toast('Datos actualizados.'); }}>↻ Actualizar</button>}
-            {!demo && <button className="out" onClick={salir} title={s.me.email}>Salir</button>}
+            {role === 'cliente' ? (
+              <button className="cuenta-btn" aria-label="Mi cuenta" aria-expanded={!!cuenta} onClick={(e) => { setCuentaTop(e.currentTarget.getBoundingClientRect().bottom + 8); setCuenta(cuenta ? null : 'main'); }}>
+                <Avatar src={s.P.foto ?? null} name={`${s.P.nombre} ${s.P.apellido}`.trim() || s.P.mail || '?'} size={38} />
+              </button>
+            ) : !demo && <button className="out" onClick={salir} title={s.me.email}>Salir</button>}
           </div>
         </div>
       </header>
@@ -123,6 +132,27 @@ export function AppShell({ role, tab, children }: { role: Role; tab: string; chi
                 {t.label}{bloq(t.id) && <span className="lock" aria-label="Bloqueado">🔒</span>}
               </Link>
             ))}
+          </div>
+        </>
+      )}
+      {cuenta && (
+        <>
+          <div className="cuenta-bg" onClick={() => setCuenta(null)} />
+          <div className="cuenta-menu" role="menu" style={{ top: cuentaTop }}>
+            {cuenta === 'main' ? (
+              <>
+                <div className="cuenta-quien"><b>{`${s.P.nombre} ${s.P.apellido}`.trim() || 'Mi cuenta'}</b><small>{s.P.mail}</small></div>
+                <button role="menuitem" onClick={() => setCuenta('perfil')}><span>Mi perfil</span><span aria-hidden="true">›</span></button>
+                <button role="menuitem" className="cuenta-salir" onClick={() => { setCuenta(null); salir(); }}>{demo ? 'Salir de la demo' : 'Cerrar sesión'}</button>
+              </>
+            ) : (
+              <>
+                <button className="cuenta-volver" onClick={() => setCuenta('main')}><span aria-hidden="true">‹</span> Mi perfil</button>
+                {[['perfil', 'Mis datos personales'], ['compras', 'Mis compras'], ['terminos', 'Términos y condiciones']].map(([id, l]) => (
+                  <Link key={id} role="menuitem" href={href(role, id)} onClick={() => setCuenta(null)}><span>{l}</span><span aria-hidden="true">›</span></Link>
+                ))}
+              </>
+            )}
           </div>
         </>
       )}

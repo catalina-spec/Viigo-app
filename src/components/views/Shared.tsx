@@ -516,7 +516,7 @@ export function Agenda() {
   useEffect(() => {
     const g = new URLSearchParams(location.search).get('google');
     if (!g) return;
-    toast(g === 'ok' ? 'Google Calendar conectado. Tus nuevas asesorías tendrán link de Meet.' : 'No se pudo conectar Google Calendar. Inténtalo de nuevo.');
+    toast(g === 'ok' ? 'Google Calendar conectado. Tus nuevas asesorías tendrán link de Meet.' : g === 'claves' ? 'Las claves de Google en Vercel están mal pegadas (revisa GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET).' : 'No se pudo conectar Google Calendar. Inténtalo de nuevo.');
     history.replaceState(null, '', location.pathname);
   }, [toast]);
 

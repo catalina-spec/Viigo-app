@@ -8,10 +8,22 @@ const SCOPES = ['openid', 'email', 'https://www.googleapis.com/auth/calendar.eve
 const CAL = 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
 export const TZ = 'America/Santiago';
 
+/** Quita espacios, saltos de línea y comillas que a veces quedan al copiar y pegar. */
+const limpio = (v?: string) => (v ?? '').trim().replace(/^["']|["']$/g, '').trim();
+
+/** Revisa las claves de Google; devuelve un mensaje para el asesor si están mal pegadas. */
+export function problemaClaves(): string | null {
+  const id = limpio(process.env.GOOGLE_CLIENT_ID), secret = limpio(process.env.GOOGLE_CLIENT_SECRET);
+  if (!id || !secret) return 'Faltan GOOGLE_CLIENT_ID o GOOGLE_CLIENT_SECRET en Vercel.';
+  if (id.startsWith('GOCSPX-') || secret.endsWith('.apps.googleusercontent.com')) return 'En Vercel, GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET están intercambiados.';
+  if (!id.endsWith('.apps.googleusercontent.com')) return 'GOOGLE_CLIENT_ID en Vercel no tiene el formato correcto: debe terminar en .apps.googleusercontent.com.';
+  return null;
+}
+
 const env = () => {
-  const id = process.env.GOOGLE_CLIENT_ID, secret = process.env.GOOGLE_CLIENT_SECRET;
-  if (!id || !secret) throw new Error('Faltan GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET en las variables de entorno.');
-  return { id, secret };
+  const p = problemaClaves();
+  if (p) throw new Error(p);
+  return { id: limpio(process.env.GOOGLE_CLIENT_ID), secret: limpio(process.env.GOOGLE_CLIENT_SECRET) };
 };
 
 export function authUrl(redirectUri: string, state: string, email: string) {

@@ -5,7 +5,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Me } from './supabase/server';
 import type { State } from './store';
 import type { Advisor, Alternativa, Cita, Debt, Meeting, Msg, Objetivo, Pendiente, Profile, StageKey } from './demo-data';
-import { SESIONES } from './demo-data';
+import { sesionNombre, sesionTitulo } from './demo-data';
 import { calcDefault, esRutaVigente } from './calc';
 import { combinar, type SesionApp } from './programa';
 
@@ -31,7 +31,7 @@ export function toMeeting(r: Row): Meeting {
   return {
     id: r.id, inicio: r.inicio, meet: r.meet_url, sesion: r.sesion,
     date: fmtFecha(r.inicio), dur: r.duracion_min ? `${r.duracion_min} min` : '',
-    title: r.titulo || (r.sesion ? `Sesión ${r.sesion} · ${SESIONES[r.sesion - 1]?.titulo ?? ''}` : 'Asesoría VIIGO'),
+    title: r.titulo || (r.sesion != null ? `${sesionNombre(r.sesion)} · ${sesionTitulo(r.sesion)}` : 'Asesoría VIIGO'),
     status: r.estado === 'aprobada' ? 'aprobado' : r.estado === 'revision' ? 'revision' : 'agendada',
     resumen: r.resumen ?? '', obj: r.objetivos ?? [], acuerdos: r.acuerdos ?? [], next: r.proxima ?? '',
   };
@@ -52,14 +52,14 @@ export async function loadInicial(sb: SupabaseClient, me: Me): Promise<Partial<S
 
   const [{ data: yo }, { data: clientes }, { data: citas }, { data: google }, { data: prog }, { data: editor }] = await Promise.all([
     sb.from('perfiles').select('*').eq('id', me.id).single(),
-    sb.from('perfiles').select('id,nombre,apellido,email,asesor_id').eq('rol', 'cliente').order('creado_en', { ascending: false }),
+    sb.from('perfiles').select('id,nombre,apellido,email,asesor_id,plan').eq('rol', 'cliente').order('creado_en', { ascending: false }),
     sb.from('reuniones').select('*, cliente:perfiles!reuniones_cliente_id_fkey(nombre,apellido,email)')
       .eq('estado', 'agendada').gte('inicio', new Date(Date.now() - 2 * 3600e3).toISOString()).order('inicio'),
     sb.rpc('google_conectado'),
     sb.from('programa_sesiones').select('n,data'),
     sb.rpc('puede_editar_programa'),
   ]);
-  const lista = (clientes ?? []).map((c) => ({ id: c.id, nombre: c.nombre, apellido: c.apellido, email: c.email, mio: c.asesor_id === me.id }));
+  const lista = (clientes ?? []).map((c) => ({ id: c.id, nombre: c.nombre, apellido: c.apellido, email: c.email, mio: c.asesor_id === me.id, plan: c.plan }));
   let elegido: string | null = null;
   try { elegido = localStorage.getItem('viigo_cliente'); } catch {}
   if (!lista.some((c) => c.id === elegido)) elegido = (lista.find((c) => c.mio) ?? lista[0])?.id ?? null;
@@ -83,7 +83,7 @@ export async function loadCliente(sb: SupabaseClient, me: Me, id: string): Promi
   const adv = toAdvisor(asesor);
 
   const P: Profile = {
-    id: p.id, creado: p.creado_en, nombre: p.nombre, apellido: p.apellido, mail: p.email, cel: p.celular,
+    id: p.id, creado: p.creado_en, plan: p.plan ?? 'diagnostico', terminos: p.terminos_version, nombre: p.nombre, apellido: p.apellido, mail: p.email, cel: p.celular,
     edad: p.edad ?? 30, retiro: p.edad_retiro ?? 65, etapa: p.etapa as StageKey, foto: p.foto_url,
     ingresoJub: priv.data?.ingreso_jubilacion ?? 0, afp: priv.data?.saldo_afp ?? '',
   };
@@ -133,6 +133,9 @@ export async function sync(sb: SupabaseClient, me: Me, a: State, b: State): Prom
     const P = b.P;
     jobs.push(sb.from('perfiles').update({ nombre: P.nombre, apellido: P.apellido, celular: P.cel, edad: P.edad, edad_retiro: P.retiro, etapa: P.etapa, foto_url: P.foto }).eq('id', cid));
     jobs.push(sb.from('datos_privados').upsert({ cliente_id: cid, ingreso_jubilacion: P.ingresoJub || null, saldo_afp: P.afp === '' ? null : P.afp, actualizado_en: new Date().toISOString() }));
+  }
+  if (asesor && a.P.plan !== b.P.plan && b.P.plan) {
+    jobs.push(sb.from('perfiles').update({ plan: b.P.plan }).eq('id', cid));
   }
   if (asesor && !same(a.adv, b.adv)) {
     const v = b.adv;

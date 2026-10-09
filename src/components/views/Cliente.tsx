@@ -5,6 +5,7 @@ import { useState, type FormEvent, type ReactNode } from 'react';
 import { AppShell } from '@/components/AppShell';
 import { Calculadora, RutaResultado } from '@/components/Calculadora';
 import { Ecosistema } from '@/components/Ecosistema';
+import { OfertaPrograma, TABS_PROGRAMA, tienePrograma } from '@/components/Programa';
 import { useStore } from '@/lib/store';
 import { STAGES, type StageKey } from '@/lib/demo-data';
 import { resizeImage } from '@/lib/data';
@@ -103,6 +104,7 @@ function Inicio() {
       {last && <div className="head" style={{ marginTop: 6 }}><span className="eyebrow">Resumen de tu última asesoría VIIGO</span></div>}
       {last && <MeetingCard m={last} />}
       {pending && <p className="note">El resumen de tu última asesoría está en revisión. {A.first} lo publicará aquí cuando lo apruebe.</p>}
+      {!tienePrograma(P.plan) && <OfertaPrograma />}
       <Ecosistema />
     </>
   );
@@ -210,6 +212,7 @@ export function ClienteApp({ tab }: { tab: string }) {
       <>
         <Head eb="Mis asesorías" h="Tus reuniones VIIGO" />
         <NextMeetingCard adv={false} />
+        {!tienePrograma(s.P.plan) && <OfertaPrograma />}
         {approved.slice().reverse().map((m) => <MeetingCard key={m.id} m={m} />)}
         {s.meetings.some((m) => m.status === 'revision') && <p className="note">El resumen de tu última asesoría está en revisión por {s.adv.first}.</p>}
       </>
@@ -226,7 +229,12 @@ export function ClienteApp({ tab }: { tab: string }) {
   };
   return (
     <AppShell role="cliente" tab={tab}>
-      {views[tab]()}
+      {!tienePrograma(s.P.plan) && TABS_PROGRAMA.has(tab) ? (
+        <>
+          <Head eb={tab === 'planilla' ? 'Mi planilla' : 'Mis alternativas'} h="Disponible con el Programa VIIGO" />
+          <OfertaPrograma compacta />
+        </>
+      ) : views[tab]()}
     </AppShell>
   );
 }

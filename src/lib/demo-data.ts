@@ -18,7 +18,10 @@ export type Profile = {
   id?: string; creado?: string;
   nombre: string; apellido: string; mail: string; cel: string; edad: number; retiro: number;
   etapa: StageKey; ingresoJub: number; afp: number | ''; foto: string | null;
+  /** diagnostico = gratis (biblioteca + calculadora); programa = Programa VIIGO pagado. */
+  plan?: Plan; terminos?: string | null;
 };
+export type Plan = 'diagnostico' | 'programa';
 export type Meeting = {
   id: string; date: string; dur: string; title: string; status: 'aprobado' | 'revision' | 'agendada';
   resumen: string; obj: string[]; acuerdos: string[]; next: string;
@@ -42,7 +45,7 @@ export const MEET_URL = 'https://meet.google.com/';
 
 export const PROFILE: Profile = {
   nombre: 'Andrés', apellido: 'Muñoz', mail: 'andres.munoz@correo.cl', cel: '+56 9 8765 4321',
-  edad: 28, retiro: 65, etapa: 'start', ingresoJub: 1500000, afp: '', foto: null,
+  edad: 28, retiro: 65, etapa: 'start', ingresoJub: 1500000, afp: '', foto: null, plan: 'programa', terminos: 'v1',
 };
 
 export const MEETINGS: Meeting[] = [
@@ -116,6 +119,21 @@ export type Sesion = {
   relato: [string, string, string][]; preguntas: string[]; tarea: string; cierre: string[];
 };
 export const SESIONES: Sesion[] = [
+ {n:0, titulo:'Sesión de diagnóstico', dur:'30 min',
+  meta:'El cliente nombra con sus palabras qué lo ha frenado, ve su foto financiera y decide si toma el Programa VIIGO.',
+  obj:['Crear confianza y dejar claro que la llamada puede terminar en un \"no\"','Que el cliente nombre qué lo ha frenado (anótalo textual)','Tener su foto: edad, ahorro, pie y plazo que imagina','Que sienta lo que le cuesta no decidir','Que se imagine con su primera propiedad trabajando para él','Mostrar cómo el Método VIIGO resuelve lo que dijo','Que reserve su cupo o agende la decisión'],
+  laminas:['Ahorrar te da tranquilidad, invertir te da patrimonio','La tasa de reemplazo: necesitas el 70% de tu sueldo','El plazo del crédito: ¿20 o 30 años?','Las 4 etapas VIIGO','El Programa VIIGO: 4 sesiones','La Calculadora VIIGO'],
+  relato:[
+   ['1. Apertura y marco','0–3 min','\"La idea de hoy es simple: entender en qué etapa estás, qué te preocupa de tu jubilación y qué planes tienes con tus ahorros. Si veo que el Método VIIGO te puede servir, te cuento cómo trabajamos. Si no, te lo digo con la misma honestidad. Nosotros no vendemos propiedades por vender: construimos rutas de vida.\"'],
+   ['2. El problema','3–8 min','Que nombre, con sus palabras, qué lo ha frenado. Anótalo textual: lo usarás en el bloque 6. Si ya habló con corredores: \"¿Te preguntaron por tus números antes de mostrarte propiedades?\"'],
+   ['3. Contexto y números','8–16 min','Su foto en 8 minutos: edad, ahorros, ahorro mensual, % que le pagaría la AFP. Instala: \"Tu plata hoy está ahorrada, no invertida\" y la tasa de reemplazo del 70%. Siembra la pregunta del plazo: ¿20 o 30 años?'],
+   ['4. El costo de esperar','16–20 min','Pregunta y deja silencio: \"Si pasan otros cinco años y sigues igual, ¿cómo se ve tu vida a los 65?\"'],
+   ['5. La visión','20–23 min','Del miedo a la posibilidad: \"Imagina que ya tienes tu primera propiedad, bien elegida y con un crédito pensado para crecer.\" Pregunta si la decisión la conversa con su pareja.'],
+   ['6. El Programa VIIGO','23–27 min','Usa sus palabras del bloque 2: \"Tú me dijiste que… Tu problema no es de capacidad: te falta un método.\" Explica las sesiones: tus números reales, tu proyección a los 65 y tu ruta completa.'],
+   ['7. Compromiso y cierre','27–30 min','Toma la temperatura (del 1 al 10), presenta la oferta y termina siempre con un próximo paso con fecha. Si dice que sí: desbloquea su Programa VIIGO en la app y agenda la semana 1.']],
+  preguntas:['Hoy, ¿cuál es el obstáculo más grande que te ha impedido dar el paso en la inversión inmobiliaria?','¿Cuánto logras ahorrar al mes después de todos tus gastos?','Si hoy te jubilaras, ¿qué porcentaje de tu sueldo crees que te pagaría la AFP?','¿Hace cuánto tiempo le vienes dando vueltas a invertir sin decidirte por nada concreto?','¿Cómo te sentirías sabiendo que ya tienes un activo trabajando para tu jubilación?'],
+  tarea:'Probar la Calculadora VIIGO en la app (Mi ruta) y revisar la Biblioteca VIIGO. Si toma el programa: completar su perfil y su Matriz de Análisis Financiero.',
+  cierre:['Del 1 al 10, ¿qué tan prioritario es para ti que tu nivel de vida no caiga cuando dejes de trabajar?','Si el plan calza con tus ahorros y tus metas, ¿sientes que hoy es el momento de tomar el control?']},
  {n:1, titulo:'Fundamentos y desbloqueo', dur:'60 min',
   meta:'El cliente sale con convicción, no solo con interés.',
   obj:['Instalar la diferencia entre ahorrar e invertir','Mostrar por qué la propiedad combina plusvalía con apalancamiento','Dimensionar la jubilación: tasa de reemplazo de 70% y mayor expectativa de vida','Derribar los mitos que lo han frenado','Recoger sus objetivos financieros y cualitativos'],
@@ -175,3 +193,8 @@ export const SESIONES: Sesion[] = [
   cierre:['¿Qué aprendiste hoy sobre el plazo del crédito que no sabías antes?','¿Cuál es tu primer paso concreto y en qué fecha lo vas a dar?']},
 ];
 export const NEXT_SESSION = { cliente: 'Andrés Muñoz', n: 4, fecha: '14 oct, 18:30' };
+
+/** Nombre corto de una sesión: "Diagnóstico" o "Semana N". */
+export const sesionNombre = (n: number) => (n === 0 ? 'Diagnóstico' : 'Semana ' + n);
+/** Título de una sesión por su número (0 = diagnóstico). */
+export const sesionTitulo = (n: number) => SESIONES.find((x) => x.n === n)?.titulo ?? '';

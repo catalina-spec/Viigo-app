@@ -76,6 +76,7 @@ function Login() {
         )}
         {msg && <p className="watermark">{msg}</p>}
         <p className="note">¿No te llega? Revisa la carpeta de spam o promociones.</p>
+        <p className="note" style={{ fontSize: 12 }}>Al entrar aceptas los <a href="/terminos" target="_blank" style={{ color: 'inherit' }}>términos y condiciones y la política de privacidad</a>.</p>
         <div className="row" style={{ justifyContent: 'center' }}><InstalarApp className="btn btn-g" /></div>
       </div>
     </div>

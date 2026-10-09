@@ -8,6 +8,8 @@ import { createClient } from '@/lib/supabase/client';
 import { TABS, type Role } from '@/lib/tabs';
 import { Icon } from './Icon';
 import { InstalarApp } from './Pwa';
+import { TerminosGate } from './Terminos';
+import { TABS_PROGRAMA, tienePrograma } from './Programa';
 
 // Secciones del asesor que dependen de tener un cliente elegido.
 const CLIENT_TABS = new Set(['asesorias', 'alternativas', 'planilla', 'mensajes']);
@@ -22,6 +24,7 @@ export function AppShell({ role, tab, children }: { role: Role; tab: string; chi
   const mobileTabs = tabs.filter((t) => t.mobile);
   const moreTabs = tabs.filter((t) => !t.mobile);
   const moreActive = moreTabs.some((t) => t.id === tab);
+  const bloq = (id: string) => role === 'cliente' && !s.loading && !tienePrograma(s.P.plan) && TABS_PROGRAMA.has(id);
 
   const salir = async () => {
     await createClient().auth.signOut();
@@ -76,7 +79,7 @@ export function AppShell({ role, tab, children }: { role: Role; tab: string; chi
         <nav className="tabs" aria-label="Secciones">
           {tabs.map((t) => (
             <Link key={t.id} href={href(role, t.id)} aria-current={tab === t.id ? 'page' : undefined}>
-              <span>{t.label}</span>
+              <span>{t.label}{bloq(t.id) && <span className="lock" aria-label="Bloqueado">🔒</span>}</span>
               {badge(t.id) ? <span className="dot">{badge(t.id)}</span> : null}
             </Link>
           ))}
@@ -105,12 +108,13 @@ export function AppShell({ role, tab, children }: { role: Role; tab: string; chi
             {moreTabs.map((t) => (
               <Link key={t.id} href={href(role, t.id)} aria-current={tab === t.id ? 'page' : undefined} onClick={() => setMore(false)}>
                 <Icon name={t.icon} />
-                {t.label}
+                {t.label}{bloq(t.id) && <span className="lock" aria-label="Bloqueado">🔒</span>}
               </Link>
             ))}
           </div>
         </>
       )}
+      {role === 'cliente' && !demo && <TerminosGate />}
       {toastText && <div className="toast" role="status">{toastText}</div>}
     </>
   );

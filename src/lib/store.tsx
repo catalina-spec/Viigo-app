@@ -12,7 +12,7 @@ import type { Me } from './supabase/server';
 import { createClient } from './supabase/client';
 import { loadCliente, loadInicial, savePlanilla, sync, toCita } from './data';
 
-export type ClienteItem = { id: string; nombre: string; apellido: string; email: string; mio: boolean };
+export type ClienteItem = { id: string; nombre: string; apellido: string; email: string; mio: boolean; plan?: D.Plan };
 
 export type State = {
   me: Me;
@@ -71,6 +71,8 @@ type Ctx = {
   rpc: (fn: string, args: Record<string, unknown>) => Promise<void>;
   /** true en la vista demo (/demo): datos de ejemplo, no se guarda nada. */
   demo: boolean;
+  /** El cliente acepta los términos y condiciones (se guarda en su perfil). */
+  aceptarTerminos: (version: string) => Promise<string | null>;
   /** Guarda el contenido de una sesión (editores). Devuelve un error o null. */
   guardarSesion: (ses: SesionApp) => Promise<string | null>;
   /** Dirección de una sección, respetando si estamos en /demo. */
@@ -86,7 +88,7 @@ function demoState(me: Me): State {
   const proxima: D.Meeting = { ...DEMO.MEETINGS[0], id: 'demo-proxima', status: 'agendada', inicio: en(3, 18), meet: null, sesion: 4, title: 'Sesión 4 · Proyección a 65 con la Calculadora VIIGO', resumen: '', obj: [], acuerdos: [], next: '' };
   return {
     ...empty(me), loading: false, clienteId: 'demo',
-    clientes: [{ id: 'demo', nombre: 'Andrés', apellido: 'Muñoz', email: DEMO.PROFILE.mail, mio: true }],
+    clientes: [{ id: 'demo', nombre: 'Andrés', apellido: 'Muñoz', email: DEMO.PROFILE.mail, mio: true, plan: 'programa' }],
     P: { ...DEMO.PROFILE, id: 'demo', creado: '2026-08-01T12:00:00Z' },
     adv: { ...DEMO.ADV, id: 'demo-adv', nombre: 'Catalina', apellido: 'Viel' },
     log: [{ t: '23 sep, 18:42', x: 'Andrés actualizó su planilla financiera.' }],
@@ -184,7 +186,17 @@ export function StoreProvider({ me, demo = false, children }: { me: Me; demo?: b
     return null;
   }, [sb, demo]);
 
-  return <StoreCtx.Provider value={{ s, up, toast, toastText, elegirCliente: demo ? async () => {} : elegirCliente, rpc, demo, href, guardarSesion }}>{children}</StoreCtx.Provider>;
+  const aceptarTerminos = useCallback(async (version: string) => {
+    if (!demo) {
+      const { error } = await sb.from('perfiles').update({ terminos_version: version, terminos_aceptados_en: new Date().toISOString() }).eq('id', me.id);
+      if (error) { console.error(error); return 'No pudimos guardar tu aceptación. Revisa tu conexión e inténtalo de nuevo.'; }
+    }
+    const apply = (prev: State) => ({ ...prev, P: { ...prev.P, terminos: version } });
+    setS((prev) => { const next = apply(prev); if (synced.current) synced.current = apply(synced.current); return next; });
+    return null;
+  }, [sb, demo, me.id]);
+
+  return <StoreCtx.Provider value={{ s, up, toast, toastText, elegirCliente: demo ? async () => {} : elegirCliente, rpc, demo, href, guardarSesion, aceptarTerminos }}>{children}</StoreCtx.Provider>;
 }
 
 export function useStore() {

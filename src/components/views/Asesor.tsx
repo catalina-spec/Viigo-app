@@ -103,6 +103,27 @@ function Ficha() {
         <div className="adv-contact"><StagePill k={P.etapa} /><span className="note">{yearsLeft(P.edad, P.retiro)} años para jubilar (a los {P.retiro})</span>
           <Link className="btn btn-p" href={href('asesor', 'agenda') + '#agendar'}>＋ Agendar asesoría con Meet</Link></div>
       </section>
+      <section className="card" style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <span className="eyebrow">Plan del cliente</span>
+          <h3 style={{ margin: '4px 0 2px' }}>{P.plan === 'programa' ? 'Programa VIIGO activo' : 'Diagnóstico (gratis)'}</h3>
+          <p className="note">{P.plan === 'programa'
+            ? `${cn} tiene acceso a las 4 sesiones, su planilla y sus alternativas.`
+            : `${cn} ve la Calculadora y la Biblioteca. Desbloquea el programa cuando contrate para agendar las 4 sesiones.`}</p>
+        </div>
+        {P.plan === 'programa' ? (
+          <button className="btn btn-g" onClick={() => {
+            if (!window.confirm(`¿Volver a ${cn} al plan Diagnóstico? Dejará de ver su planilla y sus alternativas.`)) return;
+            up((d) => { d.P.plan = 'diagnostico'; const c = d.clientes.find((x) => x.id === d.clienteId); if (c) c.plan = 'diagnostico'; });
+            toast(`${cn} volvió al plan Diagnóstico.`);
+          }}>Volver a Diagnóstico</button>
+        ) : (
+          <button className="btn btn-p" onClick={() => {
+            up((d) => { d.P.plan = 'programa'; const c = d.clientes.find((x) => x.id === d.clienteId); if (c) c.plan = 'programa'; });
+            toast(`Programa VIIGO desbloqueado para ${cn}. Ya puedes agendar sus 4 sesiones.`);
+          }}>🔓 Desbloquear Programa VIIGO</button>
+        )}
+      </section>
       {!P.nombre && <p className="watermark">{P.mail} todavía no completa su perfil.</p>}
       <div className="grid3">
         <div className="card kv"><span className="k">Ingreso objetivo al jubilar</span><span className="v num">{priv(P.ingresoJub ? clp(P.ingresoJub) + '/mes' : 'No informado')}</span></div>

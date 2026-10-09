@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { useStore } from '@/lib/store';
 import type { Lamina, SesionApp } from '@/lib/programa';
 import { limpiarLink } from '@/components/views/Shared';
+import { sesionNombre } from '@/lib/demo-data';
 
 const lineas = (t: string) => t.split('\n').map((x) => x.trim()).filter(Boolean);
 
@@ -50,14 +51,14 @@ function Editor({ ses, onClose }: { ses: SesionApp; onClose: () => void }) {
     const err = await guardarSesion(final);
     setBusy(false);
     if (err) return toast(err);
-    toast(demo ? `Semana ${d.n} actualizada en la demo (no se guarda).` : `Semana ${d.n} guardada. Todos los asesores ven la versión nueva.`);
+    toast(demo ? `${sesionNombre(d.n)} actualizada en la demo (no se guarda).` : `${sesionNombre(d.n)} guardada. Todos los asesores ven la versión nueva.`);
     onClose();
   };
 
   return (
     <section className="card sedit">
       <div className="vault-bar">
-        <h3 style={{ margin: 0 }}>Editando la semana {d.n}</h3>
+        <h3 style={{ margin: 0 }}>Editando: {sesionNombre(d.n)}</h3>
         <div className="row"><button className="btn btn-g" onClick={onClose}>Cancelar</button><button className="btn btn-p" disabled={busy} onClick={guardar}>{busy ? 'Guardando…' : 'Guardar cambios'}</button></div>
       </div>
       <div className="fgrid">
@@ -116,10 +117,10 @@ export function Sesiones() {
   return (
     <>
       <Head eb="Sesiones" h="Programa de asesoría VIIGO" p="Solo los asesores ven esta sección. Cada semana trae sus objetivos, las láminas, el relato, las preguntas de coaching y las 2 preguntas de cierre." />
-      <div className="watermark">{prox ? <>Próxima sesión: {prox.cliente} · <b>Semana {prox.ses} · {prog[prox.ses - 1]?.titulo}</b> · {prox.dia}, {prox.hora}</> : 'No tienes sesiones agendadas.'}</div>
+      <div className="watermark">{prox ? <>Próxima sesión: {prox.cliente} · <b>{sesionNombre(prox.ses)} · {prog.find((x) => x.n === prox.ses)?.titulo}</b> · {prox.dia}, {prox.hora}</> : 'No tienes sesiones agendadas.'}</div>
       <div className="row" style={{ justifyContent: 'space-between' }}>
         <div className="seg" role="group" aria-label="Elegir semana">
-          {prog.map((x) => <button key={x.n} aria-pressed={x.n === s.n} onClick={() => { setEditando(false); up((d) => { d.sesion = x.n; }); }}>Semana {x.n}</button>)}
+          {prog.map((x) => <button key={x.n} aria-pressed={x.n === s.n} onClick={() => { setEditando(false); up((d) => { d.sesion = x.n; }); }}>{sesionNombre(x.n)}</button>)}
         </div>
         {st.puedeEditar && !editando && <button className="btn btn-p" onClick={() => setEditando(true)}>✎ Editar sesión</button>}
       </div>
@@ -128,8 +129,8 @@ export function Sesiones() {
         <>
           <section className="card">
             <div className="vault-bar">
-              <div><span className="eyebrow">Semana {s.n} de {prog.length}</span><h3 style={{ margin: '4px 0 0' }}>{s.titulo}</h3></div>
-              <span className="pill p-adv">{s.dur}</span>
+              <div><span className="eyebrow">{s.n === 0 ? 'Sesión gratuita · antes del programa' : `Programa VIIGO · semana ${s.n} de 4`}</span><h3 style={{ margin: '4px 0 0' }}>{s.titulo}</h3></div>
+              <div className="row"><span className={`pill ${s.n === 0 ? 'p-ok' : 'p-warn'}`}>{s.n === 0 ? 'Gratis' : 'Pagada'}</span><span className="pill p-adv">{s.dur}</span></div>
             </div>
             <p className="note2" style={{ marginTop: 12 }}><b>Resultado esperado:</b> {s.meta}</p>
             <div className="ghead">Objetivos de la sesión</div>

@@ -8,7 +8,7 @@ import { finTotals } from '@/lib/calc';
 import { Calculadora } from '@/components/Calculadora';
 import { Ecosistema } from '@/components/Ecosistema';
 import { UF, clp, initials, nowStr, pct, ufs } from '@/lib/format';
-import { FIN, STAGES, SESIONES, type Alternativa, type Cita, type Debt, type Meeting } from '@/lib/demo-data';
+import { FIN, STAGES, SESIONES, sesionNombre, sesionTitulo, type Alternativa, type Cita, type Debt, type Meeting } from '@/lib/demo-data';
 import type { Role } from '@/lib/tabs';
 
 /* ───────── piezas pequeñas ───────── */
@@ -484,6 +484,8 @@ export function Agenda() {
   const { s, up, toast, href, demo } = useStore();
   const copy = useCopy();
   const [busy, setBusy] = useState(false);
+  const [cliSel, setCliSel] = useState(s.clienteId ?? s.clientes[0]?.id ?? '');
+  const conPrograma = s.clientes.find((c) => c.id === cliSel)?.plan === 'programa';
   const [manana] = useState(() => new Date(Date.now() + 864e5).toISOString().slice(0, 10));
   const days = [...new Set(s.citas.map((c) => c.dia))];
 
@@ -593,7 +595,7 @@ export function Agenda() {
             {s.citas.filter((c) => c.dia === d).map((c) => (
               <div className="cita" key={c.id}>
                 <div className="ct num">{c.hora}</div>
-                <div className="ci"><b>{c.cliente}</b><span className="note">Semana {c.ses} · {SESIONES[c.ses - 1].titulo}</span>
+                <div className="ci"><b>{c.cliente}</b><span className="note">{sesionNombre(c.ses)} · {sesionTitulo(c.ses)}</span>
                   {c.meet ? <span className="link num">{c.meet.replace('https://', '')}</span> : <span className="note">Sin link de Meet</span>}</div>
                 <div className="ca">
                   {c.enviado ? <span className="pill p-ok">Invitación enviada</span> : <span className="pill p-warn">Sin invitación</span>}
@@ -616,11 +618,11 @@ export function Agenda() {
         <h3 id="agendar" style={{ scrollMarginTop: 16 }}>Agendar nueva asesoría</h3>
         <form className="fgrid" style={{ marginTop: 6 }} onSubmit={submit}>
           <div className="field"><label htmlFor="ci-cli">Cliente</label>
-            <select id="ci-cli" name="cli" required defaultValue={s.clienteId ?? ''}>
+            <select id="ci-cli" name="cli" required value={cliSel} onChange={(e) => setCliSel(e.target.value)}>
               {!s.clientes.length && <option value="">Aún no tienes clientes</option>}
               {s.clientes.map((c) => <option key={c.id} value={c.id}>{`${c.nombre} ${c.apellido}`.trim() || c.email}</option>)}
             </select></div>
-          <div className="field"><label htmlFor="ci-ses">Sesión</label><select id="ci-ses" name="ses">{SESIONES.map((x) => <option key={x.n} value={x.n}>{x.n}. {x.titulo}</option>)}</select></div>
+          <div className="field"><label htmlFor="ci-ses">Sesión</label><select id="ci-ses" name="ses" key={cliSel + String(conPrograma)} defaultValue={conPrograma ? 1 : 0}>{SESIONES.map((x) => <option key={x.n} value={x.n} disabled={x.n > 0 && !conPrograma}>{x.n === 0 ? 'Diagnóstico (gratis)' : `${x.n}. ${x.titulo}`}{x.n > 0 && !conPrograma ? ' · requiere Programa' : ''}</option>)}</select></div>
           <div className="field"><label htmlFor="ci-dia">Fecha</label><input id="ci-dia" name="dia" type="date" required defaultValue={manana} /></div>
           <div className="field"><label htmlFor="ci-hora">Hora</label><input id="ci-hora" name="hora" type="time" required defaultValue="18:00" /></div>
           <div className="row" style={{ gridColumn: '1/-1' }}>

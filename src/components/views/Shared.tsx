@@ -468,11 +468,17 @@ export function ConsentCard() {
 export function Biblioteca(_props: { role: Role }) { // eslint-disable-line @typescript-eslint/no-unused-vars
   const { toast } = useStore();
   const res = () => toast('Pronto: aquí se abre el material.');
-  const items = [
-    ['Ebook', 'Método VIIGO', 'La guía completa: cómo funcionan los ciclos, las etapas y por qué la deuda bien usada construye patrimonio.', 'Leer ebook'],
-    ['Guía', '5 claves para una inversión inmobiliaria', 'Lo que debes revisar antes de comprar: ubicación, precio por m², arriendo, gastos y financiamiento.', 'Ver guía'],
-    ['Presentación', 'Cómo construir deuda con tu patrimonio', 'Por qué un crédito hipotecario puede trabajar para ti, con ejemplos en UF y en pesos.', 'Ver presentación'],
-    ['Herramienta', 'Comparador AFP vs VIIGO', 'Compara tu jubilación solo con AFP versus AFP más tu ruta VIIGO.', 'Abrir comparador'],
+  // Recursos gratuitos: `ver` abre el material en línea y `pdf` lo descarga. Sin links, el botón avisa que viene pronto.
+  const items: { tag: string; h: string; p: string; b: string; ver?: string; pdf?: string }[] = [
+    {
+      tag: 'Ebook gratis', h: 'Inversión Inmobiliaria', b: 'Leer ebook',
+      p: 'Nuestro primer ebook: lo esencial para empezar a invertir en propiedades y construir patrimonio. 46 páginas para leer en línea o descargar.',
+      ver: 'https://designrr.page/?id=370248&token=1837145776&type=FP&h=8832',
+      pdf: 'https://designrr.s3.amazonaws.com/catalina_at_viel.cl_338485/catalinavielcl_InversionInmobiliariaViel.cl1722311349.pdf',
+    },
+    { tag: 'Guía', h: '5 claves para una inversión inmobiliaria', p: 'Lo que debes revisar antes de comprar: ubicación, precio por m², arriendo, gastos y financiamiento.', b: 'Ver guía' },
+    { tag: 'Presentación', h: 'Cómo construir deuda con tu patrimonio', p: 'Por qué un crédito hipotecario puede trabajar para ti, con ejemplos en UF y en pesos.', b: 'Ver presentación' },
+    { tag: 'Herramienta', h: 'Comparador AFP vs VIIGO', p: 'Compara tu jubilación solo con AFP versus AFP más tu ruta VIIGO.', b: 'Abrir comparador' },
   ];
   return (
     <>
@@ -486,8 +492,18 @@ export function Biblioteca(_props: { role: Role }) { // eslint-disable-line @typ
         </div>
       </section>
       <div className="grid2">
-        {items.map(([tag, h, p, b]) => (
-          <article className="card lib" key={h}><span className="tag">{tag}</span><h3>{h}</h3><p>{p}</p><button className="btn btn-g" style={{ alignSelf: 'flex-start' }} onClick={res}>{b}</button></article>
+        {items.map(({ tag, h, p, b, ver, pdf }) => (
+          <article className="card lib" key={h}>
+            <span className="tag">{tag}</span><h3>{h}</h3><p>{p}</p>
+            {ver ? (
+              <div className="row" style={{ alignSelf: 'flex-start' }}>
+                <a className="btn btn-p" href={ver} target="_blank" rel="noopener noreferrer">{b}</a>
+                {pdf && <a className="btn btn-g" href={pdf} target="_blank" rel="noopener noreferrer" download>Descargar PDF</a>}
+              </div>
+            ) : (
+              <button className="btn btn-g" style={{ alignSelf: 'flex-start' }} onClick={res}>{b}</button>
+            )}
+          </article>
         ))}
       </div>
       <Ecosistema />

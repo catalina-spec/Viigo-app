@@ -10,6 +10,9 @@ export const STAGES: Record<StageKey, { label: string; desc: string }> = {
   legacy: { label: 'VIIGO LEGACY', desc: '49–65 años · Tu propiedad final e ingreso de por vida' },
 };
 
+/** Etapa del Método VIIGO según la edad (menos de 35: START · 35–42: GROW · 43–48: EQUITY · 49 o más: LEGACY). */
+export const etapaPorEdad = (edad: number): StageKey => (edad < 35 ? 'start' : edad < 43 ? 'grow' : edad < 49 ? 'equity' : 'legacy');
+
 export type Advisor = {
   id?: string | null; nombre?: string; apellido?: string;
   name: string; first: string; role: string; phone: string; wa: string; mail: string; photo: string | null;

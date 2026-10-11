@@ -458,3 +458,5 @@ a.slide-link .sbrand{color:var(--gold)}
 .aviso-msg .link{background:none;border:0;padding:0;font:inherit;font-weight:700;color:var(--ink);text-decoration:underline;cursor:pointer}
 .oferta-mas{align-self:flex-start;background:none;border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:999px;padding:5px 14px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;gap:8px;align-items:center}
 .oferta-mas:hover{background:rgba(255,255,255,.08)}
+.etapa-auto{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface-2)}
+.etapa-auto b{color:var(--gold);font-family:var(--serif);font-size:17px}

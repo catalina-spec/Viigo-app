@@ -5,7 +5,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Me } from './supabase/server';
 import type { State } from './store';
 import type { Advisor, Alternativa, Cita, Debt, Meeting, Msg, Objetivo, Pendiente, Profile, StageKey } from './demo-data';
-import { sesionNombre, sesionTitulo } from './demo-data';
+import { etapaPorEdad, sesionNombre, sesionTitulo } from './demo-data';
 import { calcDefault, esRutaVigente } from './calc';
 import { combinar, type SesionApp } from './programa';
 
@@ -95,7 +95,7 @@ export async function loadCliente(sb: SupabaseClient, me: Me, id: string): Promi
 
   const P: Profile = {
     id: p.id, creado: p.creado_en, plan: p.plan ?? 'diagnostico', terminos: p.terminos_version, nombre: p.nombre, apellido: p.apellido, mail: p.email, cel: p.celular,
-    edad: p.edad ?? 0, retiro: p.edad_retiro ?? 65, etapa: p.etapa as StageKey, foto: p.foto_url,
+    edad: p.edad ?? 0, retiro: p.edad_retiro ?? 65, etapa: p.edad ? etapaPorEdad(p.edad) : (p.etapa as StageKey), foto: p.foto_url,
     ingresoJub: priv.data?.ingreso_jubilacion ?? 0, afp: priv.data?.saldo_afp ?? '',
   };
 

@@ -12,7 +12,7 @@ import { UF, clp, ufs } from '@/lib/format';
 import { OfertaPrograma, TABS_PROGRAMA, tienePrograma } from '@/components/Programa';
 import { useStore } from '@/lib/store';
 import { TextoTerminos } from '@/components/Terminos';
-import { STAGES, type StageKey } from '@/lib/demo-data';
+import { STAGES, etapaPorEdad } from '@/lib/demo-data';
 import { resizeImage } from '@/lib/data';
 import {
   AltCard, AltForm, Avatar, Biblioteca, ChatView, ConsentCard, FinView, Head, MeetingCard,
@@ -55,7 +55,7 @@ function Inicio() {
           )}
         </div>
         <div className="stagebox">
-          <span className="eyebrow on">Te identificaste con la etapa</span>
+          <span className="eyebrow on">{P.edad ? 'Tu etapa VIIGO según tu edad' : 'Tu etapa VIIGO'}</span>
           <div className="stage-name">{STAGES[P.etapa].label}</div>
           <p>{STAGES[P.etapa].desc}</p>
           <Link className="link-on" href={href('cliente', 'ruta')}>Ver mi ruta →</Link>
@@ -135,7 +135,7 @@ function Inicio() {
 
 /** Edad escrita por la persona; si está vacía o fuera de rango, queda sin informar (0). */
 const edadValida = (t: string, min: number, max: number) => {
-  const n = Number(t.replace(/D/g, ''));
+  const n = Number(t.replace(/\D/g, ''));
   return n >= min && n <= max ? n : 0;
 };
 
@@ -147,6 +147,8 @@ function Perfil() {
   // Montos en pesos (así se guardan); se muestran e ingresan en la moneda elegida.
   const [ing, setIng] = useState<number>(P.ingresoJub || 0);
   const [afp, setAfp] = useState<number | ''>(P.afp);
+  // Edad que se está escribiendo: con ella mostramos la etapa VIIGO al instante.
+  const [edadTxt, setEdadTxt] = useState<number>(P.edad || 0);
   const submit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
@@ -154,7 +156,7 @@ function Perfil() {
     up((d) => {
       Object.assign(d.P, {
         nombre: v('nombre'), apellido: v('apellido'), cel: v('cel'),
-        edad: edadValida(v('edad'), 18, 90), retiro: edadValida(v('retiro'), 50, 80) || 65, etapa: v('etapa') as StageKey,
+        edad: edadValida(v('edad'), 18, 90), retiro: edadValida(v('retiro'), 50, 80) || 65, etapa: edadValida(v('edad'), 18, 90) ? etapaPorEdad(edadValida(v('edad'), 18, 90)) : d.P.etapa,
         ingresoJub: ing || 0, afp: afp === '' || !afp ? '' : afp,
       });
     });
@@ -188,10 +190,10 @@ function Perfil() {
           <div className="field"><label htmlFor="p-apellido">Apellido</label><input id="p-apellido" name="apellido" defaultValue={P.apellido} autoComplete="family-name" /></div>
           <div className="field"><label htmlFor="p-mail">Correo</label><input id="p-mail" name="mail" type="email" defaultValue={P.mail} disabled /><span className="hint">Es tu correo de acceso.</span></div>
           <div className="field"><label htmlFor="p-cel">Celular</label><input id="p-cel" name="cel" type="tel" defaultValue={P.cel} autoComplete="tel" /></div>
-          <div className="field"><label htmlFor="p-edad">Edad</label><input id="p-edad" name="edad" type="text" inputMode="numeric" maxLength={2} placeholder="Si no quieres, déjalo en blanco" defaultValue={P.edad || ''} /></div>
+          <div className="field"><label htmlFor="p-edad">Edad</label><input id="p-edad" name="edad" type="text" inputMode="numeric" maxLength={2} placeholder="Si no quieres, déjalo en blanco" defaultValue={P.edad || ''} onChange={(e) => setEdadTxt(edadValida(e.target.value, 18, 90))} /></div>
           <div className="field"><label htmlFor="p-retiro">Edad en que quieres jubilar</label><input id="p-retiro" name="retiro" type="text" inputMode="numeric" maxLength={2} placeholder="Ej.: 65" defaultValue={P.retiro || ''} /></div>
-          <div className="field"><label htmlFor="p-etapa">Etapa VIIGO con la que te identificas</label>
-            <select id="p-etapa" name="etapa" defaultValue={P.etapa}>{Object.entries(STAGES).map(([k, st]) => <option key={k} value={k}>{st.label}</option>)}</select></div>
+          <div className="field"><label>Tu etapa VIIGO</label>
+            <div className="etapa-auto"><b>{STAGES[edadTxt ? etapaPorEdad(edadTxt) : P.etapa].label}</b><span className="hint">{edadTxt ? `Según tu edad (${edadTxt} años) · ${STAGES[etapaPorEdad(edadTxt)].desc.split(' · ')[0]}` : 'Escribe tu edad y la calculamos.'}</span></div></div>
           <div className="field" style={{ gridColumn: '1/-1' }}><label>Moneda de tus montos</label><MonedaToggle /></div>
           <div className="field"><label htmlFor="p-ing">Ingreso mensual que quieres al jubilar ({m === 'uf' ? 'UF' : '$'})</label><MontoInput id="p-ing" moneda={m} value={aVista(ing, 'clp', m)} onValue={(n) => setIng(aUnidad(n, 'clp', m))} /><span className="hint">{ing ? (m === 'uf' ? clp(ing) : ufs(ing / UF)) + ' · ' : ''}Privado · lo usamos para comparar con tu ruta</span></div>
           <div className="field"><label htmlFor="p-afp">Saldo actual en tu AFP ({m === 'uf' ? 'UF' : '$'}) <span className="opt-tag">Voluntario</span></label><MontoInput id="p-afp" moneda={m} value={aVista(+afp || 0, 'clp', m)} onValue={(n) => setAfp(n ? aUnidad(n, 'clp', m) : '')} placeholder="Puedes dejarlo en blanco" /><span className="hint">{afp ? (m === 'uf' ? clp(+afp) : ufs(+afp / UF)) + ' · ' : ''}Solo si quieres. Nos ayuda a proyectar tu jubilación completa.</span></div>

@@ -1,6 +1,10 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  // Landing de la asesoría (archivo estático en public/asesoria): viigo.viel.cl/asesoria
+  async rewrites() {
+    return [{ source: '/asesoria', destination: '/asesoria/index.html' }];
+  },
   // Encabezados de seguridad (guía PWA de Next.js) y reglas del service worker.
   async headers() {
     return [

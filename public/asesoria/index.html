@@ -72,7 +72,7 @@ header.top .wrap{display:flex;justify-content:space-between;align-items:center;p
 header.top .btn{padding:10px 18px;font-size:15px}
 
 /* hero */
-.hero{background:linear-gradient(180deg,var(--ink) 0%,#123366 100%);color:#fff;padding-block:84px 96px}
+.hero{background:radial-gradient(1200px 600px at 85% 10%, rgba(0,138,138,.50) 0%, transparent 60%),radial-gradient(900px 500px at 5% 100%, rgba(47,111,209,.35) 0%, transparent 60%),linear-gradient(160deg,#22336B 0%,var(--ink) 100%);color:#fff;padding-block:84px 96px}
 .hero .grid{display:grid;grid-template-columns:1.25fr .9fr;gap:56px;align-items:center}
 .hero .eyebrow{color:#9DBBEA}
 .hero h1 em{font-style:italic;color:#A9C6F2}
@@ -118,7 +118,7 @@ blockquote{margin:28px 0 0;font-family:var(--f-display);font-size:26px;line-heig
 .pill span{font-size:14px;font-weight:600}
 
 /* program */
-.program{background:var(--ink);color:#fff}
+.program{background:radial-gradient(1200px 600px at 85% 10%, rgba(0,138,138,.50) 0%, transparent 60%),radial-gradient(900px 500px at 5% 100%, rgba(47,111,209,.35) 0%, transparent 60%),linear-gradient(160deg,#22336B 0%,var(--ink) 100%);color:#fff}
 .program .lead{color:#C9D6EC}
 .prog-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:48px;margin-top:40px}
 .phase{border:1px solid rgba(255,255,255,.16);border-radius:18px;padding:26px}
@@ -179,7 +179,7 @@ legend{font-weight:600;font-size:15px;margin-bottom:6px}
 .panel.wide{grid-template-columns:1fr}
 .panel.wide>div:first-child{display:none}
 .sticky-cta{display:none}
-@media (max-width:860px){.booking-box iframe{height:900px}.sticky-cta{display:block;position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:30;transition:opacity .2s,transform .2s}.sticky-cta .btn{width:100%;justify-content:center}.sticky-cta.hide{opacity:0;transform:translateY(20px);pointer-events:none}}
+@media (max-width:860px){.booking-box iframe{height:900px}.sticky-cta{display:block;position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:30;transition:opacity .2s,transform .2s}.sticky-cta .btn{width:100%;justify-content:center}.sticky-cta.hide,.sticky-cta.top{opacity:0;transform:translateY(20px);pointer-events:none}}
 button[disabled]{opacity:.6;cursor:wait}
 /* faq */
 .faq .list{margin-top:32px;display:grid;gap:12px;max-width:820px}
@@ -191,7 +191,7 @@ details[open] summary::after{content:"–"}
 details p{margin-top:10px;color:var(--muted)}
 
 /* close */
-.close{background:linear-gradient(180deg,#123366,var(--ink));color:#fff;text-align:center}
+.close{background:radial-gradient(1200px 600px at 85% 10%, rgba(0,138,138,.50) 0%, transparent 60%),radial-gradient(900px 500px at 5% 100%, rgba(47,111,209,.35) 0%, transparent 60%),linear-gradient(160deg,#22336B 0%,var(--ink) 100%);color:#fff;text-align:center}
 .close p{color:#C9D6EC;margin:18px auto 30px;max-width:52ch}
 footer{background:var(--ink);color:#8FA3C4;font-size:14px;padding-block:28px;border-top:1px solid rgba(255,255,255,.08)}
 footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
@@ -475,7 +475,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
   </div>
 </footer>
 
-<div class="sticky-cta" id="sticky"><a class="btn" href="#reserva">Diagnóstico gratis · 30 min →</a></div>
+<div class="sticky-cta top" id="sticky"><a class="btn" href="#reserva">Diagnóstico gratis · 30 min →</a></div>
 
 <script>
 /* ======================= CONFIGURACIÓN ======================= */
@@ -524,7 +524,7 @@ const LEADS_URL = "/api/leads";
 
   // Botón fijo del móvil: se oculta en la sección de reserva
   var sticky=document.getElementById('sticky');
-  if('IntersectionObserver' in window){new IntersectionObserver(function(en){sticky.classList.toggle('hide',en[0].isIntersecting);},{threshold:0.05}).observe(document.getElementById('reserva'));}
+  if('IntersectionObserver' in window){new IntersectionObserver(function(en){sticky.classList.toggle('hide',en[0].isIntersecting);},{threshold:0.05}).observe(document.getElementById('reserva'));new IntersectionObserver(function(en){sticky.classList.toggle('top',en[0].isIntersecting);},{threshold:0}).observe(document.querySelector('.hero'));}else{sticky.classList.remove('top');}
 })();
 </script>
 </body>

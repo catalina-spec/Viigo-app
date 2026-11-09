@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { useStore } from '@/lib/store';
 import type { Lamina, SesionApp } from '@/lib/programa';
 import { limpiarLink } from '@/components/views/Shared';
-import { sesionNombre } from '@/lib/demo-data';
+import { sesionNombre, type Precal } from '@/lib/demo-data';
 
 const lineas = (t: string) => t.split('\n').map((x) => x.trim()).filter(Boolean);
 
@@ -107,6 +107,46 @@ function Editor({ ses, onClose }: { ses: SesionApp; onClose: () => void }) {
   );
 }
 
+/* ───────── diagnóstico: 3 señales, 3 salidas y frases clave ───────── */
+function Precalificacion({ p }: { p: Precal }) {
+  return (
+    <>
+      <section className="card">
+        <h3>Precalificación: las 3 señales</h3>
+        <p className="note" style={{ marginTop: -4 }}>Márcalas durante la llamada: verde, amarillo o rojo.</p>
+        <div className="senales">
+          {p.senales.map(([n, v, a, r]) => (
+            <div className="senal" key={n}>
+              <b>{n}</b>
+              <div className="sv"><span>Sí</span>{v}</div>
+              <div className="sa"><span>A medias</span>{a}</div>
+              <div className="sr"><span>No</span>{r}</div>
+            </div>
+          ))}
+        </div>
+        <ul className="clean" style={{ marginTop: 12 }}>{p.reglas.map((x, i) => <li key={i}><span className="chk" /><div><b>{x}</b></div></li>)}</ul>
+      </section>
+      <section className="card">
+        <h3>Las 3 salidas</h3>
+        <p className="note" style={{ marginTop: -4 }}>Cierra con una sola salida, según las señales. Toda salida termina con algo agendado o una tarea con fecha.</p>
+        <div className="salidas">
+          {p.salidas.map((x, i) => (
+            <details className={`salida salida-${i + 1}`} key={x.t} open={i === 0}>
+              <summary><b>{x.t}</b><span className="note">{x.cuando}</span></summary>
+              <p>{x.guion}</p>
+              <p className="note2"><b>Siguiente paso:</b> {x.paso}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+      <section className="card">
+        <h3>3 frases clave para vender el programa</h3>
+        <div className="script">{p.claves.map(([t, x, c]) => <div className="sblock" key={t}><div className="sh"><b>{t}</b></div><p>{x}</p><p className="note">{c}</p></div>)}</div>
+      </section>
+    </>
+  );
+}
+
 /* ───────── vista ───────── */
 export function Sesiones() {
   const { s: st, up } = useStore();
@@ -156,6 +196,7 @@ export function Sesiones() {
             <h3>Relato del asesor</h3>
             <div className="script">{s.relato.map(([t, m, x], i) => <div className="sblock" key={i}><div className="sh"><b>{t}</b>{m && <span className="pill p-warn num">{m}</span>}</div><p>{x}</p></div>)}</div>
           </section>
+          {s.precal && <Precalificacion p={s.precal} />}
           <section className="card">
             <h3>Preguntas de coaching</h3>
             <ul className="clean">{s.preguntas.map((q, i) => <li key={i}><span className="chk" /><div>{q}</div></li>)}</ul>

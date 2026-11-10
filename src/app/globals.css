@@ -476,3 +476,4 @@ a.slide-link .sbrand{color:var(--gold)}
 .salida-2{border-left-color:var(--warn)}.salida-3{border-left-color:#E0453A}
 .salida summary{cursor:pointer;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline}
 .salida p{margin:8px 0 0}
+.login-alt{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:14px;margin-top:4px}

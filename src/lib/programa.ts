@@ -19,6 +19,10 @@ export const PROGRAMA_BASE: SesionApp[] = SESIONES.map(normalizar);
 export function combinar(filas: { n: number; data: SesionApp }[] | null | undefined): SesionApp[] {
   return PROGRAMA_BASE.map((base) => {
     const f = filas?.find((x) => x.n === base.n);
+    // Una versión del diagnóstico guardada antes del guion con precalificación (3 señales y 3 salidas)
+    // queda obsoleta: se muestra el guion nuevo. Lo que se guarde desde ahora sí se respeta.
+    // (Se conserva el link de la presentación que se había guardado.)
+    if (f && base.precal && !f.data.precal) return { ...base, presentacion: f.data.presentacion ?? '' };
     return f ? normalizar({ ...base, ...f.data, n: base.n }) : base;
   });
 }

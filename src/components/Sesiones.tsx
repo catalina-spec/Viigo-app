@@ -107,32 +107,55 @@ function Editor({ ses, onClose }: { ses: SesionApp; onClose: () => void }) {
   );
 }
 
-/* ───────── diagnóstico: 3 señales, 3 salidas y frases clave ───────── */
+/* ───────── diagnóstico: 3 señales (se marcan con un toque), 3 salidas y frases clave ───────── */
+type Color = 'v' | 'a' | 'r';
+const COLORES: [Color, string, string][] = [['v', 'sv', 'Sí'], ['a', 'sa', 'A medias'], ['r', 'sr', 'No']];
+
+/** Regla del guion: 3 verdes → 1; algún rojo → 3; si no (algún amarillo) → 2. Null si falta marcar alguna. */
+const salidaDe = (m: (Color | null)[]) => (m.some((x) => !x) ? null : m.every((x) => x === 'v') ? 0 : m.includes('r') ? 2 : 1);
+
 function Precalificacion({ p }: { p: Precal }) {
+  const [marcas, setMarcas] = useState<(Color | null)[]>(() => p.senales.map(() => null));
+  const res = salidaDe(marcas);
+  const marcar = (i: number, c: Color) => setMarcas((m) => m.map((x, j) => (j === i ? (x === c ? null : c) : x)));
+  const faltan = marcas.filter((x) => !x).length;
   return (
     <>
       <section className="card">
-        <h3>Precalificación: las 3 señales</h3>
-        <p className="note" style={{ marginTop: -4 }}>Márcalas durante la llamada: verde, amarillo o rojo.</p>
+        <div className="vault-bar">
+          <h3 style={{ margin: 0 }}>Precalificación: las 3 señales</h3>
+          {faltan < marcas.length && <button className="btn btn-g" onClick={() => setMarcas(p.senales.map(() => null))}>Limpiar</button>}
+        </div>
+        <p className="note" style={{ marginTop: 6 }}>Toca la respuesta de tu cliente en cada señal (verde, amarillo o rojo) y te muestro la salida al instante.</p>
         <div className="senales">
-          {p.senales.map(([n, v, a, r]) => (
-            <div className="senal" key={n}>
+          {p.senales.map(([n, ...txt], i) => (
+            <div className={'senal' + (marcas[i] ? ' marcada' : '')} key={n}>
               <b>{n}</b>
-              <div className="sv"><span>Sí</span>{v}</div>
-              <div className="sa"><span>A medias</span>{a}</div>
-              <div className="sr"><span>No</span>{r}</div>
+              {COLORES.map(([c, cls, l], k) => (
+                <button type="button" key={c} className={cls} aria-pressed={marcas[i] === c} onClick={() => marcar(i, c)}>
+                  <span>{marcas[i] === c ? '✓ ' : ''}{l}</span>{txt[k]}
+                </button>
+              ))}
             </div>
           ))}
         </div>
-        <ul className="clean" style={{ marginTop: 12 }}>{p.reglas.map((x, i) => <li key={i}><span className="chk" /><div><b>{x}</b></div></li>)}</ul>
+        {res === null ? (
+          <p className="note" style={{ marginTop: 12 }}>{faltan === marcas.length ? 'Reglas: ' + p.reglas.join(' ') : `Falta marcar ${faltan} señal${faltan > 1 ? 'es' : ''} para ver la salida.`}</p>
+        ) : (
+          <div className={`resultado-salida salida-${res + 1}`} role="status">
+            <span className="eyebrow">Resultado</span>
+            <b>{p.salidas[res].t}</b>
+            <span className="note">{p.salidas[res].cuando} · Abajo tienes el guion de esta salida.</span>
+          </div>
+        )}
       </section>
       <section className="card">
         <h3>Las 3 salidas</h3>
         <p className="note" style={{ marginTop: -4 }}>Cierra con una sola salida, según las señales. Toda salida termina con algo agendado o una tarea con fecha.</p>
         <div className="salidas">
           {p.salidas.map((x, i) => (
-            <details className={`salida salida-${i + 1}`} key={x.t} open={i === 0}>
-              <summary><b>{x.t}</b><span className="note">{x.cuando}</span></summary>
+            <details className={`salida salida-${i + 1}${res === i ? ' elegida' : ''}`} key={x.t + (res ?? '')} open={res === null ? i === 0 : res === i}>
+              <summary><b>{res === i ? '→ ' : ''}{x.t}</b><span className="note">{x.cuando}</span></summary>
               <p>{x.guion}</p>
               <p className="note2"><b>Siguiente paso:</b> {x.paso}</p>
             </details>
